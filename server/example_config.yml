@@ -1,0 +1,23 @@
+# Copy paste this file to server/config.yml and modify as needed
+
+# Server IP and Port Configuration
+host: 127.0.0.2
+port: 3003
+
+# Database Configuration
+database:
+  type: postgres
+  host: localhost
+  port: 5432
+  username: user
+  password: password
+
+# Example for SQLite in memory
+# database:
+#   type: sqlite
+#   file_path: ":memory:"
+
+# or with file path
+# database:
+#   type: sqlite
+#   file_path: "./data/sqlite.db"
