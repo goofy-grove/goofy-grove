@@ -1,4 +1,4 @@
-use domain::prelude::{DomainError, User, Validator};
+use crate::prelude::*;
 
 #[test]
 fn test_user_valid() {
