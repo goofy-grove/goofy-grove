@@ -585,6 +585,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "domain"
+version = "0.1.0"
+
+[[package]]
 name = "dotenvy"
 version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -841,6 +845,7 @@ name = "goofy-grove"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "domain",
  "env_logger",
  "log",
  "migration",

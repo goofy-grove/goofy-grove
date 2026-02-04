@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "src/infra/db/migrations"]
+members = [".", "src/domain", "src/infra/db/migrations"]
 
 [package]
 name = "goofy-grove"
@@ -13,6 +13,7 @@ log = "0.4.29"
 env_logger = "0.11.8"
 serde = { version = "1.0", features = ["derive"] }
 migration = { path = "src/infra/db/migrations" }
+domain = { path = "src/domain" }
 tokio = { version = "1.49.0", features = ["rt-multi-thread"] }
 sea-orm = { version = "2.0.0-rc", features = [
   "sqlx-sqlite",
