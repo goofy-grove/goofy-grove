@@ -24,19 +24,21 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizeUserUseCase<L, C> 
         }
     }
 
-    pub fn authorize(
+    pub async fn authorize(
         &self,
         command: AuthorizeUserCommand,
     ) -> DomainResult<User, DomainAuthorizationError> {
         let user = self
             .load_user_port
             .load_user_by_name(command.name())
+            .await
             .or(Err(DomainError::UseCaseError(
                 DomainAuthorizationError::UserNotFound,
             )))?;
 
         self.compare_password_port
             .verify(command.password(), user.password())
+            .await
             .map(|_| user)
             .or(Err(DomainError::UseCaseError(
                 DomainAuthorizationError::InvalidCredentials,

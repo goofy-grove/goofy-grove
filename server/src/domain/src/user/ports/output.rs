@@ -7,7 +7,7 @@ pub enum LoadUserByNamePortError {
 }
 
 pub trait LoadUserByNamePort {
-    fn load_user_by_name(&self, name: &UserName) -> DomainResult<User, LoadUserByNamePortError>;
+    async fn load_user_by_name(&self, name: &UserName) -> DomainResult<User, LoadUserByNamePortError>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -17,7 +17,7 @@ pub enum PasswordVerifierPortError {
 }
 
 pub trait PasswordVerifierPort {
-    fn verify(
+    async fn verify(
         &self,
         password: &UserPassword,
         hashed_password: &UserPassword,
