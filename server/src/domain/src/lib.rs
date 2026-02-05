@@ -6,5 +6,6 @@ mod macros;
 pub mod prelude {
     pub use crate::error::*;
     pub use crate::user::entities::*;
+    pub use crate::user::ports::*;
     pub use crate::validator::Validator;
 }

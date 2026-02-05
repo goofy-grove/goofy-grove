@@ -2,6 +2,7 @@ use axum::Router;
 use env_logger::Env;
 
 mod infra;
+mod application;
 
 use infra::config::Config;
 
