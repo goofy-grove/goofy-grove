@@ -2,14 +2,14 @@ use crate::prelude::*;
 
 #[test]
 fn test_user_valid() {
-    let user = User::new("1".to_string(), "John".to_string(), "password".to_string());
+    let user = User::new(UserId::new("1".into()), UserName::new("John".into()), UserPassword::new("password".into()));
 
     assert!(user.validate().is_ok());
 }
 
 #[test]
 fn test_user_invalid_id() {
-    let user = User::new("".to_string(), "John".to_string(), "password".to_string());
+    let user = User::new(UserId::new("".into()), UserName::new("John".into()), UserPassword::new("password".into()));
 
     let result = user.validate();
 
@@ -17,13 +17,13 @@ fn test_user_invalid_id() {
 
     assert_eq!(
         result.unwrap_err(),
-        DomainError::IdValidationError("user_id_is_empty".to_string())
+        DomainValidationError::IdValidationError("user_id_is_empty".to_string())
     );
 }
 
 #[test]
 fn test_user_invalid_name() {
-    let user = User::new("1".to_string(), "".to_string(), "password".to_string());
+    let user = User::new(UserId::new("1".into()), UserName::new("".into()), UserPassword::new("password".into()));
 
     let result = user.validate();
 
@@ -31,13 +31,13 @@ fn test_user_invalid_name() {
 
     assert_eq!(
         result.unwrap_err(),
-        DomainError::NameValidationError("user_name_is_empty".to_string())
+        DomainValidationError::NameValidationError("user_name_is_empty".to_string())
     );
 }
 
 #[test]
 fn test_user_invalid_password() {
-    let user = User::new("1".to_string(), "John".to_string(), "".to_string());
+    let user = User::new(UserId::new("1".into()), UserName::new("John".into()), UserPassword::new("".into()));
 
     let result = user.validate();
 
@@ -45,6 +45,6 @@ fn test_user_invalid_password() {
 
     assert_eq!(
         result.unwrap_err(),
-        DomainError::PasswordValidationError("user_password_is_empty".to_string())
+        DomainValidationError::PasswordValidationError("user_password_is_empty".to_string())
     );
 }

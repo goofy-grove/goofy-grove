@@ -1,6 +1,4 @@
-use crate::error::DomainError;
-
-pub type DomainValidationResult = Result<(), DomainError>;
+use crate::error::DomainValidationResult;
 
 pub trait Validator {
     fn validate(&self) -> DomainValidationResult;

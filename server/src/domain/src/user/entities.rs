@@ -1,11 +1,19 @@
 use crate::{
-    error::DomainError,
-    validator::{DomainValidationResult, Validator},
+    error::{DomainValidationError, DomainValidationResult},
+    impl_as_domain_newtype,
+    validator::Validator,
 };
 
-pub type UserId = String;
-pub type UserName = String;
-pub type UserPassword = String;
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UserId(String);
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UserName(String);
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UserPassword(String);
+
+impl_as_domain_newtype!(UserId -> String, UserName -> String, UserPassword -> String);
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -34,20 +42,20 @@ impl User {
 
 impl Validator for User {
     fn validate(&self) -> DomainValidationResult {
-        if self.id.is_empty() {
-            return Err(DomainError::IdValidationError(
+        if self.id.value().is_empty() {
+            return Err(DomainValidationError::IdValidationError(
                 "user_id_is_empty".to_owned(),
             ));
         }
 
-        if self.name.is_empty() {
-            return Err(DomainError::NameValidationError(
+        if self.name.value().is_empty() {
+            return Err(DomainValidationError::NameValidationError(
                 "user_name_is_empty".to_owned(),
             ));
         }
 
-        if self.password.is_empty() {
-            return Err(DomainError::PasswordValidationError(
+        if self.password.value().is_empty() {
+            return Err(DomainValidationError::PasswordValidationError(
                 "user_password_is_empty".to_owned(),
             ));
         }
