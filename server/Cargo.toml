@@ -21,3 +21,4 @@ sea-orm = { version = "2.0.0-rc", features = [
   "macros",
   "runtime-tokio-native-tls",
 ] }
+argon2 = "0.5.3"
