@@ -1,5 +1,6 @@
 use domain::prelude::*;
 
+#[derive(Debug, Clone)]
 pub struct UserAuthorizationService<L: LoadUserByNamePort, C: PasswordVerifierPort> {
     load_user_port: L,
     compare_password_port: C,

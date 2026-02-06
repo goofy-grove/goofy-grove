@@ -3,8 +3,15 @@ use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
 use crate::infra::db::entities::{prelude::Users, users};
 
-struct UserRepository {
+#[derive(Debug, Clone)]
+pub struct UserRepository {
     connection: DatabaseConnection,
+}
+
+impl UserRepository {
+    pub fn new(connection: DatabaseConnection) -> Self {
+        Self { connection }
+    }
 }
 
 impl LoadUserByNamePort for UserRepository {

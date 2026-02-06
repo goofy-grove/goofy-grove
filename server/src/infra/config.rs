@@ -35,7 +35,7 @@ impl Config {
         serde_yaml::from_str(&config_str).expect("Failed to parse config file")
     }
 
-    pub fn to_socket_addr(&self) -> (&str, u16) {
+    pub fn socket_addr(&self) -> (&str, u16) {
         (self.host.as_str(), self.port)
     }
 }
