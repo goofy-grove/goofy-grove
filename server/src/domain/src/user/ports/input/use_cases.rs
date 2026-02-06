@@ -11,8 +11,8 @@ pub enum DomainAuthorizationError {
 }
 
 pub trait AuthorizeUserUseCase<L: LoadUserByNamePort, C: PasswordVerifierPort> {
-    async fn authorize(
+    fn authorize(
         &self,
         command: AuthorizeUserCommand,
-    ) -> DomainResult<User, DomainAuthorizationError>;
+    ) -> impl Future<Output = DomainResult<User, DomainAuthorizationError>>;
 }

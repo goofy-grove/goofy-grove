@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{Extension, Router};
+use axum::Router;
 use sea_orm::DatabaseConnection;
 use tokio::net::TcpListener;
 
@@ -13,7 +13,7 @@ struct AppState {
 
 pub fn init_router(config: Arc<Config>, connection: DatabaseConnection) -> Router {
     Router::new()
-        .with_state(AppState { config: config })
+        .with_state(AppState { config })
         .nest("/api/v1/auth", create_auth_router(connection))
 }
 
