@@ -1,8 +1,4 @@
-use crate::prelude::{DomainResult, User};
-use crate::user::ports::{
-    input::commands::AuthorizeUserCommand,
-    output::{LoadUserByNamePort, PasswordVerifierPort},
-};
+use crate::prelude::{AuthorizeUserCommand, DomainResult, LoadUserByNamePort, PasswordVerifierPort, User};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DomainAuthorizationError {

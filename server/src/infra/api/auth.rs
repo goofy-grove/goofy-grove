@@ -25,7 +25,7 @@ async fn authorize_user(
 ) -> String {
     let command = AuthorizeUserCommand::new(
         UserName::new(payload.username),
-        UserPassword::new(payload.password),
+        Secret::new(payload.password),
     );
 
     match auth_state.user_service.authorize(command).await {

@@ -31,7 +31,10 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizeUserUseCase<L, C>
             )))?;
 
         self.compare_password_port
-            .verify(command.password(), user.password())
+            .verify(
+                command.secret(),
+                &Secret::new(user.password().value().to_owned()),
+            )
             .await
             .map(|_| user)
             .or(Err(DomainError::UseCaseError(
