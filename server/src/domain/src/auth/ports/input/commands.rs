@@ -1,13 +1,34 @@
 use crate::prelude::{Secret, UserName};
 
-pub struct AuthorizeUserCommand {
+#[derive(Debug, Clone)]
+pub struct AuthorizationCommand {
     name: UserName,
     secret: Secret,
 }
 
-impl AuthorizeUserCommand {
+impl AuthorizationCommand {
     pub fn new(name: UserName, secret: Secret) -> Self {
-        AuthorizeUserCommand { name, secret }
+        AuthorizationCommand { name, secret }
+    }
+
+    pub fn name(&self) -> &UserName {
+        &self.name
+    }
+
+    pub fn secret(&self) -> &Secret {
+        &self.secret
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct RegistrationCommand {
+    name: UserName,
+    secret: Secret,
+}
+
+impl RegistrationCommand {
+    pub fn new(name: UserName, secret: Secret) -> Self {
+        RegistrationCommand { name, secret }
     }
 
     pub fn name(&self) -> &UserName {

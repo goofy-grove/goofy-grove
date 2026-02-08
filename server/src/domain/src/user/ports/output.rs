@@ -1,4 +1,4 @@
-use crate::prelude::{DomainResult, User, UserName};
+use crate::prelude::{DomainResult, User, UserId, UserName};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LoadUserByNamePortError {
@@ -11,4 +11,19 @@ pub trait LoadUserByNamePort {
         &self,
         name: &UserName,
     ) -> impl Future<Output = DomainResult<User, LoadUserByNamePortError>>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SaveUserPortError {
+    InternalError(String),
+    UserAlreadyExists,
+}
+
+pub trait SaveUserPort {
+    fn save_user(&self, user: &User)
+    -> impl Future<Output = DomainResult<User, SaveUserPortError>>;
+}
+
+pub trait UserIdGenerator {
+    fn generate(&self) -> UserId;
 }

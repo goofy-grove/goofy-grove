@@ -1,10 +1,14 @@
-use argon2::{Argon2, PasswordHash, PasswordVerifier as ArgonPasswordVerifier};
+use argon2::{
+    Argon2, PasswordHash, PasswordHasher as ArgonPasswordHasher,
+    PasswordVerifier as ArgonPasswordVerifier,
+    password_hash::{SaltString, rand_core::OsRng},
+};
 use domain::prelude::*;
 
 #[derive(Debug, Clone)]
-pub struct PasswordVerifier;
+pub struct ArgonPasswordSystem;
 
-impl PasswordVerifierPort for PasswordVerifier {
+impl PasswordVerifierPort for ArgonPasswordSystem {
     async fn verify(
         &self,
         proposed_password: &Secret,
@@ -26,5 +30,21 @@ impl PasswordVerifierPort for PasswordVerifier {
                 PasswordVerifierPortError::PasswordNotMatch,
             ))
         }
+    }
+}
+
+impl PasswordHasherPort for ArgonPasswordSystem {
+    async fn hash(&self, password: &Secret) -> DomainResult<Secret, PasswordHasherPortError> {
+        let argon2 = Argon2::default();
+        let salt = SaltString::generate(&mut OsRng);
+
+        argon2
+            .hash_password(password.value().as_bytes(), &salt)
+            .map(|hash| Secret::new(hash.to_string()))
+            .map_err(|err| {
+                DomainError::ExternalServiceError(PasswordHasherPortError::InternalError(
+                    err.to_string(),
+                ))
+            })
     }
 }

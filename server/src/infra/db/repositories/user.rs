@@ -1,5 +1,7 @@
 use domain::prelude::*;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+};
 
 use crate::infra::db::entities::{prelude::Users, users};
 
@@ -35,6 +37,27 @@ impl LoadUserByNamePort for UserRepository {
             )),
             Err(err) => Err(DomainError::ExternalServiceError(
                 LoadUserByNamePortError::InternalError(err.to_string()),
+            )),
+        }
+    }
+}
+
+impl SaveUserPort for UserRepository {
+    async fn save_user(&self, user: &User) -> DomainResult<User, SaveUserPortError> {
+        let new_user = users::ActiveModel {
+            uid: Set(user.uid().value().to_owned()),
+            name: Set(user.name().value().to_owned()),
+            password: Set(user.password().value().to_owned()),
+        };
+
+        match new_user.insert(&self.connection).await {
+            Ok(inserted_user) => Ok(User::new(
+                UserId::new(inserted_user.uid),
+                UserName::new(inserted_user.name),
+                UserPassword::new(inserted_user.password),
+            )),
+            Err(err) => Err(DomainError::ExternalServiceError(
+                SaveUserPortError::InternalError(err.to_string()),
             )),
         }
     }

@@ -1,4 +1,4 @@
-use crate::{error::DomainResult, prelude::Secret};
+use crate::prelude::{DomainResult, Secret};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PasswordVerifierPortError {
@@ -12,4 +12,16 @@ pub trait PasswordVerifierPort {
         proposed_password: &Secret,
         confirmed_password: &Secret,
     ) -> impl Future<Output = DomainResult<(), PasswordVerifierPortError>>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PasswordHasherPortError {
+    InternalError(String),
+}
+
+pub trait PasswordHasherPort {
+    fn hash(
+        &self,
+        password: &Secret,
+    ) -> impl Future<Output = DomainResult<Secret, PasswordHasherPortError>>;
 }

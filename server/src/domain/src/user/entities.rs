@@ -17,18 +17,18 @@ impl_as_domain_newtype!(UserId -> String, UserName -> String, UserPassword -> St
 
 #[derive(Debug, Clone)]
 pub struct User {
-    id: UserId,
+    uid: UserId,
     name: UserName,
     password: UserPassword,
 }
 
 impl User {
     pub fn new(id: UserId, name: UserName, password: UserPassword) -> Self {
-        User { id, name, password }
+        User { uid: id, name, password }
     }
 
-    pub fn id(&self) -> &UserId {
-        &self.id
+    pub fn uid(&self) -> &UserId {
+        &self.uid
     }
 
     pub fn name(&self) -> &UserName {
@@ -42,7 +42,7 @@ impl User {
 
 impl Validator for User {
     fn validate(&self) -> DomainValidationResult {
-        if self.id.value().is_empty() {
+        if self.uid.value().is_empty() {
             return Err(DomainValidationError::IdValidationError(
                 "user_id_is_empty".to_owned(),
             ));

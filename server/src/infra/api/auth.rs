@@ -5,12 +5,12 @@ use serde::Deserialize;
 
 use crate::{
     application::UserAuthorizationService,
-    infra::{db::UserRepository, security::PasswordVerifier},
+    infra::{db::UserRepository, security::ArgonPasswordSystem},
 };
 
 #[derive(Debug, Clone)]
 struct AuthorizationState {
-    user_service: UserAuthorizationService<UserRepository, PasswordVerifier>,
+    user_service: UserAuthorizationService<UserRepository, ArgonPasswordSystem>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -23,7 +23,7 @@ async fn authorize_user(
     State(auth_state): State<AuthorizationState>,
     Json(payload): Json<AuthorizeUserRequest>,
 ) -> String {
-    let command = AuthorizeUserCommand::new(
+    let command = AuthorizationCommand::new(
         UserName::new(payload.username),
         Secret::new(payload.password),
     );
@@ -31,7 +31,7 @@ async fn authorize_user(
     match auth_state.user_service.authorize(command).await {
         Ok(user) => {
             log::info!(target: "application", "Authorized user: {:?}", user.name());
-            
+
             format!("Authorized user: {:?}", user.name())
         }
         Err(err) => {
@@ -46,7 +46,7 @@ pub fn create_auth_router(connection: DatabaseConnection) -> Router {
     let app_state = AuthorizationState {
         user_service: UserAuthorizationService::new(
             UserRepository::new(connection.clone()),
-            PasswordVerifier,
+            ArgonPasswordSystem,
         ),
     };
 
