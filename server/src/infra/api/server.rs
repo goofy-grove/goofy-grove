@@ -1,20 +1,12 @@
 use std::sync::Arc;
 
 use axum::Router;
-use domain::prelude::{
-    DomainError, LoadUserByNamePort, LoadUserByNamePortError, RegistrationCommand,
-    RegistrationUseCase, Secret, UserIdGenerator, UserName,
-};
 use sea_orm::DatabaseConnection;
 use tokio::net::TcpListener;
 
-use crate::{
-    application::{RegistrationService, UserAuthorizationService},
-    infra::{
-        api::auth::create_auth_router, config::Config, db::UserRepository,
-        id_generator::UuidGenerator, security::ArgonPasswordSystem,
-    },
-};
+use crate::infra::{
+        api::auth::create_auth_router, config::Config,
+    };
 
 #[derive(Debug, Clone)]
 struct AppState {
