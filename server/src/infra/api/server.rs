@@ -4,9 +4,7 @@ use axum::Router;
 use sea_orm::DatabaseConnection;
 use tokio::net::TcpListener;
 
-use crate::infra::{
-        api::auth::create_auth_router, config::Config,
-    };
+use crate::infra::{api::auth::create_auth_router, config::Config};
 
 #[derive(Debug, Clone)]
 struct AppState {

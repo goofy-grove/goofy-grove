@@ -2,14 +2,22 @@ use crate::prelude::*;
 
 #[test]
 fn test_user_valid() {
-    let user = User::new(UserId::new("1".into()), UserName::new("John".into()), UserPassword::new("password".into()));
+    let user = User::new(
+        UserId::new("1".into()),
+        UserName::new("John".into()),
+        UserPassword::new("password".into()),
+    );
 
     assert!(user.validate().is_ok());
 }
 
 #[test]
 fn test_user_invalid_id() {
-    let user = User::new(UserId::new("".into()), UserName::new("John".into()), UserPassword::new("password".into()));
+    let user = User::new(
+        UserId::new("".into()),
+        UserName::new("John".into()),
+        UserPassword::new("password".into()),
+    );
 
     let result = user.validate();
 
@@ -23,7 +31,11 @@ fn test_user_invalid_id() {
 
 #[test]
 fn test_user_invalid_name() {
-    let user = User::new(UserId::new("1".into()), UserName::new("".into()), UserPassword::new("password".into()));
+    let user = User::new(
+        UserId::new("1".into()),
+        UserName::new("".into()),
+        UserPassword::new("password".into()),
+    );
 
     let result = user.validate();
 
@@ -37,7 +49,11 @@ fn test_user_invalid_name() {
 
 #[test]
 fn test_user_invalid_password() {
-    let user = User::new(UserId::new("1".into()), UserName::new("John".into()), UserPassword::new("".into()));
+    let user = User::new(
+        UserId::new("1".into()),
+        UserName::new("John".into()),
+        UserPassword::new("".into()),
+    );
 
     let result = user.validate();
 

@@ -47,7 +47,7 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
 pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> {
     save_user_port: S,
     hash_password_port: H,
-    user_id_generator: U
+    user_id_generator: U,
 }
 
 impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationService<S, H, U> {
@@ -60,7 +60,9 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationSer
     }
 }
 
-impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationUseCase for RegistrationService<S, H, U> {
+impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationUseCase
+    for RegistrationService<S, H, U>
+{
     async fn register(
         &self,
         command: RegistrationCommand,

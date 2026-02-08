@@ -24,7 +24,11 @@ pub struct User {
 
 impl User {
     pub fn new(id: UserId, name: UserName, password: UserPassword) -> Self {
-        User { uid: id, name, password }
+        User {
+            uid: id,
+            name,
+            password,
+        }
     }
 
     pub fn uid(&self) -> &UserId {
