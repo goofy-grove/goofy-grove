@@ -20,3 +20,25 @@ macro_rules! impl_as_domain_newtype {
         )*
     };
 }
+
+#[macro_export]
+macro_rules! generate_entity {
+    ($name:ident { $( $field:ident: $field_type:ty ),* }) => {
+        #[derive(Debug, Clone)]
+        pub struct $name {
+            $( $field: $field_type ),*
+        }
+
+        impl $name {
+            pub fn new($( $field: $field_type ),*) -> Self {
+                Self {
+                    $( $field ),*
+                }
+            }
+
+            $( pub fn $field(&self) -> &$field_type {
+                &self.$field
+            } )*
+        }
+    };
+}
