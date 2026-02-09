@@ -1,8 +1,8 @@
 mod auth;
 mod error;
 mod macros;
-mod user;
 mod person;
+mod user;
 mod validator;
 
 pub mod prelude {

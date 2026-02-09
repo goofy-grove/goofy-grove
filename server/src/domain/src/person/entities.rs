@@ -10,7 +10,6 @@ pub struct PersonName(String);
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PersonDescription(String);
 
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PersonId(String);
 

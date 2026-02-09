@@ -1,4 +1,7 @@
-use crate::{generate_entity, prelude::{PersonDescription, PersonName}};
+use crate::{
+    generate_entity,
+    prelude::{PersonDescription, PersonName},
+};
 
 generate_entity!(CreatePersonCommand {
     name: PersonName,

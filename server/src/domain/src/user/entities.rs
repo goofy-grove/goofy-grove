@@ -1,5 +1,7 @@
 use crate::{
-    error::{DomainValidationError, DomainValidationResult}, generate_entity, impl_as_domain_newtype, validator::Validator
+    error::{DomainValidationError, DomainValidationResult},
+    generate_entity, impl_as_domain_newtype,
+    validator::Validator,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -12,7 +14,11 @@ pub struct UserName(String);
 pub struct UserPassword(String);
 
 impl_as_domain_newtype!(UserId -> String, UserName -> String, UserPassword -> String);
-generate_entity!(User { uid: UserId, name: UserName, password: UserPassword });
+generate_entity!(User {
+    uid: UserId,
+    name: UserName,
+    password: UserPassword
+});
 
 impl Validator for User {
     fn validate(&self) -> DomainValidationResult {
