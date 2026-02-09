@@ -44,13 +44,13 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
 }
 
 #[derive(Debug, Clone)]
-pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> {
+pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> {
     save_user_port: S,
     hash_password_port: H,
     user_id_generator: U,
 }
 
-impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationService<S, H, U> {
+impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationService<S, H, U> {
     pub fn new(save_user_port: S, hash_password_port: H, user_id_generator: U) -> Self {
         Self {
             save_user_port,
@@ -60,7 +60,7 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationSer
     }
 }
 
-impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationUseCase
+impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
     for RegistrationService<S, H, U>
 {
     async fn register(
@@ -76,7 +76,7 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: UserIdGenerator> RegistrationUse
             )))?;
 
         let user = User::new(
-            self.user_id_generator.generate(),
+            UserId::new(self.user_id_generator.generate()),
             command.name().clone(),
             hashed_password.clone().value().to_owned().into(),
         );

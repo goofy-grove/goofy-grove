@@ -2,6 +2,7 @@ mod auth;
 mod error;
 mod macros;
 mod person;
+mod ports;
 mod user;
 mod validator;
 
@@ -17,4 +18,6 @@ pub mod prelude {
 
     pub use crate::person::entities::*;
     pub use crate::person::ports::*;
+
+    pub use crate::ports::*;
 }

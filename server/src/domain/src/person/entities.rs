@@ -13,7 +13,8 @@ pub struct PersonDescription(String);
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PersonId(String);
 
-impl_as_domain_newtype!(PersonName -> String, PersonDescription -> String);
+impl_as_domain_newtype!(PersonId -> String, PersonName -> String, PersonDescription -> String);
+
 generate_entity!(Person {
     id: PersonId,
     name: PersonName,
