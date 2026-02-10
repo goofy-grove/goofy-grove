@@ -3,7 +3,7 @@ use argon2::{
     PasswordVerifier as ArgonPasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
-use domain::prelude::*;
+use gg_core::domain::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct ArgonPasswordSystem;

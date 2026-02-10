@@ -1,4 +1,4 @@
-use domain::prelude::*;
+use gg_core::domain::prelude::*;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
 };

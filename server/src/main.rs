@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use env_logger::Env;
 
-mod application;
 mod infra;
 
 use infra::config::Config;

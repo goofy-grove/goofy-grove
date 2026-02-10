@@ -1,12 +1,9 @@
 use axum::{Json, Router, extract::State, routing::post};
-use domain::prelude::*;
+use gg_core::{application::auth::UserAuthorizationService, domain::prelude::*};
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 
-use crate::{
-    application::UserAuthorizationService,
-    infra::{db::UserRepository, security::ArgonPasswordSystem},
-};
+use crate::infra::{db::UserRepository, security::ArgonPasswordSystem};
 
 #[derive(Debug, Clone)]
 struct AuthorizationState {
@@ -51,6 +48,6 @@ pub fn create_auth_router(connection: DatabaseConnection) -> Router {
     };
 
     Router::new()
-        .route("/", post(authorize_user))
+        .route("/login", post(authorize_user))
         .with_state(app_state)
 }

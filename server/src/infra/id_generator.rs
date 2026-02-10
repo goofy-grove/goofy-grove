@@ -1,4 +1,4 @@
-use domain::prelude::*;
+use gg_core::domain::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct UuidGenerator;

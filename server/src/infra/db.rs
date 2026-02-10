@@ -1,14 +1,11 @@
 pub mod entities;
 mod repositories;
 
-use domain::prelude::*;
+use gg_core::{application::auth::RegistrationService, domain::prelude::*};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 
-use crate::{
-    application::RegistrationService,
-    infra::{config::Config, id_generator::UuidGenerator, security::ArgonPasswordSystem},
-};
+use crate::infra::{config::Config, id_generator::UuidGenerator, security::ArgonPasswordSystem};
 
 pub use repositories::*;
 
