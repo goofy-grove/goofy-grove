@@ -25,3 +25,15 @@ pub trait PasswordHasherPort {
         password: &Secret,
     ) -> impl Future<Output = DomainResult<Secret, PasswordHasherPortError>>;
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TokenGeneratorPortError {
+    InternalError(String),
+}
+
+pub trait TokenGeneratorPort {
+    fn generate_token(
+        &self,
+        user: &User,
+    ) -> impl Future<Output = DomainResult<(String, usize), TokenGeneratorPortError>>;
+}

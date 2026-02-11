@@ -1,8 +1,11 @@
 mod db_config;
+mod jwt_config;
 
 pub use db_config::DbConfig;
 
 use serde::Deserialize;
+
+use jwt_config::JwtConfig;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
@@ -14,6 +17,9 @@ pub struct Config {
 
     #[serde(default)]
     pub database: DbConfig,
+
+    #[serde(default)]
+    pub jwt: JwtConfig,
 }
 
 impl Default for Config {
@@ -22,6 +28,7 @@ impl Default for Config {
             host: "127.0.0.1".to_string(),
             port: 3003,
             database: DbConfig::default(),
+            jwt: JwtConfig::default(),
         }
     }
 }

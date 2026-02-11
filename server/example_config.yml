@@ -21,3 +21,12 @@ database:
 # database:
 #   type: sqlite
 #   file_path: "./data/sqlite.db"
+
+# JWT Configuration
+jwt:
+  access_token:
+    secret: "your_secret_key"
+    expiration_time: 3600 # 1 hour
+  refresh_token:
+    secret: "your_refresh_secret_key"
+    expiration_time: 604800 # 1 week
