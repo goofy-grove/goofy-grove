@@ -8,3 +8,8 @@ generate_entity!(RegistrationCommand {
     name: UserName,
     secret: Secret
 });
+
+generate_entity!(ValidateTokenCommand {
+    first_token: Token,
+    secret: Secret
+});

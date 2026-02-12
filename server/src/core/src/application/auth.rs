@@ -47,15 +47,15 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
 pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> {
     save_user_port: S,
     hash_password_port: H,
-    user_id_generator: U,
+    id_generator: U,
 }
 
 impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationService<S, H, U> {
-    pub fn new(save_user_port: S, hash_password_port: H, user_id_generator: U) -> Self {
+    pub fn new(save_user_port: S, hash_password_port: H, id_generator: U) -> Self {
         Self {
             save_user_port,
             hash_password_port,
-            user_id_generator,
+            id_generator,
         }
     }
 }
@@ -76,7 +76,7 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
             )))?;
 
         let user = User::new(
-            UserId::new(self.user_id_generator.generate()),
+            UserId::new(self.id_generator.generate()),
             command.name().clone(),
             hashed_password.clone().value().to_owned().into(),
         );
@@ -90,5 +90,33 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
                 DomainRegistrationError::InternalError(format!("{:?}", err)),
             )),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TokenComparisonService<T: TokenValidatorPort> {
+    token_comporator: T,
+}
+
+impl<T: TokenValidatorPort> TokenComparisonService<T> {
+    pub fn new(token_comporator: T) -> Self {
+        Self { token_comporator }
+    }
+}
+
+impl<T: TokenValidatorPort> ValidateTokenUseCase for TokenComparisonService<T> {
+    async fn compare_tokens(
+        &self,
+        command: ValidateTokenCommand,
+    ) -> DomainResult<TokenData, DomainCompareTokensError> {
+        self.token_comporator
+            .validate_token(command.first_token())
+            .await
+            .map_err(|err| {
+                DomainError::UseCaseError(DomainCompareTokensError::InternalError(format!(
+                    "{:?}",
+                    err
+                )))
+            })
     }
 }

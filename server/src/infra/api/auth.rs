@@ -15,7 +15,7 @@ use serde_json::json;
 use crate::infra::{
     config::Config,
     db::UserRepository,
-    jwt_generators::{JwtAccessTokenGenerator, JwtRefreshTokenGenerator},
+    jwt::{JwtAccessTokenGenerator, JwtRefreshTokenGenerator},
     security::ArgonPasswordSystem,
 };
 

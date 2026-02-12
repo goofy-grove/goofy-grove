@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::infra::config::Config;
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct JwtAccessData {
+pub struct JwtRefreshData {
     pub uid: String,
     pub sub: String,
     pub exp: usize,
@@ -31,7 +31,7 @@ impl TokenGeneratorPort for JwtRefreshTokenGenerator {
         let expires = (chrono::Utc::now()
             + chrono::Duration::seconds(self.config.jwt.refresh_token.expiration_time as i64))
         .timestamp() as usize;
-        let jwt_access_data = JwtAccessData {
+        let jwt_access_data = JwtRefreshData {
             uid: user.uid().value().to_owned(),
             sub: user.name().value().to_owned(),
             exp: expires,

@@ -26,3 +26,16 @@ pub trait RegistrationUseCase {
         command: RegistrationCommand,
     ) -> impl Future<Output = DomainResult<User, DomainRegistrationError>>;
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DomainCompareTokensError {
+    InternalError(String),
+    TokensDoNotMatch,
+}
+
+pub trait ValidateTokenUseCase {
+    fn compare_tokens(
+        &self,
+        command: ValidateTokenCommand,
+    ) -> impl Future<Output = DomainResult<TokenData, DomainCompareTokensError>>;
+}
