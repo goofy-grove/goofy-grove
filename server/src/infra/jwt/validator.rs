@@ -9,6 +9,12 @@ pub struct JwtAccessTokenValidator {
     config: Arc<Config>,
 }
 
+impl JwtAccessTokenValidator {
+    pub fn new(config: Arc<Config>) -> Self {
+        Self { config }
+    }
+}
+
 impl TokenValidatorPort for JwtAccessTokenValidator {
     async fn validate_token(
         &self,

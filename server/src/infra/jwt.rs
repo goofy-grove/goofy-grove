@@ -4,3 +4,4 @@ mod validator;
 
 pub use access_token::JwtAccessTokenGenerator;
 pub use refresh_token::JwtRefreshTokenGenerator;
+pub use validator::JwtAccessTokenValidator;
