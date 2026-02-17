@@ -2,4 +2,5 @@
 
 pub mod prelude;
 
+pub mod persons;
 pub mod users;
