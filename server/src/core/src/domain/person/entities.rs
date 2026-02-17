@@ -12,7 +12,7 @@ pub struct PersonId(String);
 impl_as_domain_newtype!(PersonId -> String, PersonName -> String, PersonDescription -> String);
 
 generate_entity!(Person {
-    id: PersonId,
+    uid: PersonId,
     creator_id: UserId,
     name: PersonName,
     description: PersonDescription
@@ -20,7 +20,7 @@ generate_entity!(Person {
 
 impl Validator for Person {
     fn validate(&self) -> DomainValidationResult {
-        if self.id.value().is_empty() {
+        if self.uid.value().is_empty() {
             DomainValidationResult::Err(DomainValidationError::IdValidationError(
                 "person_id_is_empty".to_owned(),
             ))

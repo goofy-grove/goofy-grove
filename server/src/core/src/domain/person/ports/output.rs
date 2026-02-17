@@ -1,7 +1,7 @@
 use crate::domain::prelude::*;
 
 pub trait LoadPersonsPort {
-    fn load_persons(&self) -> impl Future<Output = Vec<Person>>;
+    fn load_persons(&self, user_id: UserId) -> impl Future<Output = Vec<Person>>;
 }
 
 #[derive(Debug, Clone)]
