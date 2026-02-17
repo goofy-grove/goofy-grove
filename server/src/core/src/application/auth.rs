@@ -21,13 +21,13 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
     async fn authorize(
         &self,
         command: AuthorizationCommand,
-    ) -> DomainResult<User, DomainAuthorizationError> {
+    ) -> DomainResult<User, AuthorizationError> {
         let user = self
             .load_user_port
             .load_user_by_name(command.name())
             .await
             .or(Err(DomainError::UseCaseError(
-                DomainAuthorizationError::UserNotFound,
+                AuthorizationError::UserNotFound,
             )))?;
 
         self.compare_password_port
@@ -38,7 +38,7 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
             .await
             .map(|_| user)
             .or(Err(DomainError::UseCaseError(
-                DomainAuthorizationError::InvalidCredentials,
+                AuthorizationError::InvalidCredentials,
             )))
     }
 }
@@ -66,13 +66,13 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
     async fn register(
         &self,
         command: RegistrationCommand,
-    ) -> DomainResult<User, DomainRegistrationError> {
+    ) -> DomainResult<User, RegistrationError> {
         let hashed_password = self
             .hash_password_port
             .hash(command.secret())
             .await
             .or(Err(DomainError::UseCaseError(
-                DomainRegistrationError::FailedToHashPassword,
+                RegistrationError::FailedToHashPassword,
             )))?;
 
         let user = User::new(
@@ -84,11 +84,11 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
         match self.save_user_port.save_user(&user).await {
             Ok(saved_user) => Ok(saved_user),
             Err(DomainError::ExternalServiceError(SaveUserPortError::UserAlreadyExists)) => Err(
-                DomainError::UseCaseError(DomainRegistrationError::UserAlreadyExists),
+                DomainError::UseCaseError(RegistrationError::UserAlreadyExists),
             ),
-            Err(err) => Err(DomainError::UseCaseError(
-                DomainRegistrationError::InternalError(format!("{:?}", err)),
-            )),
+            Err(err) => Err(DomainError::UseCaseError(RegistrationError::InternalError(
+                format!("{:?}", err),
+            ))),
         }
     }
 }
@@ -108,15 +108,12 @@ impl<T: TokenValidatorPort> ValidateTokenUseCase for TokenComparisonService<T> {
     async fn compare_tokens(
         &self,
         command: ValidateTokenCommand,
-    ) -> DomainResult<TokenData, DomainCompareTokensError> {
+    ) -> DomainResult<TokenData, ValidateTokensError> {
         self.token_comporator
             .validate_token(command.first_token())
             .await
             .map_err(|err| {
-                DomainError::UseCaseError(DomainCompareTokensError::InternalError(format!(
-                    "{:?}",
-                    err
-                )))
+                DomainError::UseCaseError(ValidateTokensError::InternalError(format!("{:?}", err)))
             })
     }
 }

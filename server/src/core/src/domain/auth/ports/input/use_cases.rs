@@ -1,7 +1,7 @@
 use crate::domain::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DomainAuthorizationError {
+pub enum AuthorizationError {
     InvalidCredentials,
     UserNotFound,
 }
@@ -10,11 +10,11 @@ pub trait AuthorizationUseCase {
     fn authorize(
         &self,
         command: AuthorizationCommand,
-    ) -> impl Future<Output = DomainResult<User, DomainAuthorizationError>>;
+    ) -> impl Future<Output = DomainResult<User, AuthorizationError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DomainRegistrationError {
+pub enum RegistrationError {
     InternalError(String),
     FailedToHashPassword,
     UserAlreadyExists,
@@ -24,11 +24,11 @@ pub trait RegistrationUseCase {
     fn register(
         &self,
         command: RegistrationCommand,
-    ) -> impl Future<Output = DomainResult<User, DomainRegistrationError>>;
+    ) -> impl Future<Output = DomainResult<User, RegistrationError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DomainCompareTokensError {
+pub enum ValidateTokensError {
     InternalError(String),
     TokensDoNotMatch,
 }
@@ -37,5 +37,5 @@ pub trait ValidateTokenUseCase {
     fn compare_tokens(
         &self,
         command: ValidateTokenCommand,
-    ) -> impl Future<Output = DomainResult<TokenData, DomainCompareTokensError>>;
+    ) -> impl Future<Output = DomainResult<TokenData, ValidateTokensError>>;
 }

@@ -21,14 +21,23 @@ impl<S: SavePersonPort, U: IdGenerator> PersonCreateService<S, U> {
 }
 
 impl<S: SavePersonPort, U: IdGenerator> CreatePersonUseCase for PersonCreateService<S, U> {
-    async fn create_person(&self, command: CreatePersonCommand) -> DomainResult<Person, ()> {
+    async fn create_person(
+        &self,
+        command: CreatePersonCommand,
+    ) -> DomainResult<Person, CreatePersonError> {
         let person = Person::new(
             PersonId::new(self.uid_generator.generate()),
+            command.creator_id().clone(),
             command.name().clone(),
             command.description().clone(),
         );
 
-        DomainResult::Ok(self.save_person_port.save_person(person).await)
+        match self.save_person_port.save_person(person).await {
+            Ok(saved_person) => Ok(saved_person),
+            Err(err) => Err(DomainError::UseCaseError(CreatePersonError::InternalError(
+                format!("{:?}", err),
+            ))),
+        }
     }
 }
 
@@ -39,7 +48,7 @@ impl<L: LoadPersonsPort> GetPersonsService<L> {
 }
 
 impl<L: LoadPersonsPort> GetPersonsQuery for GetPersonsService<L> {
-    async fn get_persons(&self) -> DomainResult<Vec<Person>, ()> {
+    async fn get_persons(&self) -> DomainResult<Vec<Person>, GetPersonsErorr> {
         DomainResult::Ok(self.load_persons_port.load_persons().await)
     }
 }

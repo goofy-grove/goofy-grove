@@ -13,13 +13,18 @@ impl_as_domain_newtype!(PersonId -> String, PersonName -> String, PersonDescript
 
 generate_entity!(Person {
     id: PersonId,
+    creator_id: UserId,
     name: PersonName,
     description: PersonDescription
 });
 
 impl Validator for Person {
     fn validate(&self) -> DomainValidationResult {
-        if self.name.value().is_empty() {
+        if self.id.value().is_empty() {
+            DomainValidationResult::Err(DomainValidationError::IdValidationError(
+                "person_id_is_empty".to_owned(),
+            ))
+        } else if self.name.value().is_empty() {
             DomainValidationResult::Err(DomainValidationError::NameValidationError(
                 "person_name_is_empty".to_owned(),
             ))
