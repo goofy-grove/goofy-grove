@@ -48,7 +48,8 @@ impl<L: LoadPersonsPort> GetPersonsService<L> {
 }
 
 impl<L: LoadPersonsPort> GetPersonsQuery for GetPersonsService<L> {
-    async fn get_persons(&self, user_id: UserId) -> DomainResult<Vec<Person>, GetPersonsErorr> {
+    async fn get_persons(&self, user_id: &UserId) -> DomainResult<Vec<Person>, GetPersonsErorr> {
+        // TODO: add error propagation
         DomainResult::Ok(self.load_persons_port.load_persons(user_id).await)
     }
 }

@@ -14,7 +14,7 @@ impl PersonRepository {
 }
 
 impl LoadPersonsPort for PersonRepository {
-    async fn load_persons(&self, user_id: UserId) -> Vec<Person> {
+    async fn load_persons(&self, user_id: &UserId) -> Vec<Person> {
         let persons = Persons::find()
             .filter(persons::Column::CreatorId.eq(user_id.value()))
             .all(&self.connection)
@@ -31,9 +31,10 @@ impl LoadPersonsPort for PersonRepository {
                 ))
                 .collect(),
             Err(err) => {
+                // TODO: add error propagation
                 log::error!("Failed to load persons: {}", err);
 
-                return vec![]
+                vec![]
             },
         }
     }
