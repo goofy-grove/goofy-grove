@@ -1,5 +1,5 @@
-mod user;
 mod person;
+mod user;
 
-pub use user::*;
 pub use person::*;
+pub use user::*;

@@ -1,5 +1,5 @@
 pub mod server;
 
 mod auth;
-mod users;
 mod persons;
+mod users;

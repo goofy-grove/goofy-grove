@@ -4,3 +4,4 @@ pub mod db;
 mod id_generator;
 mod jwt;
 mod security;
+mod socketio;

@@ -55,12 +55,13 @@ impl SavePersonPort for PersonRepository {
         };
         let request = Persons::insert(new_person)
             .on_conflict(
-                sea_query::OnConflict::column(persons::Column::Uid).update_columns([
-                    persons::Column::Name,
-                    persons::Column::Description,
-                    persons::Column::CreatorId,
-                ])
-                .to_owned(),
+                sea_query::OnConflict::column(persons::Column::Uid)
+                    .update_columns([
+                        persons::Column::Name,
+                        persons::Column::Description,
+                        persons::Column::CreatorId,
+                    ])
+                    .to_owned(),
             )
             .exec_with_returning(&self.connection)
             .await;

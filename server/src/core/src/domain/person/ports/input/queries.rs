@@ -6,5 +6,8 @@ pub enum GetPersonsErorr {
 }
 
 pub trait GetPersonsQuery {
-    fn get_persons(&self, user_id: &UserId) -> impl Future<Output = DomainResult<Vec<Person>, GetPersonsErorr>>;
+    fn get_persons(
+        &self,
+        user_id: &UserId,
+    ) -> impl Future<Output = DomainResult<Vec<Person>, GetPersonsErorr>>;
 }
