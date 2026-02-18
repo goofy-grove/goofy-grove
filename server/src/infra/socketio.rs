@@ -1,8 +1,7 @@
 use socketioxide::{
     SocketIo,
     adapter::Adapter,
-    extract::{AckSender, Data, SocketRef},
-    handler::Value,
+    extract::{Data, SocketRef},
     layer::SocketIoLayer,
 };
 use tracing::info;
