@@ -1,6 +1,9 @@
 use crate::infra::db::entities::{persons, prelude::Persons};
 use gg_core::domain::prelude::*;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    sea_query,
+};
 
 #[derive(Debug, Clone)]
 pub struct PersonRepository {
@@ -23,19 +26,21 @@ impl LoadPersonsPort for PersonRepository {
         match persons {
             Ok(persons) => persons
                 .into_iter()
-                .map(|person| Person::new(
-                    PersonId::new(person.uid),
-                    UserId::new(person.creator_id),
-                    PersonName::new(person.name),
-                    PersonDescription::new(person.description),
-                ))
+                .map(|person| {
+                    Person::new(
+                        PersonId::new(person.uid),
+                        UserId::new(person.creator_id),
+                        PersonName::new(person.name),
+                        PersonDescription::new(person.description),
+                    )
+                })
                 .collect(),
             Err(err) => {
                 // TODO: add error propagation
                 log::error!("Failed to load persons: {}", err);
 
                 vec![]
-            },
+            }
         }
     }
 }
@@ -48,8 +53,19 @@ impl SavePersonPort for PersonRepository {
             name: Set(person.name().value().to_owned()),
             description: Set(person.description().value().to_owned()),
         };
+        let request = Persons::insert(new_person)
+            .on_conflict(
+                sea_query::OnConflict::column(persons::Column::Uid).update_columns([
+                    persons::Column::Name,
+                    persons::Column::Description,
+                    persons::Column::CreatorId,
+                ])
+                .to_owned(),
+            )
+            .exec_with_returning(&self.connection)
+            .await;
 
-        match new_person.insert(&self.connection).await {
+        match request {
             Ok(inserted_person) => Ok(Person::new(
                 PersonId::new(inserted_person.uid),
                 UserId::new(inserted_person.creator_id),
