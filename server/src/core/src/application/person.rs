@@ -1,9 +1,10 @@
 use crate::domain::prelude::*;
 
 #[derive(Debug, Clone)]
-pub struct PersonCreateService<S: SavePersonPort, U: IdGenerator> {
+pub struct PersonCreateService<S: SavePersonPort, U: IdGenerator, E: EventPublisher> {
     save_person_port: S,
     uid_generator: U,
+    event_publisher: E,
 }
 
 #[derive(Debug, Clone)]
@@ -11,16 +12,19 @@ pub struct GetPersonsService<L: LoadPersonsPort> {
     load_persons_port: L,
 }
 
-impl<S: SavePersonPort, U: IdGenerator> PersonCreateService<S, U> {
-    pub fn new(save_person_port: S, uid_generator: U) -> Self {
+impl<S: SavePersonPort, U: IdGenerator, E: EventPublisher> PersonCreateService<S, U, E> {
+    pub fn new(save_person_port: S, uid_generator: U, event_publisher: E) -> Self {
         Self {
             save_person_port,
             uid_generator,
+            event_publisher,
         }
     }
 }
 
-impl<S: SavePersonPort, U: IdGenerator> CreatePersonUseCase for PersonCreateService<S, U> {
+impl<S: SavePersonPort, U: IdGenerator, E: EventPublisher> CreatePersonUseCase
+    for PersonCreateService<S, U, E>
+{
     async fn create_person(
         &self,
         command: CreatePersonCommand,
@@ -33,7 +37,15 @@ impl<S: SavePersonPort, U: IdGenerator> CreatePersonUseCase for PersonCreateServ
         );
 
         match self.save_person_port.save_person(person).await {
-            Ok(saved_person) => Ok(saved_person),
+            Ok(saved_person) => {
+                self.event_publisher
+                    .publish(PersonCreatedEvent {
+                        person: saved_person.clone(),
+                    })
+                    .await;
+
+                Ok(saved_person)
+            }
             Err(err) => Err(DomainError::UseCaseError(CreatePersonError::InternalError(
                 format!("{:?}", err),
             ))),

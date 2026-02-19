@@ -42,3 +42,30 @@ macro_rules! generate_entity {
         }
     };
 }
+
+#[macro_export]
+macro_rules! generate_event {
+    ($($name:ident<$data_type:ty>),*) => {
+        $(
+            #[derive(Debug, Clone)]
+            pub struct $name {
+                id: EventId,
+                data: EventData<$data_type>,
+            }
+
+            impl Event<$data_type> for $name {
+                fn id(&self) -> &EventId {
+                    &self.id
+                }
+
+                fn data(&self) -> &EventData<$data_type> {
+                    &self.data
+                }
+
+                fn into_inner(self) -> $data_type {
+                    self.data.0
+                }
+            }
+        )*
+    };
+}

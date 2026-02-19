@@ -9,7 +9,7 @@ use infra::config::Config;
 use crate::infra::{api::server::start_server, db::init_db};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     log::info!(target: "application", "Starting server");
@@ -21,5 +21,5 @@ async fn main() {
 
     log::info!(target: "application", "Configuration loaded: {:?}", config);
 
-    start_server(config, db_connection).await;
+    start_server(config, db_connection).await
 }

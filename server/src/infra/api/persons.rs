@@ -18,6 +18,7 @@ use crate::infra::{
     api::auth::{AuthLayerExt, create_auth_state},
     config::Config,
     db::PersonRepository,
+    event_bus::InMemoryEventBus,
     id_generator::UuidGenerator,
 };
 
@@ -93,12 +94,17 @@ pub async fn create_person(
     }
 }
 
-pub fn create_person_router(config: Arc<Config>, connection: DatabaseConnection) -> Router {
+pub fn create_person_router(
+    config: Arc<Config>,
+    connection: DatabaseConnection,
+    event_bus: InMemoryEventBus,
+) -> Router {
     let persons_state = PersonState {
         get_persons_query: GetPersonsService::new(PersonRepository::new(connection.clone())),
         create_person_use_case: PersonCreateService::new(
             PersonRepository::new(connection.clone()),
             UuidGenerator,
+            event_bus,
         ),
     };
 

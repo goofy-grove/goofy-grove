@@ -1,8 +1,7 @@
 use crate::infra::db::entities::{persons, prelude::Persons};
 use gg_core::domain::prelude::*;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
-    sea_query,
+    ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
 };
 
 #[derive(Debug, Clone)]
