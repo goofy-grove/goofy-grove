@@ -80,7 +80,10 @@ async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: Toke
         .await
         .unwrap();
 
-    let mut response = response::ok(TokenResponse { token: access_token, exp });
+    let mut response = response::ok(TokenResponse {
+        token: access_token,
+        exp,
+    });
 
     response.headers_mut().insert(
         header::SET_COOKIE,

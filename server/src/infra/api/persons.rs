@@ -15,7 +15,10 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::infra::{
-    api::{auth::{AuthLayerExt, create_auth_state}, response::{self, ToJson}},
+    api::{
+        auth::{AuthLayerExt, create_auth_state},
+        response::{self, ToJson},
+    },
     config::Config,
     db::PersonRepository,
     event_bus::InMemoryEventBus,

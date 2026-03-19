@@ -1,10 +1,6 @@
 use std::sync::Arc;
 
-use axum::{
-    Extension, Router,
-    response::Response,
-    routing::get,
-};
+use axum::{Extension, Router, response::Response, routing::get};
 use gg_core::domain::prelude::User;
 use sea_orm::DatabaseConnection;
 use serde_json::json;
