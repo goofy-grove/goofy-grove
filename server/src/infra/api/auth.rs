@@ -3,9 +3,9 @@ use std::sync::Arc;
 use axum::{
     Json, Router,
     extract::{Request, State},
-    http::{HeaderValue, StatusCode, header},
+    http::{HeaderValue, header},
     middleware::{self, Next},
-    response::{IntoResponse, Response},
+    response::Response,
     routing::post,
 };
 use gg_core::{application::auth::UserAuthorizationService, domain::prelude::*};

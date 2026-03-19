@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use axum::{
-    Extension, Json, Router,
-    response::{IntoResponse, Response},
+    Extension, Router,
+    response::Response,
     routing::get,
 };
 use gg_core::domain::prelude::User;
