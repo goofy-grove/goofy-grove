@@ -15,7 +15,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::infra::{
-    api::auth::{AuthLayerExt, create_auth_state},
+    api::{auth::{AuthLayerExt, create_auth_state}, response::{self, ToJson}},
     config::Config,
     db::PersonRepository,
     event_bus::InMemoryEventBus,
@@ -28,12 +28,8 @@ pub struct PersonState<Q: GetPersonsQuery, C: CreatePersonUseCase> {
     create_person_use_case: C,
 }
 
-pub trait PersonToJson {
-    fn to_json(&self) -> serde_json::Value;
-}
-
-impl PersonToJson for Person {
-    fn to_json(&self) -> serde_json::Value {
+impl ToJson for Person {
+    fn to_json(self) -> serde_json::Value {
         json!({
             "uid": self.uid().value(),
             "name": self.name().value(),
@@ -50,16 +46,11 @@ pub async fn get_all_user_persons(
     let persons_result = person_state.get_persons_query.get_persons(user.uid()).await;
 
     match persons_result {
-        Ok(persons) => Json(
-            persons
-                .iter()
-                .map(PersonToJson::to_json)
-                .collect::<Vec<_>>(),
-        )
-        .into_response(),
+        Ok(persons) => response::ok(persons),
         Err(err) => {
             log::error!("Failed to get persons: {:?}", err);
-            Json(json!({"error": "Failed to get persons"})).into_response()
+
+            response::internal_error(&["Failed to get persons"])
         }
     }
 }
@@ -86,10 +77,11 @@ pub async fn create_person(
         .create_person(command)
         .await
     {
-        Ok(person) => Json(person.to_json()).into_response(),
+        Ok(person) => response::ok(person),
         Err(err) => {
             log::error!("Failed to create person: {:?}", err);
-            Json(json!({"error": "Failed to create person"})).into_response()
+
+            response::internal_error(&["Failed to create person"])
         }
     }
 }

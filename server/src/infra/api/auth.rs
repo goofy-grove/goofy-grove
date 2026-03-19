@@ -14,6 +14,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::infra::{
+    api::response::{self, ToJson},
     config::Config,
     db::UserRepository,
     jwt::{JwtAccessTokenGenerator, JwtAccessTokenValidator, JwtRefreshTokenGenerator},
@@ -39,6 +40,17 @@ struct AuthorizeUserRequest {
     password: String,
 }
 
+struct TokenResponse {
+    token: String,
+    exp: usize,
+}
+
+impl ToJson for TokenResponse {
+    fn to_json(self) -> serde_json::Value {
+        json!({ "token": self.token, "exp": self.exp })
+    }
+}
+
 async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: TokenGeneratorPort>(
     State(auth_state): State<AuthorizationState<A, T, T1>>,
     Json(payload): Json<AuthorizeUserRequest>,
@@ -51,11 +63,7 @@ async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: Toke
     let auth_result = auth_state.authorization_use_case.authorize(command).await;
 
     if auth_result.is_err() {
-        let mut response = Json(json!({"error": "Failed to authorize user"})).into_response();
-
-        *(response.status_mut()) = StatusCode::UNAUTHORIZED;
-
-        return response;
+        return response::auth_error(&["Failed to authorize user"]);
     }
 
     let user = auth_result.unwrap();
@@ -72,7 +80,7 @@ async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: Toke
         .await
         .unwrap();
 
-    let mut response = Json(json!({ "token": access_token, "exp": exp })).into_response();
+    let mut response = response::ok(TokenResponse { token: access_token, exp });
 
     response.headers_mut().insert(
         header::SET_COOKIE,
@@ -90,7 +98,7 @@ async fn authentication_layer<V: TokenValidatorPort, L: LoadUserByNamePort>(
     State(auth_state): State<AuthenticationState<V, L>>,
     mut req: Request,
     next: Next,
-) -> Result<Response, StatusCode> {
+) -> Result<Response, Response> {
     let auth_header = req
         .headers()
         .get(header::AUTHORIZATION)
@@ -99,7 +107,7 @@ async fn authentication_layer<V: TokenValidatorPort, L: LoadUserByNamePort>(
     let auth_header = if let Some(auth_header) = auth_header {
         auth_header
     } else {
-        return Err(StatusCode::UNAUTHORIZED);
+        return Err(response::auth_error(&["Token not found"]));
     };
 
     if let Some(current_user) = autheticate_current_user(auth_header, auth_state).await {
@@ -107,7 +115,7 @@ async fn authentication_layer<V: TokenValidatorPort, L: LoadUserByNamePort>(
 
         Ok(next.run(req).await)
     } else {
-        Err(StatusCode::UNAUTHORIZED)
+        Err(response::auth_error(&["Failed to authenticate user"]))
     }
 }
 

@@ -12,7 +12,7 @@ export const authorize = async (username: string, password: string) => {
   const result = await auth(username, password);
 
   if (result.error) {
-    throw new Error(result.reason.join(', '));
+    throw new Error(result.data.reason.join(', '));
   }
 
   updateAuthState(result.data.token, result.data.exp);
