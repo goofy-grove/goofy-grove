@@ -1,1 +1,3 @@
-export const auth = {};
+import { authorize } from './authorize';
+
+export const auth = { authorize };
