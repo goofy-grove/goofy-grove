@@ -36,12 +36,25 @@ defineProps<AppInputProps>();
     outline: none;
     font-size: 1.2rem;
 
-    &:hover {
-      border: 1px solid #464646;
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:active,
+    &:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 100px #333 inset !important;
+      box-shadow: 0 0 0 100px #333 inset !important;
+      -webkit-text-fill-color: var(--text-color) !important;
+      caret-color: var(--text-color) !important;
+      transition: background-color 5000s;
     }
 
-    &:focus {
-      background-color: #434343;
+    &:hover,
+    &:-webkit-autofill:hover {
+      border: 1px solid #464646 !important;
+    }
+
+    &:focus,
+    &:-webkit-autofill:focus {
+      background-color: #434343 !important;
       border: 1px solid var(--text-color);
     }
   }
