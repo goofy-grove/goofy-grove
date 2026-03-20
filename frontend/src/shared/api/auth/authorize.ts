@@ -5,8 +5,11 @@ import { AuthResponseSchema } from './schema';
 export const authorize = async (username: string, password: string) => {
   const auth = withValidation(
     AuthResponseSchema,
-    (username: string, password: string) =>
-      api.post('/auth/login', { password, username }),
+    async (username: string, password: string) => {
+      const response = await api.post('/auth/login', { password, username });
+
+      return response.data;
+    }
   );
 
   const result = await auth(username, password);

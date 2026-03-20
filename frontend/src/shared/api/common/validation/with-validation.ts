@@ -15,8 +15,8 @@ export const withValidation = <
   fn: ApiFn,
 ) => {
   const ResponseSchema = z.discriminatedUnion('error', [
-    ResponseErrorSchema,
     ResponseOkSchema.extend({ data: schema }),
+    ResponseErrorSchema,
   ]);
 
   return async (

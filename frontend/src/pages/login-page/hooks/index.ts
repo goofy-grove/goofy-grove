@@ -22,7 +22,8 @@ export const useAuth = () => {
       await api.auth.authorize(username.value, password.value);
 
       router.push({ name: 'home' });
-    } catch {
+    } catch (err) {
+      console.log({ err });
       error.value = 'Неверный логин или пароль';
     }
   };

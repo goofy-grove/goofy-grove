@@ -26,7 +26,7 @@ router.beforeEach(async (to) => {
 
   try {
     await userStore.getMe();
-  } catch {
+  } catch(err) {
     return { name: 'login' }
   }
 });

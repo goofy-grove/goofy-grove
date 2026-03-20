@@ -2,6 +2,8 @@ import { api } from '../../axios';
 import type { ApiFunction } from '../types';
 import { authState } from './auth-state';
 
+const MILLISECONDS_IN_SECOND = 1_000;
+
 export const withAuth =
   <
     ApiFn extends ApiFunction<Args>,
@@ -18,7 +20,7 @@ export const withAuth =
       throw new Error('Not authorized');
     }
 
-    if (Date.now() > authState.exp) {
+    if (Date.now() > authState.exp * MILLISECONDS_IN_SECOND) {
       // TODO: refresh tokens
       api.defaults.headers.common.Authorization = '';
 
