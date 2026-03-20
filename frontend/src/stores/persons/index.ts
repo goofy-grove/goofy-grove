@@ -1,0 +1,1 @@
+export { usePersonsStore } from './store';

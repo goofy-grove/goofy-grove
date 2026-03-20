@@ -1,3 +1,3 @@
 import { getMe } from './get-me';
 
-export const user = { getMe };
+export const users = { getMe };

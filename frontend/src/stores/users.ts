@@ -2,19 +2,21 @@ import { api } from '@/shared/api';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-type User = {
-  id: string;
-  username: string;
-};
+class User {
+  constructor(
+    public readonly id: string,
+    public readonly username: string,
+  ) {}
+}
 
 export const useUsersStore = defineStore('users', () => {
   const currentUser = ref<User | null>(null);
 
   const getMe = async () => {
-    const response = await api.user.getMe();
+    const response = await api.users.getMe();
 
     if (!response.error) {
-      currentUser.value = response.data;
+      currentUser.value = new User(response.data.id, response.data.username);
     }
   };
 
