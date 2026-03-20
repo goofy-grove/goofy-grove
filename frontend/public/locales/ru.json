@@ -1,0 +1,15 @@
+{
+  "login": {
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "login": "Войти",
+    "labels": {
+      "username": "Введите имя пользователя",
+      "password": "Введите пароль"
+    },
+    "errors": {
+      "invalid_credentials": "Неверный логин или пароль",
+      "enter_credentials": "Введите логин и пароль"
+    }
+  }
+}

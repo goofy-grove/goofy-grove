@@ -12,20 +12,20 @@ const { username, password, error, authorize } = useAuth();
       <app-input
         v-model="username"
         id="username"
-        label="Имя пользователя"
-        placeholder="Введите имя пользователя"
+        :label="$t('login.username')"
+        :placeholder="$t('login.labels.username')"
         autocomplete="off"
       />
       <app-input
         v-model="password"
         id="password"
-        label="Пароль"
+        :label="$t('login.password')"
         type="password"
-        placeholder="Введите пароль"
+        :placeholder="$t('login.labels.password')"
         autocomplete="off"
       />
       <app-button class="auth-form__submit-button" @click="authorize">
-        Войти
+        {{ $t('login.login') }}
       </app-button>
     </div>
   </div>

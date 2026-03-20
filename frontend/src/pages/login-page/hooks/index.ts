@@ -1,9 +1,11 @@
 import { api } from '@/shared/api';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 export const useAuth = () => {
   const router = useRouter();
+  const { t } = useI18n();
 
   const username = ref('');
   const password = ref('');
@@ -14,7 +16,7 @@ export const useAuth = () => {
     error.value = '';
 
     if (!username.value || !password.value) {
-      error.value = 'Введите логин и пароль';
+      error.value = t('login.errors.enter_credentials');
       return;
     }
 
@@ -24,7 +26,7 @@ export const useAuth = () => {
       router.push({ name: 'home' });
     } catch (err) {
       console.log({ err });
-      error.value = 'Неверный логин или пароль';
+      error.value = t('login.errors.invalid_credentials');
     }
   };
 
