@@ -28,6 +28,7 @@ serde_json = "1.0.149"
 socketioxide = { version = "0.18.2", features = ["tracing"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
+tower-http = { version = "0.6.8", features = ["cors"] }
 
 [dependencies.uuid]
 version = "1.20.0"

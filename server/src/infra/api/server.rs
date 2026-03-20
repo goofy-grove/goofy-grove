@@ -5,6 +5,7 @@ use gg_core::domain::prelude::EventSubscriber;
 use sea_orm::DatabaseConnection;
 use socketioxide::{SocketIo, layer::SocketIoLayer};
 use tokio::net::TcpListener;
+use tower_http::cors::CorsLayer;
 
 use crate::infra::{
     api::{auth::create_auth_router, persons::create_person_router, users::create_user_router},
@@ -33,6 +34,7 @@ pub fn init_router(
             "/api/v1/persons",
             create_person_router(config, connection, event_bus),
         )
+        .layer(CorsLayer::very_permissive())
 }
 
 pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketIo) {
