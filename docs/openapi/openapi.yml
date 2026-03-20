@@ -1,0 +1,237 @@
+openapi: '3.1.0'
+info:
+  title: Goofy Grove Server API
+  version: '0.1.0'
+servers:
+  - url: https://127.0.0.2:3003/api/v1
+security:
+  - JwtToken: []
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Persons
+paths:
+  /persons:
+    get:
+      tags: [Persons]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonsResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Persons]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonCreateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonCreateResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /users/me:
+    get:
+      tags: [Users]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  /auth/login:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorizationRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        
+        default:
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+      JwtToken:
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+        description: JWT-токен в формате Bearer
+
+  responses:
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - properties:
+                  data:
+                    properties:
+                      code:
+                        const: unauthorized
+
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - properties:
+                  data:
+                    properties:
+                      code:
+                        const: internal_error
+
+
+  schemas:
+    # Requests
+    PersonCreateRequest:
+      type: object
+      required: [name, description]
+      properties:
+        name:
+          type: string
+          description: Person Name
+        description:
+          type: string
+          description: Person Description
+    AuthorizationRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    # Enums
+    ErrorCodes:
+      type: string
+      enum:
+        - unauthorized
+        - internal_error
+
+    # Responses
+    ErrorResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: true
+        data:
+          type: object
+          required: [reason, code]
+          properties:
+            reason:
+              type: array
+              items:
+                type: string
+              example: ['Failed to authenticate user']
+            code:
+              $ref: '#/components/schemas/ErrorCodes'
+    AuthorizationResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          properties:
+            token:
+              type: string
+              description: Access Token
+            exp:
+              type: integer
+              description: Date when token will expire (unix timestamp)
+    UserResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/User'
+    PersonsResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+    PersonCreateResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Person'
+
+    # Data
+    Person:
+      type: object
+      required: [uid, name, description, creator_uid]
+      properties:
+        uid:
+          type: string
+          description: Person Unique ID
+        name:
+          type: string
+          description: Person Name
+        description:
+          type: string
+          description: Person Description
+        creator_uid:
+          type: string
+          description: Creator Unique ID (User UID)
+    User:
+      type: object
+      required: [uid, username]
+      properties:
+        uid:
+          type: string
+          description: User Unique ID
+        username:
+          type: string
+          description: Nickname, login, username
+      
