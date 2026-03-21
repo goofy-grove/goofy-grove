@@ -3,4 +3,5 @@
 pub mod prelude;
 
 pub mod persons;
+pub mod tokens;
 pub mod users;

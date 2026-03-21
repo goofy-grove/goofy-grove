@@ -30,3 +30,4 @@ jwt:
   refresh_token:
     secret: "your_refresh_secret_key"
     expiration_time: 604800 # 1 week
+    salt: "default_refresh_token_salt"

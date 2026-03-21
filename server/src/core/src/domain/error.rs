@@ -13,8 +13,6 @@ pub enum DomainQueryError {
     InternalError(String),
 }
 
-pub type DomainQueryResult<T> = Result<T, DomainQueryError>;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DomainError<T> {
     ValidationError(DomainValidationError),

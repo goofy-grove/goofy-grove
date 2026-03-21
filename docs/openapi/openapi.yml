@@ -83,6 +83,25 @@ paths:
         default:
           $ref: '#/components/responses/InternalError'
 
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Refresh tokens
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizationResponse'
+
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        
+        default:
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
       JwtToken:

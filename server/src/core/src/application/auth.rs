@@ -78,7 +78,7 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
         let user = User::new(
             UserId::new(self.id_generator.generate()),
             command.name().clone(),
-            hashed_password.clone().value().to_owned().into(),
+            hashed_password.value().to_owned().into(),
         );
 
         match self.save_user_port.save_user(&user).await {
@@ -93,27 +93,3 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct TokenComparisonService<T: TokenValidatorPort> {
-    token_comporator: T,
-}
-
-impl<T: TokenValidatorPort> TokenComparisonService<T> {
-    pub fn new(token_comporator: T) -> Self {
-        Self { token_comporator }
-    }
-}
-
-impl<T: TokenValidatorPort> ValidateTokenUseCase for TokenComparisonService<T> {
-    async fn compare_tokens(
-        &self,
-        command: ValidateTokenCommand,
-    ) -> DomainResult<TokenData, ValidateTokensError> {
-        self.token_comporator
-            .validate_token(command.first_token())
-            .await
-            .map_err(|err| {
-                DomainError::UseCaseError(ValidateTokensError::InternalError(format!("{:?}", err)))
-            })
-    }
-}

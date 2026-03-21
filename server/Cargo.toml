@@ -29,6 +29,8 @@ socketioxide = { version = "0.18.2", features = ["tracing"] }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
 tower-http = { version = "0.6.8", features = ["cors"] }
+axum-extra = { version = "0.12.5", features = ["cookie"] }
+base64 = "0.22.1"
 
 [dependencies.uuid]
 version = "1.20.0"

@@ -1,3 +1,3 @@
-pub mod queries;
+mod queries;
 
 pub use queries::*;

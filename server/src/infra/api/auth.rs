@@ -8,24 +8,51 @@ use axum::{
     response::Response,
     routing::post,
 };
-use gg_core::{application::auth::UserAuthorizationService, domain::prelude::*};
+use axum_extra::extract::CookieJar;
+use gg_core::{
+    application::{
+        auth::UserAuthorizationService,
+        tokens::{CreateDeviceService, GetDeviceService, InvalidateDeviceService},
+        user::GetUserByNameService,
+    },
+    domain::prelude::*,
+};
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 use serde_json::json;
 
 use crate::infra::{
     api::response::{self, ToJson},
+    clock::ChronoClock,
     config::Config,
-    db::UserRepository,
-    jwt::{JwtAccessTokenGenerator, JwtAccessTokenValidator, JwtRefreshTokenGenerator},
-    security::ArgonPasswordSystem,
+    db::{TokensRepository, UserRepository},
+    id_generator::UuidGenerator,
+    jwt::{
+        JwtAccessTokenGenerator, JwtAccessTokenValidator, JwtRefreshTokenGenerator,
+        JwtRefreshTokenValidator,
+    },
+    security::{ArgonPasswordSystem, ArgonTokenHasher},
 };
 
 #[derive(Debug, Clone)]
-struct AuthorizationState<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: TokenGeneratorPort> {
+struct AuthorizationState<
+    A: AuthorizationUseCase,
+    T: TokenGeneratorPort,
+    T1: TokenGeneratorPort,
+    C: CreateDeviceUseCase,
+    G: GetDeviceQuery,
+    V: TokenValidatorPort,
+    I: InvalidateDeviceUseCase,
+    U: GetUserByNameQuery,
+> {
     authorization_use_case: A,
     access_token_generator: T,
     refresh_token_generator: T1,
+    create_device_use_case: C,
+    get_device_query: G,
+    token_validator_port: V,
+    invalidate_device_use_case: I,
+    get_user_by_name_query: U,
 }
 
 #[derive(Debug, Clone)]
@@ -50,9 +77,125 @@ impl ToJson for TokenResponse {
         json!({ "token": self.token, "exp": self.exp })
     }
 }
+async fn generate_tokens(
+    auth_state: AuthorizationState<
+        impl AuthorizationUseCase,
+        impl TokenGeneratorPort,
+        impl TokenGeneratorPort,
+        impl CreateDeviceUseCase,
+        impl GetDeviceQuery,
+        impl TokenValidatorPort,
+        impl InvalidateDeviceUseCase,
+        impl GetUserByNameQuery,
+    >,
+    user: &User,
+) -> (Response, (String, usize)) {
+    let (access_token, exp) = auth_state
+        .access_token_generator
+        .generate_token(user)
+        .await
+        .unwrap();
 
-async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: TokenGeneratorPort>(
-    State(auth_state): State<AuthorizationState<A, T, T1>>,
+    let (refresh_token, refresh_token_lifetime) = auth_state
+        .refresh_token_generator
+        .generate_token(user)
+        .await
+        .unwrap();
+
+    let _ = auth_state
+        .create_device_use_case
+        .create_device(CreateDeviceCommand::new(
+            Token::new(refresh_token.to_owned()),
+            UserAgent::new("".to_string()),
+            user.uid().to_owned(),
+        ))
+        .await
+        .unwrap();
+
+    (
+        response::ok(TokenResponse {
+            token: access_token,
+            exp,
+        }),
+        (refresh_token, refresh_token_lifetime),
+    )
+}
+
+async fn refresh_token(
+    State(auth_state): State<
+        AuthorizationState<
+            impl AuthorizationUseCase,
+            impl TokenGeneratorPort,
+            impl TokenGeneratorPort,
+            impl CreateDeviceUseCase,
+            impl GetDeviceQuery,
+            impl TokenValidatorPort,
+            impl InvalidateDeviceUseCase,
+            impl GetUserByNameQuery,
+        >,
+    >,
+    cookie: CookieJar,
+) -> Result<Response, Response> {
+    let refresh_token = cookie
+        .get("refresh_token")
+        .ok_or(response::auth_error(&["Refresh token not found"]))?
+        .value();
+    let token = Token::new(refresh_token.to_owned());
+
+    let token_data = auth_state
+        .token_validator_port
+        .validate_token(&token)
+        .await
+        .or(Err(response::auth_error(&["Invalid token"])))?;
+
+    let _ = auth_state
+        .get_device_query
+        .get_device(&token)
+        .await
+        .or(Err(response::auth_error(&["Token not found"])))?;
+
+    auth_state
+        .invalidate_device_use_case
+        .invalidate_device(InvalidateDeviceCommand::new(Token::new(
+            refresh_token.to_owned(),
+        )))
+        .await
+        .or(Err(response::auth_error(&["Failed to invalidate device"])))?;
+
+    let user = auth_state
+        .get_user_by_name_query
+        .get_user_by_name(&UserName::new(token_data.username().to_owned()))
+        .await
+        .or(Err(response::auth_error(&["User not found"])))?;
+
+    let (mut response, (refresh_token, refresh_token_lifetime)) =
+        generate_tokens(auth_state, &user).await;
+
+    response.headers_mut().insert(
+        header::SET_COOKIE,
+        HeaderValue::from_str(&format!(
+            "refresh_token={};Secure;HttpOnly;Max-Age={}",
+            refresh_token, refresh_token_lifetime
+        ))
+        .unwrap(),
+    );
+
+    Ok(response)
+}
+
+async fn authorize_user(
+    State(auth_state): State<
+        AuthorizationState<
+            impl AuthorizationUseCase,
+            impl TokenGeneratorPort,
+            impl TokenGeneratorPort,
+            impl CreateDeviceUseCase,
+            impl GetDeviceQuery,
+            impl TokenValidatorPort,
+            impl InvalidateDeviceUseCase,
+            impl GetUserByNameQuery,
+        >,
+    >,
     Json(payload): Json<AuthorizeUserRequest>,
 ) -> Response {
     let command = AuthorizationCommand::new(
@@ -68,22 +211,8 @@ async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: Toke
 
     let user = auth_result.unwrap();
 
-    let (access_token, exp) = auth_state
-        .access_token_generator
-        .generate_token(&user)
-        .await
-        .unwrap();
-
-    let (refresh_token, refresh_token_lifetime) = auth_state
-        .refresh_token_generator
-        .generate_token(&user)
-        .await
-        .unwrap();
-
-    let mut response = response::ok(TokenResponse {
-        token: access_token,
-        exp,
-    });
+    let (mut response, (refresh_token, refresh_token_lifetime)) =
+        generate_tokens(auth_state, &user).await;
 
     response.headers_mut().insert(
         header::SET_COOKIE,
@@ -97,8 +226,8 @@ async fn authorize_user<A: AuthorizationUseCase, T: TokenGeneratorPort, T1: Toke
     response
 }
 
-async fn authentication_layer<V: TokenValidatorPort, L: LoadUserByNamePort>(
-    State(auth_state): State<AuthenticationState<V, L>>,
+async fn authentication_layer(
+    State(auth_state): State<AuthenticationState<impl TokenValidatorPort, impl LoadUserByNamePort>>,
     mut req: Request,
     next: Next,
 ) -> Result<Response, Response> {
@@ -122,9 +251,9 @@ async fn authentication_layer<V: TokenValidatorPort, L: LoadUserByNamePort>(
     }
 }
 
-async fn autheticate_current_user<V: TokenValidatorPort, L: LoadUserByNamePort>(
+async fn autheticate_current_user(
     auth_header: &str,
-    auth_state: AuthenticationState<V, L>,
+    auth_state: AuthenticationState<impl TokenValidatorPort, impl LoadUserByNamePort>,
 ) -> Option<User> {
     if let Some(token) = auth_header.strip_prefix("Bearer ") {
         let token_data = auth_state
@@ -180,9 +309,26 @@ pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -
         ),
         access_token_generator: JwtAccessTokenGenerator::new(config.clone()),
         refresh_token_generator: JwtRefreshTokenGenerator::new(config.clone()),
+        create_device_use_case: CreateDeviceService::new(
+            TokensRepository::new(connection.clone()),
+            ArgonTokenHasher::new(config.clone()),
+            UuidGenerator,
+            ChronoClock,
+        ),
+        get_device_query: GetDeviceService::new(
+            TokensRepository::new(connection.clone()),
+            ArgonTokenHasher::new(config.clone()),
+        ),
+        token_validator_port: JwtRefreshTokenValidator::new(config.clone()),
+        invalidate_device_use_case: InvalidateDeviceService::new(
+            TokensRepository::new(connection.clone()),
+            ArgonTokenHasher::new(config.clone()),
+        ),
+        get_user_by_name_query: GetUserByNameService::new(UserRepository::new(connection.clone())),
     };
 
     Router::new()
         .route("/login", post(authorize_user))
+        .route("/refresh", post(refresh_token))
         .with_state(app_state)
 }
