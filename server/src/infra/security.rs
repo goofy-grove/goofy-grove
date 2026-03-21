@@ -1,14 +1,9 @@
-use std::sync::Arc;
-
 use argon2::{
     Argon2, PasswordHash, PasswordHasher as ArgonPasswordHasher,
     PasswordVerifier as ArgonPasswordVerifier,
-    password_hash::{Salt, SaltString, rand_core::OsRng},
+    password_hash::{SaltString, rand_core::OsRng},
 };
-use base64::{Engine, prelude::BASE64_STANDARD_NO_PAD};
 use gg_core::domain::prelude::*;
-
-use crate::infra::config::Config;
 
 #[derive(Debug, Clone)]
 pub struct ArgonPasswordSystem;
@@ -55,31 +50,12 @@ impl PasswordHasherPort for ArgonPasswordSystem {
 }
 
 #[derive(Debug, Clone)]
-pub struct ArgonTokenHasher {
-    config: Arc<Config>,
-}
-
-impl ArgonTokenHasher {
-    pub fn new(config: Arc<Config>) -> Self {
-        Self { config }
-    }
-}
+pub struct ArgonTokenHasher;
 
 impl TokenHasherPort for ArgonTokenHasher {
     async fn hash_token(&self, token: Token) -> DomainResult<HashedToken, TokenHasherPortError> {
-        let argon2 = Argon2::default();
-        let base64_salt = BASE64_STANDARD_NO_PAD.encode(&self.config.jwt.refresh_token.salt);
-        let salt = Salt::from_b64(base64_salt.as_str()).map_err(|err| {
-            DomainError::ExternalServiceError(TokenHasherPortError::InternalError(err.to_string()))
-        })?;
-
-        argon2
-            .hash_password(token.value().as_bytes(), salt)
-            .map(|hash| HashedToken::new(hash.to_string()))
-            .map_err(|err| {
-                DomainError::ExternalServiceError(TokenHasherPortError::InternalError(
-                    err.to_string(),
-                ))
-            })
+        Ok(HashedToken::new(
+            blake3::hash(token.value().as_bytes()).to_hex().to_string(),
+        ))
     }
 }

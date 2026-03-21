@@ -1,3 +1,4 @@
+import { refresh } from '../../auth/refresh';
 import { api } from '../../axios';
 import type { ApiFunction } from '../types';
 import { authState } from './auth-state';
@@ -14,6 +15,14 @@ export const withAuth =
     fn: ApiFn,
   ) =>
   async (...args: Parameters<ApiFn>): Promise<ReturnType<ApiFn>> => {
+    try {
+      await refresh();
+    } catch {
+      api.defaults.headers.common.Authorization = '';
+
+      throw new Error('Not authorized');
+    }
+
     if (!authState.token) {
       api.defaults.headers.common.Authorization = '';
 

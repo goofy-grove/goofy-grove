@@ -136,6 +136,7 @@ async fn refresh_token(
     >,
     cookie: CookieJar,
 ) -> Result<Response, Response> {
+    println!("{:?}", cookie.get("refresh_token"));
     let refresh_token = cookie
         .get("refresh_token")
         .ok_or(response::auth_error(&["Refresh token not found"]))?
@@ -174,7 +175,7 @@ async fn refresh_token(
     response.headers_mut().insert(
         header::SET_COOKIE,
         HeaderValue::from_str(&format!(
-            "refresh_token={};Secure;HttpOnly;Max-Age={}",
+            "refresh_token={};Secure;HttpOnly;SameSite=None;Max-Age={};Path=/api/v1/auth/refresh",
             refresh_token, refresh_token_lifetime
         ))
         .unwrap(),
@@ -217,7 +218,7 @@ async fn authorize_user(
     response.headers_mut().insert(
         header::SET_COOKIE,
         HeaderValue::from_str(&format!(
-            "refresh_token={};Secure;HttpOnly;Max-Age={}",
+            "refresh_token={};Secure;HttpOnly;SameSite=None;Max-Age={};Path=/api/v1/auth/refresh",
             refresh_token, refresh_token_lifetime
         ))
         .unwrap(),
@@ -311,18 +312,18 @@ pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -
         refresh_token_generator: JwtRefreshTokenGenerator::new(config.clone()),
         create_device_use_case: CreateDeviceService::new(
             TokensRepository::new(connection.clone()),
-            ArgonTokenHasher::new(config.clone()),
+            ArgonTokenHasher,
             UuidGenerator,
             ChronoClock,
         ),
         get_device_query: GetDeviceService::new(
             TokensRepository::new(connection.clone()),
-            ArgonTokenHasher::new(config.clone()),
+            ArgonTokenHasher,
         ),
         token_validator_port: JwtRefreshTokenValidator::new(config.clone()),
         invalidate_device_use_case: InvalidateDeviceService::new(
             TokensRepository::new(connection.clone()),
-            ArgonTokenHasher::new(config.clone()),
+            ArgonTokenHasher,
         ),
         get_user_by_name_query: GetUserByNameService::new(UserRepository::new(connection.clone())),
     };
