@@ -68,8 +68,7 @@ impl ArgonTokenHasher {
 impl TokenHasherPort for ArgonTokenHasher {
     async fn hash_token(&self, token: Token) -> DomainResult<HashedToken, TokenHasherPortError> {
         let argon2 = Argon2::default();
-        let base64_salt =
-            BASE64_STANDARD_NO_PAD.encode(self.config.jwt.refresh_token.salt.to_owned());
+        let base64_salt = BASE64_STANDARD_NO_PAD.encode(&self.config.jwt.refresh_token.salt);
         let salt = Salt::from_b64(base64_salt.as_str()).map_err(|err| {
             DomainError::ExternalServiceError(TokenHasherPortError::InternalError(err.to_string()))
         })?;

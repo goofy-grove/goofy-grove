@@ -46,7 +46,10 @@ pub enum TokenHasherPortError {
 }
 
 pub trait TokenHasherPort {
-    fn hash_token(&self, token: Token) -> impl Future<Output = DomainResult<HashedToken, TokenHasherPortError>>;
+    fn hash_token(
+        &self,
+        token: Token,
+    ) -> impl Future<Output = DomainResult<HashedToken, TokenHasherPortError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

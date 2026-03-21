@@ -92,4 +92,3 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
         }
     }
 }
-

@@ -1,5 +1,5 @@
 use crate::{
-    domain::prelude::{UserAgent, UserId, Token},
+    domain::prelude::{Token, UserAgent, UserId},
     generate_entity,
 };
 

@@ -26,4 +26,3 @@ pub trait RegistrationUseCase {
         command: RegistrationCommand,
     ) -> impl Future<Output = DomainResult<User, RegistrationError>>;
 }
-

@@ -97,16 +97,21 @@ impl InvalidateDevicePort for TokensRepository {
         let token = Tokens::find()
             .filter(tokens::Column::HashedToken.eq(hashed_token.value()))
             .one(&self.connection)
-            .await.map_err(|err| DomainError::ExternalServiceError(
-                    InvalidateDevicePortError::InternalError(err.to_string()),
-                ))?
+            .await
+            .map_err(|err| {
+                DomainError::ExternalServiceError(InvalidateDevicePortError::InternalError(
+                    err.to_string(),
+                ))
+            })?
             .ok_or(DomainError::ExternalServiceError(
                 InvalidateDevicePortError::DeviceNotFound,
             ))?;
 
-        token.delete(&self.connection).await.map_err(|err| DomainError::ExternalServiceError(
-                InvalidateDevicePortError::InternalError(err.to_string()),
-            ))?;
+        token.delete(&self.connection).await.map_err(|err| {
+            DomainError::ExternalServiceError(InvalidateDevicePortError::InternalError(
+                err.to_string(),
+            ))
+        })?;
 
         Ok(())
     }

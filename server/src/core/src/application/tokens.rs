@@ -16,10 +16,7 @@ impl<T: LoadDevicePort, H: TokenHasherPort> GetDeviceService<T, H> {
 }
 
 impl<T: LoadDevicePort, H: TokenHasherPort> GetDeviceQuery for GetDeviceService<T, H> {
-    async fn get_device(
-        &self,
-        token: &Token,
-    ) -> DomainResult<UserToken, GetDeviceError> {
+    async fn get_device(&self, token: &Token) -> DomainResult<UserToken, GetDeviceError> {
         let hashed_token = self
             .token_hasher_port
             .hash_token(token.to_owned())
