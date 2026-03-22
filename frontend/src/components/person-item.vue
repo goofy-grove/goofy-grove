@@ -27,7 +27,7 @@ defineProps<PersonItemProps>();
     </div>
 
     <app-modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <p>{{ person.name }}</p>
+      <template #title>{{ person.name }}</template>
       <p>Modal</p>
     </app-modal>
   </div>
