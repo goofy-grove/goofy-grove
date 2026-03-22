@@ -1,3 +1,4 @@
+
 * {
   --background-color: #232323;
   --text-color: #d5d5d5;
@@ -15,6 +16,7 @@ body {
 body,
 #app {
   display: flex;
+  flex-direction: column;
   width: 100dvw;
   height: 100dvh;
 }
