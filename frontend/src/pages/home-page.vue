@@ -5,6 +5,7 @@ import { usePersonsStore } from '@/stores';
 const personsStore = usePersonsStore();
 
 personsStore.loadPersons();
+
 </script>
 
 <template>

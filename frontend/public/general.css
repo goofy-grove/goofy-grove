@@ -3,6 +3,10 @@
   --background-color: #232323;
   --text-color: #d5d5d5;
   --text-size-m: 1.5rem;
+
+  --z-index-modal: 1000;
+
+  --border-color: #333333;
 }
 
 body {

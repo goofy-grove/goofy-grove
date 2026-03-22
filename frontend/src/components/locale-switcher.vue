@@ -20,7 +20,7 @@ getAvailableLocales().then(({ locales }) => (availableLocales.value = locales));
   <div class="app-language-switcher">
     <select class="app-language-switcher__select" v-model="currentLocale">
       <option
-        v-for="([code, label]) in Object.entries(availableLocales)"
+        v-for="[code, label] in Object.entries(availableLocales)"
         :key="code"
         :value="code"
       >
@@ -40,7 +40,7 @@ getAvailableLocales().then(({ locales }) => (availableLocales.value = locales));
     padding: 10px 20px;
     border: none;
     color: var(--text-color);
-    background-color: #333;
+    background-color: var(--border-color);
     border-radius: 6px;
     cursor: pointer;
     font-size: 1.2rem;

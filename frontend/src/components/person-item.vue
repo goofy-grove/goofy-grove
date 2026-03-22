@@ -1,21 +1,35 @@
 <script setup lang="ts">
-import { AppAvatar } from '@/shared/ui';
+import { AppAvatar, AppModal } from '@/shared/ui';
 import type { Person } from '@/stores';
+import { ref } from 'vue';
 
 interface PersonItemProps {
   person: Person;
 }
 
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
 defineProps<PersonItemProps>();
 </script>
 
 <template>
-  <div class="person-item">
+  <div class="person-item" @click="openModal">
     <app-avatar src="afsd" :alt="person.name" />
+
     <div class="person-item__info">
       <p class="person-item__info__name">{{ person.name }}</p>
       <p class="person-item__info__description">{{ person.description }}</p>
     </div>
+
+    <app-modal :is-open="isModalOpen" @close="isModalOpen = false">
+      <p>{{ person.name }}</p>
+      <p>Modal</p>
+    </app-modal>
   </div>
 </template>
 
@@ -24,7 +38,7 @@ defineProps<PersonItemProps>();
   display: flex;
   padding: 8px;
   border-radius: 16px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   cursor: pointer;
 
   &:hover {
