@@ -15,25 +15,14 @@ export const withAuth =
     fn: ApiFn,
   ) =>
   async (...args: Parameters<ApiFn>): Promise<ReturnType<ApiFn>> => {
-    try {
-      await refresh();
-    } catch {
-      api.defaults.headers.common.Authorization = '';
+    if (!authState.token || Date.now() > authState.exp * MILLISECONDS_IN_SECOND) {
+      try {
+        await refresh();
+      } catch {
+        api.defaults.headers.common.Authorization = '';
 
-      throw new Error('Not authorized');
-    }
-
-    if (!authState.token) {
-      api.defaults.headers.common.Authorization = '';
-
-      throw new Error('Not authorized');
-    }
-
-    if (Date.now() > authState.exp * MILLISECONDS_IN_SECOND) {
-      // TODO: refresh tokens
-      api.defaults.headers.common.Authorization = '';
-
-      throw new Error('Token expired');
+        throw new Error('Not authorized');
+      }
     }
 
     api.defaults.headers.common.Authorization = `Bearer ${authState.token}`;
