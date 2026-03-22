@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // TODO: implement independent modal management
 import { useDraggable, useMediaQuery } from '@vueuse/core';
-import { useTemplateRef } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 
 interface AppModalProps {
   initialX?: number;
@@ -24,6 +24,7 @@ const { style } = useDraggable(modalRef, {
     x: props.initialX ?? (window.innerWidth - 600) / 2,
     y: props.initialY ?? (window.innerHeight - 400) / 2,
   },
+  containerElement: ref(document.body),
   preventDefault: true,
   disabled: isMobile,
 });
