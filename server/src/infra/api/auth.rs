@@ -12,7 +12,7 @@ use axum_extra::extract::CookieJar;
 use gg_core::{
     application::{
         auth::UserAuthorizationService,
-        tokens::{CreateDeviceService, GetDeviceService, InvalidateDeviceService},
+        tokens::{CreateDeviceService, InvalidateDeviceService},
         user::GetUserByNameService,
     },
     domain::prelude::*,
@@ -40,7 +40,6 @@ struct AuthorizationState<
     T: TokenGeneratorPort,
     T1: TokenGeneratorPort,
     C: CreateDeviceUseCase,
-    G: GetDeviceQuery,
     V: TokenValidatorPort,
     I: InvalidateDeviceUseCase,
     U: GetUserByNameQuery,
@@ -49,7 +48,6 @@ struct AuthorizationState<
     access_token_generator: T,
     refresh_token_generator: T1,
     create_device_use_case: C,
-    get_device_query: G,
     token_validator_port: V,
     invalidate_device_use_case: I,
     get_user_by_name_query: U,
@@ -83,7 +81,6 @@ async fn generate_tokens(
         impl TokenGeneratorPort,
         impl TokenGeneratorPort,
         impl CreateDeviceUseCase,
-        impl GetDeviceQuery,
         impl TokenValidatorPort,
         impl InvalidateDeviceUseCase,
         impl GetUserByNameQuery,
@@ -128,7 +125,6 @@ async fn refresh_token(
             impl TokenGeneratorPort,
             impl TokenGeneratorPort,
             impl CreateDeviceUseCase,
-            impl GetDeviceQuery,
             impl TokenValidatorPort,
             impl InvalidateDeviceUseCase,
             impl GetUserByNameQuery,
@@ -143,25 +139,19 @@ async fn refresh_token(
         .value();
     let token = Token::new(refresh_token.to_owned());
 
-    let token_data = auth_state
-        .token_validator_port
-        .validate_token(&token)
-        .await
-        .or(Err(response::auth_error(&["Invalid token"])))?;
-
-    let _ = auth_state
-        .get_device_query
-        .get_device(&token)
-        .await
-        .or(Err(response::auth_error(&["Token not found"])))?;
-
     auth_state
         .invalidate_device_use_case
         .invalidate_device(InvalidateDeviceCommand::new(Token::new(
             refresh_token.to_owned(),
         )))
         .await
-        .or(Err(response::auth_error(&["Failed to invalidate device"])))?;
+        .or(Err(response::auth_error(&["Token not found"])))?;
+
+    let token_data = auth_state
+        .token_validator_port
+        .validate_token(&token)
+        .await
+        .or(Err(response::auth_error(&["Invalid token"])))?;
 
     let user = auth_state
         .get_user_by_name_query
@@ -191,7 +181,6 @@ async fn authorize_user(
             impl TokenGeneratorPort,
             impl TokenGeneratorPort,
             impl CreateDeviceUseCase,
-            impl GetDeviceQuery,
             impl TokenValidatorPort,
             impl InvalidateDeviceUseCase,
             impl GetUserByNameQuery,
@@ -315,10 +304,6 @@ pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -
             ArgonTokenHasher,
             UuidGenerator,
             ChronoClock,
-        ),
-        get_device_query: GetDeviceService::new(
-            TokensRepository::new(connection.clone()),
-            ArgonTokenHasher,
         ),
         token_validator_port: JwtRefreshTokenValidator::new(config.clone()),
         invalidate_device_use_case: InvalidateDeviceService::new(

@@ -1,45 +1,6 @@
 use crate::domain::prelude::*;
 
 #[derive(Debug, Clone)]
-pub struct GetDeviceService<T: LoadDevicePort, H: TokenHasherPort> {
-    load_device_port: T,
-    token_hasher_port: H,
-}
-
-impl<T: LoadDevicePort, H: TokenHasherPort> GetDeviceService<T, H> {
-    pub fn new(load_device_port: T, token_hasher_port: H) -> Self {
-        Self {
-            load_device_port,
-            token_hasher_port,
-        }
-    }
-}
-
-impl<T: LoadDevicePort, H: TokenHasherPort> GetDeviceQuery for GetDeviceService<T, H> {
-    async fn get_device(&self, token: &Token) -> DomainResult<UserToken, GetDeviceError> {
-        let hashed_token = self
-            .token_hasher_port
-            .hash_token(token.to_owned())
-            .await
-            .map_err(|err| {
-                DomainError::UseCaseError(GetDeviceError::InternalError(format!("{:?}", err)))
-            })?;
-
-        self.load_device_port
-            .load_device(&hashed_token)
-            .await
-            .map_err(|err| match err {
-                DomainError::ExternalServiceError(LoadDevicePortError::DeviceNotFound) => {
-                    DomainError::QueryError(DomainQueryError::NotFound)
-                }
-                err => {
-                    DomainError::UseCaseError(GetDeviceError::InternalError(format!("{:?}", err)))
-                }
-            })
-    }
-}
-
-#[derive(Debug, Clone)]
 pub struct InvalidateDeviceService<T: InvalidateDevicePort, H: TokenHasherPort> {
     invalidate_device_port: T,
     token_hasher_port: H,
