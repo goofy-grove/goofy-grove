@@ -1,29 +1,22 @@
 <script setup lang="ts">
-// TODO: implement independent modal management
+// TODO: implement independent modal management via hook
 import { useDraggable, useElementSize, useMediaQuery } from '@vueuse/core';
 import { computed, ref, useTemplateRef } from 'vue';
 import { GrFormClose } from 'vue-icons-plus/gr';
-import AppButton from './app-button.vue';
-
-interface AppModalProps {
-  initialX?: number;
-  initialY?: number;
-  isOpen: boolean;
-}
-
-interface AppModalEmits {
-  (e: 'close'): void;
-}
-
-interface AppModalSlots {
-  title: () => void;
-  default: () => void;
-}
+import AppButton from '../../app-button.vue';
+import type { AppModalEmits, AppModalProps, AppModalSlots } from './types';
 
 defineEmits<AppModalEmits>();
 defineSlots<AppModalSlots>();
 
-const props = defineProps<AppModalProps>();
+const {
+  isOpen,
+  initialX,
+  initialY,
+  showClose = true,
+  showHeader = true,
+  disableMove = false,
+} = defineProps<AppModalProps>();
 const modalRef = useTemplateRef('app-modal');
 const modalHeaderRef = useTemplateRef('app-modal__header');
 
@@ -37,15 +30,13 @@ const isModalShouldBeExpanded = computed(
 );
 
 const { style } = useDraggable(modalRef, {
-  initialValue() {
-    return {
-      x: props.initialX ?? window.innerWidth / 4,
-      y: props.initialY ?? window.innerHeight / 4,
-    };
-  },
-  handle: modalHeaderRef,
+  initialValue: () => ({
+    x: initialX ?? window.innerWidth / 4,
+    y: initialY ?? window.innerHeight / 4,
+  }),
+  handle: computed(() => modalHeaderRef.value || modalRef.value),
   containerElement: ref(document.body),
-  disabled: isModalShouldBeExpanded,
+  disabled: computed(() => disableMove || isModalShouldBeExpanded.value),
 });
 </script>
 
@@ -54,17 +45,23 @@ const { style } = useDraggable(modalRef, {
     <Transition name="bounce" :css="!isModalShouldBeExpanded">
       <div
         v-if="isOpen"
+        v-bind="$attrs"
         ref="app-modal"
         :style="!isModalShouldBeExpanded ? style : {}"
         class="app-modal"
         :class="{ 'app-modal--expanded': isMobile }"
       >
-        <div class="app-modal__header" ref="app-modal__header">
+        <div
+          v-if="showHeader"
+          class="app-modal__header"
+          ref="app-modal__header"
+        >
           <div class="app-modal__header__title">
             <slot name="title" />
           </div>
 
           <app-button
+            v-if="showClose"
             class="app-modal__header__close-button"
             type="ghost"
             color="error"
@@ -91,6 +88,8 @@ const { style } = useDraggable(modalRef, {
   border-radius: 16px;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   transition:
     width 0.5s ease,
@@ -110,7 +109,12 @@ const { style } = useDraggable(modalRef, {
   }
 
   &__content {
-    padding: 8px;
+    flex-grow: 1;
+    max-height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   &__header {

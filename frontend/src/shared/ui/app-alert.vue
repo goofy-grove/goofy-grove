@@ -3,9 +3,7 @@ interface AppAlertProps {
   type?: 'error' | 'default';
 }
 
-withDefaults(defineProps<AppAlertProps>(), {
-  type: 'default',
-});
+const { type } = defineProps<AppAlertProps>();
 </script>
 
 <template>

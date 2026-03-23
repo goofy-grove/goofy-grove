@@ -11,5 +11,12 @@
       "invalid_credentials": "Неверный логин или пароль",
       "enter_credentials": "Введите логин и пароль"
     }
+  },
+  "modals": {
+    "confirm": {
+      "title": "Подвердите действие",
+      "cancel": "Отмена",
+      "confirm": "Подтвердить"
+    }
   }
 }

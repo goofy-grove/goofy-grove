@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppAvatar, AppModal } from '@/shared/ui';
+import { AppAvatar, AppConfirmModal } from '@/shared/ui';
 import type { Person } from '@/stores';
 import { ref } from 'vue';
 
@@ -7,18 +7,13 @@ interface PersonItemProps {
   person: Person;
 }
 
-
 const isModalOpen = ref(false);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
 
 defineProps<PersonItemProps>();
 </script>
 
 <template>
-  <div class="person-item" @click="openModal">
+  <div class="person-item" @click="isModalOpen = true">
     <app-avatar src="afsd" :alt="person.name" />
 
     <div class="person-item__info">
@@ -26,12 +21,27 @@ defineProps<PersonItemProps>();
       <p class="person-item__info__description">{{ person.description }}</p>
     </div>
 
-    <app-modal :is-open="isModalOpen" @close="isModalOpen = false">
+    <!-- <app-modal :is-open="isModalOpen" @close="isModalOpen = false">
       <template #title>{{ person.name }}</template>
       <p>Modal</p>
-    </app-modal>
+    </app-modal> -->
+    <app-confirm-modal
+      class="person-item__confirm-modal"
+      :is-open="isModalOpen"
+      @close="isModalOpen = false"
+      @confirm="isModalOpen = false"
+    >
+      {{ person.name }}
+    </app-confirm-modal>
   </div>
 </template>
+
+<style lang="scss">
+.person-item__confirm-modal {
+  min-height: 400px;
+  min-width: 600px;
+}
+</style>
 
 <style lang="scss" scoped>
 .person-item {
