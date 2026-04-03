@@ -3,8 +3,8 @@ import { ref } from "vue";
 export class Person {
   constructor(
     public readonly uid: string,
-    public readonly name: string,
-    public readonly description: string,
+    public name: string,
+    public description: string,
     public readonly creatorUid: string,
   ) {}
 }

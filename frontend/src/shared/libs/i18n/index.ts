@@ -57,7 +57,7 @@ export const getAvailableLocales = async (): Promise<LocaleSettings> => {
 };
 
 async function initI18n() {
-  getAvailableLocales().then(({ default: defaultLocale }) => {
+  getAvailableLocales().then(({ default: defaultLocale, locales }) => {
     loadLocale(defaultLocale);
   });
 }

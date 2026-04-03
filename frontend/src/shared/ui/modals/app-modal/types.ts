@@ -1,4 +1,7 @@
+import type { ClassValue } from 'vue';
+
 export interface AppModalProps {
+  class?: ClassValue;
   initialX?: number;
   initialY?: number;
   showClose?: boolean;
@@ -12,6 +15,6 @@ export interface AppModalEmits {
 }
 
 export interface AppModalSlots {
-  title: () => void;
+  title?: () => void;
   default: () => void;
 }

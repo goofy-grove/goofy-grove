@@ -1,4 +1,5 @@
 import LocaleSwitcher from './locale-switcher.vue';
-import PersonItem from './person-item.vue';
 
-export { LocaleSwitcher, PersonItem };
+export { PersonItem } from './person-item';
+
+export { LocaleSwitcher };

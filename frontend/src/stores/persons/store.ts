@@ -37,10 +37,19 @@ export const usePersonsStore = defineStore('persons', () => {
     }
   };
 
+  const updatePerson = (person: Person) => {
+    const index = persons.value.findIndex((p) => p.uid === person.uid);
+
+    if (index !== -1) {
+      persons.value[index] = person;
+    }
+  };
+
   return {
     persons,
 
     createPerson,
     loadPersons,
+    updatePerson,
   };
 });

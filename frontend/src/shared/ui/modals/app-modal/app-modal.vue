@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // TODO: implement independent modal management via hook
 import { useDraggable, useElementSize, useMediaQuery } from '@vueuse/core';
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, ref, useAttrs, useTemplateRef } from 'vue';
 import { GrFormClose } from 'vue-icons-plus/gr';
 import AppButton from '../../app-button.vue';
 import type { AppModalEmits, AppModalProps, AppModalSlots } from './types';
@@ -16,7 +16,9 @@ const {
   showClose = true,
   showHeader = true,
   disableMove = false,
+  ...props
 } = defineProps<AppModalProps>();
+const attrs = useAttrs();
 const modalRef = useTemplateRef('app-modal');
 const modalHeaderRef = useTemplateRef('app-modal__header');
 
@@ -45,7 +47,7 @@ const { style } = useDraggable(modalRef, {
     <Transition name="bounce" :css="!isModalShouldBeExpanded">
       <div
         v-if="isOpen"
-        v-bind="$attrs"
+        v-bind="props"
         ref="app-modal"
         :style="!isModalShouldBeExpanded ? style : {}"
         class="app-modal"

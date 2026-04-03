@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { AppAvatar, AppConfirmModal } from '@/shared/ui';
-import type { Person } from '@/stores';
+import { AppAvatar } from '@/shared/ui';
+import { usePersonsStore, type Person } from '@/stores';
 import { ref } from 'vue';
+import { PersonEditModal } from './components';
 
 interface PersonItemProps {
   person: Person;
 }
 
 const isModalOpen = ref(false);
+const isLoading = ref(false);
 
-defineProps<PersonItemProps>();
+const { person } = defineProps<PersonItemProps>();
+const personsStore = usePersonsStore();
+
+const handleConfirmEdit = async (person: Person) => {
+  isLoading.value = true;
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  personsStore.updatePerson(person);
+
+  isLoading.value = false;
+  isModalOpen.value = false;
+};
 </script>
 
 <template>
@@ -21,27 +35,15 @@ defineProps<PersonItemProps>();
       <p class="person-item__info__description">{{ person.description }}</p>
     </div>
 
-    <!-- <app-modal :is-open="isModalOpen" @close="isModalOpen = false">
-      <template #title>{{ person.name }}</template>
-      <p>Modal</p>
-    </app-modal> -->
-    <app-confirm-modal
-      class="person-item__confirm-modal"
+    <person-edit-modal
+      :is-loading="isLoading"
+      :person="person"
       :is-open="isModalOpen"
       @close="isModalOpen = false"
-      @confirm="isModalOpen = false"
-    >
-      {{ person.name }}
-    </app-confirm-modal>
+      @confirm="handleConfirmEdit"
+    />
   </div>
 </template>
-
-<style lang="scss">
-.person-item__confirm-modal {
-  min-height: 400px;
-  min-width: 600px;
-}
-</style>
 
 <style lang="scss" scoped>
 .person-item {

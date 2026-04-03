@@ -18,5 +18,14 @@
       "cancel": "Отмена",
       "confirm": "Подтвердить"
     }
+  },
+  "person": {
+    "modals": {
+      "edit_title": "Изменить персону"
+    },
+    "labels": {
+      "description": "Описание",
+      "name": "Название"
+    }
   }
 }

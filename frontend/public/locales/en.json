@@ -18,5 +18,14 @@
       "cancel": "Cancel",
       "confirm": "Confirm"
     }
+  },
+  "person": {
+    "modals": {
+      "edit_title": "Edit person"
+    },
+    "labels": {
+      "description": "Description",
+      "name": "Name"
+    }
   }
 }

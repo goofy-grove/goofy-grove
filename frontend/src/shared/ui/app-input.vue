@@ -2,9 +2,11 @@
 interface AppInputProps {
   label?: string;
   id?: string;
+  multiline?: boolean;
+  disabled?: boolean;
 }
 
-const modelValue = defineModel('modelValue');
+const modelValue = defineModel<string>();
 
 defineProps<AppInputProps>();
 </script>
@@ -12,9 +14,21 @@ defineProps<AppInputProps>();
 <template>
   <div class="app-input">
     <label :for="id" v-if="label">{{ label }}</label>
-    <input
-      class="app-input__input"
+
+    <textarea
+      v-if="multiline"
       :id="id"
+      :disabled="disabled"
+      class="app-input__input"
+      v-model="modelValue"
+      v-bind="$attrs"
+    />
+
+    <input
+      v-else
+      :id="id"
+      :disabled="disabled"
+      class="app-input__input"
       v-model="modelValue"
       v-bind="$attrs"
     />
@@ -56,6 +70,11 @@ defineProps<AppInputProps>();
     &:-webkit-autofill:focus {
       background-color: #434343 !important;
       border: 1px solid var(--text-color);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }

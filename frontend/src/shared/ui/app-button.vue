@@ -1,18 +1,34 @@
 <script setup lang="ts">
+import { ImSpinner7 } from 'vue-icons-plus/im';
+
 interface ButtonProps {
   type?: 'default' | 'ghost';
   color?: 'default' | 'error' | 'success';
+  isLoading?: boolean;
+  disabled?: boolean;
 }
 
-const { type, color } = defineProps<ButtonProps>();
+const {
+  type,
+  color,
+  isLoading = false,
+  disabled = false,
+} = defineProps<ButtonProps>();
 </script>
 
 <template>
   <button
     class="app-button"
     :class="`app-button--${type} app-button--color-${color}`"
+    :disabled="disabled"
   >
-    <slot />
+    <template v-if="isLoading">
+      <im-spinner7 class="app-button__spinner" />
+    </template>
+
+    <template v-else>
+      <slot />
+    </template>
   </button>
 </template>
 
@@ -58,6 +74,27 @@ const { type, color } = defineProps<ButtonProps>();
 
   &:hover {
     background-color: var(--hover-color);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: var(--background-color);
+    }
+  }
+
+  &__spinner {
+    width: 1.2rem;
+    height: 1.2rem;
+    animation: spinner 0.75s linear infinite;
+  }
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
