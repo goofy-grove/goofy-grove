@@ -1,0 +1,4 @@
+# Ignore static generated files
+src/app/lib/@tanstack/router/route-tree.gen.ts
+
+**/*.scss

@@ -1,0 +1,74 @@
+@use 'fonts';
+
+:root {
+  --font-ui: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
+
+  --bg-primary: #0D0F14;
+  --bg-panel: #14171F;
+  --bg-surface: #1B202A;
+  --bg-hover: #242A36;
+  --bg-accent-muted: #2A1A3A;
+
+  --border-default: #2A3140;
+  --border-active: #3D475A;
+
+  --text-primary: #E8EAED;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --text-link: #C084FC;
+
+  --accent-primary: #C084FC;
+  --accent-hover: #D8B4FE;
+  --accent-active: #A855F7;
+  --accent-glow: rgba(192, 132, 252, 0.25);
+  --accent-glow-strong: rgba(192, 132, 252, 0.35);
+
+  --success: #10B981; --success-bg: #065F46;
+  --warning: #F59E0B; --warning-bg: #78350F;
+  --error: #EF4444; --error-bg: #7F1D1D;
+  --info: #3B82F6; --info-bg: #1E3A8A;
+
+  --msg-user-bg: #232833;
+  --msg-ai-bg: #1B202A;
+  --msg-timestamp: #64748B;
+  --msg-code-bg: #151922;
+  --msg-code-text: #A5B4FC;
+
+  --modal-bg: #1B202A;
+  --modal-bg-active: #212633;
+  --modal-bg-inactive: #14171F;
+  --modal-header-bg: #252B38;
+  --modal-border: #2A3140;
+  --modal-border-active: var(--accent-primary);
+  --modal-focus-ring: 0 0 0 2px var(--accent-glow);
+
+  --elev-0: none;
+  --elev-1: 0 4px 14px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+  --elev-2: 0 6px 18px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.25);
+  --elev-3: 0 8px 26px rgba(0, 0, 0, 0.45), 0 12px 36px var(--accent-glow);
+  --elev-4: 0 12px 42px rgba(0, 0, 0, 0.5), 0 16px 52px var(--accent-glow-strong);
+
+  --transition-smooth: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html,
+body {
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+
+  font-family: var(--font-ui);
+
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+pre, code {
+  font-family: var(--font-mono);
+}
+
+body {
+  position: relative;
+}

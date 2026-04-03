@@ -1,0 +1,31 @@
+{
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "labels": {
+      "username": "Enter username",
+      "password": "Enter password"
+    },
+    "errors": {
+      "invalid_credentials": "Invalid login or password",
+      "enter_credentials": "Enter login or password"
+    }
+  },
+  "modals": {
+    "confirm": {
+      "title": "Confirm action",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  },
+  "person": {
+    "modals": {
+      "edit_title": "Edit person"
+    },
+    "labels": {
+      "description": "Description",
+      "name": "Name"
+    }
+  }
+}

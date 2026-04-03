@@ -1,0 +1,31 @@
+{
+  "login": {
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "login": "Войти",
+    "labels": {
+      "username": "Введите имя пользователя",
+      "password": "Введите пароль"
+    },
+    "errors": {
+      "invalid_credentials": "Неверный логин или пароль",
+      "enter_credentials": "Введите логин и пароль"
+    }
+  },
+  "modals": {
+    "confirm": {
+      "title": "Подвердите действие",
+      "cancel": "Отмена",
+      "confirm": "Подтвердить"
+    }
+  },
+  "person": {
+    "modals": {
+      "edit_title": "Изменить персону"
+    },
+    "labels": {
+      "description": "Описание",
+      "name": "Название"
+    }
+  }
+}
