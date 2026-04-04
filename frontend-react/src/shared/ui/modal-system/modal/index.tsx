@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Card } from '../../card';
 import { useModal } from '../hooks';
@@ -16,7 +17,8 @@ export const Modal: FC<ModalProps> = ({ id, children }) => {
   const { componentRef, handleRef } = useDrag();
 
   return (
-    isModalOpen(id) && (
+    isModalOpen(id) &&
+    createPortal(
       <Card
         className="modal"
         ref={componentRef}
@@ -25,7 +27,8 @@ export const Modal: FC<ModalProps> = ({ id, children }) => {
         onClose={handleModalClose}
       >
         {children}
-      </Card>
+      </Card>,
+      document.body,
     )
   );
 };
