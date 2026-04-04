@@ -27,5 +27,8 @@
       "description": "Description",
       "name": "Name"
     }
+  },
+  "ui": {
+    "select_locale": "Select locale"
   }
 }

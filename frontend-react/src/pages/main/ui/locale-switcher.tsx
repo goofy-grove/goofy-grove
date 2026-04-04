@@ -1,27 +1,27 @@
 import { useTranslation } from 'react-i18next';
 
 import { useLocaleSettings } from '../../../shared/lib';
+import { Select } from '../../../shared/ui';
 
 export const LocaleSwitcher = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { locales } = useLocaleSettings();
 
   const handleChange = async (lng: string) => {
     await i18n.changeLanguage(lng);
   };
 
+  const items = Object.entries(locales).map(([value, label]) => ({
+    value,
+    label,
+  }));
+
   return (
-    <>
-      <select
-        value={i18n.language}
-        onChange={(e) => handleChange(e.target.value)}
-      >
-        {Object.entries(locales).map(([code, name]) => (
-          <option key={code} value={code}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </>
+    <Select
+      items={items}
+      selected={i18n.language}
+      onChange={(lang) => handleChange(lang)}
+      placeholder={t('ui.select_locale')}
+    />
   );
 };

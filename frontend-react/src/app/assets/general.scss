@@ -53,6 +53,7 @@
   --elev-3: 0 8px 26px rgba(0, 0, 0, 0.45), 0 12px 36px var(--accent-glow);
   --elev-4: 0 12px 42px rgba(0, 0, 0, 0.5), 0 16px 52px var(--accent-glow-strong);
 
+  --transition-smooth-params: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 
   --text-xs: 0.75rem;
@@ -70,6 +71,14 @@
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+
+  --z-dropdown: 1000;
+
+  --border-radius-base: 8px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
@@ -116,4 +125,24 @@ code {
 
 body {
   position: relative;
+}
+
+.scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--bg-panel);
+    border-radius: 0 0 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-active);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+  }
 }

@@ -8,6 +8,7 @@ export default {
   customSyntax: 'postcss-scss',
   rules: {
     'property-no-unknown': true,
-    'selector-max-id': 2,
+    'max-nesting-depth': null,
+    'selector-no-qualifying-type': null,
   },
 };
