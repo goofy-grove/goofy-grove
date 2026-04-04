@@ -10,21 +10,18 @@ import './styles.scss';
 export const Card: FC<CardProps> = ({
   children,
   closable,
-  onClose,
+  headerRef,
   className,
+  onClose,
   ...rest
 }) => {
   return (
     <div className={`card ${className ?? ''}`} {...rest}>
-      <div className="card__header">
+      <div className="card__header" ref={headerRef}>
         <div className="card__header__title">Card title</div>
 
         {closable && (
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            rightIcon={<IconX />}
-          ></Button>
+          <Button variant="ghost" onClick={onClose} rightIcon={<IconX />} />
         )}
       </div>
 

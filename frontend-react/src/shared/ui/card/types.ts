@@ -1,8 +1,15 @@
-import type { ComponentPropsWithoutRef, PropsWithChildren } from 'react';
+import type {
+  ComponentPropsWithoutRef,
+  PropsWithChildren,
+  RefObject,
+} from 'react';
 
-export type CardProps = PropsWithChildren<{
-  closable?: boolean;
+export type CardProps = ComponentPropsWithoutRef<'div'> &
+  PropsWithChildren<{
+    closable?: boolean;
 
-  onClose?: () => void;
-}> &
-  ComponentPropsWithoutRef<'div'>;
+    headerRef?: RefObject<HTMLDivElement | null>;
+    ref?: RefObject<HTMLDivElement | null>;
+
+    onClose?: () => void;
+  }>;
