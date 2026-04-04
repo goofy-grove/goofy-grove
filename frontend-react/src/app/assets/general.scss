@@ -4,42 +4,46 @@
   --font-ui: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
 
-  --bg-primary: #0D0F14;
-  --bg-panel: #14171F;
-  --bg-surface: #1B202A;
-  --bg-hover: #242A36;
-  --bg-accent-muted: #2A1A3A;
+  --bg-primary: #0d0f14;
+  --bg-panel: #14171f;
+  --bg-surface: #1b202a;
+  --bg-hover: #242a36;
+  --bg-accent-muted: #2a1a3a;
 
-  --border-default: #2A3140;
-  --border-active: #3D475A;
+  --border-default: #2a3140;
+  --border-active: #3d475a;
 
-  --text-primary: #E8EAED;
-  --text-secondary: #9CA3AF;
-  --text-tertiary: #6B7280;
-  --text-link: #C084FC;
+  --text-primary: #e8eaed;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-link: #c084fc;
 
-  --accent-primary: #C084FC;
-  --accent-hover: #D8B4FE;
-  --accent-active: #A855F7;
+  --accent-primary: #c084fc;
+  --accent-hover: #d8b4fe;
+  --accent-active: #a855f7;
   --accent-glow: rgba(192, 132, 252, 0.25);
   --accent-glow-strong: rgba(192, 132, 252, 0.35);
 
-  --success: #10B981; --success-bg: #065F46;
-  --warning: #F59E0B; --warning-bg: #78350F;
-  --error: #EF4444; --error-bg: #7F1D1D;
-  --info: #3B82F6; --info-bg: #1E3A8A;
+  --success: #10b981;
+  --success-bg: #065f46;
+  --warning: #f59e0b;
+  --warning-bg: #78350f;
+  --error: #ef4444;
+  --error-bg: #7f1d1d;
+  --info: #3b82f6;
+  --info-bg: #1e3a8a;
 
   --msg-user-bg: #232833;
-  --msg-ai-bg: #1B202A;
-  --msg-timestamp: #64748B;
+  --msg-ai-bg: #1b202a;
+  --msg-timestamp: #64748b;
   --msg-code-bg: #151922;
-  --msg-code-text: #A5B4FC;
+  --msg-code-text: #a5b4fc;
 
-  --modal-bg: #1B202A;
+  --modal-bg: #1b202a;
   --modal-bg-active: #212633;
-  --modal-bg-inactive: #14171F;
-  --modal-header-bg: #252B38;
-  --modal-border: #2A3140;
+  --modal-bg-inactive: #14171f;
+  --modal-header-bg: #252b38;
+  --modal-border: #2a3140;
   --modal-border-active: var(--accent-primary);
   --modal-focus-ring: 0 0 0 2px var(--accent-glow);
 
@@ -65,7 +69,8 @@ body {
   color: var(--text-primary);
 }
 
-pre, code {
+pre,
+code {
   font-family: var(--font-mono);
 }
 

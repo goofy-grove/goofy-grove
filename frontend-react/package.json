@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "check": "npm run check:format && npm run check:lint && npm run check:types && npm run check:architecture && npm run check:styles",
     "check:format": "prettier --check \"src/**/*.{ts,tsx}\"",
     "check:format:fix": "prettier --write \"src/**/*.{ts,tsx}\"",
     "check:lint": "eslint \"src/**/*.{ts,tsx}\"",
@@ -60,5 +61,8 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.2"
+  },
+  "stylelint": {
+    "extends": "./stylelint.config.mjs"
   }
 }

@@ -3,13 +3,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { queryClient } from '../lib';
 
-export const withQuery =
-  (component: () => React.ReactNode) => (): React.ReactNode => {
-    return (
-      <QueryClientProvider client={queryClient}>
-        {component()}
+export const withQuery = (component: () => React.ReactNode) => () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {component()}
 
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
-      </QueryClientProvider>
-    );
-  };
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
+  );
+};

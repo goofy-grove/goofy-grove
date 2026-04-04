@@ -1,6 +1,5 @@
 import { StrictMode } from 'react';
 
-export const withStrictMode =
-  (component: () => React.ReactNode) => (): React.ReactNode => (
-    <StrictMode>{component()}</StrictMode>
-  );
+export const withStrictMode = (component: () => React.ReactNode) => () => (
+  <StrictMode>{component()}</StrictMode>
+);
