@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import { useLocaleSettings } from '../lib';
+import { useLocaleSettings } from '../../../shared/lib';
 
-export const withLocaleSwitcher = (component: () => React.ReactNode) => () => {
+export const LocaleSwitcher = () => {
   const { i18n } = useTranslation();
   const { locales } = useLocaleSettings();
 
@@ -22,8 +22,6 @@ export const withLocaleSwitcher = (component: () => React.ReactNode) => () => {
           </option>
         ))}
       </select>
-
-      {component()}
     </>
   );
 };

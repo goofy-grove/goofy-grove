@@ -2,8 +2,9 @@ import { createRoot } from 'react-dom/client';
 
 import './assets/general.scss';
 
+import { initI18n } from '../shared/lib';
+
 import { withProviders } from './providers';
-import { initI18n } from './lib';
 
 const rootElement = document.getElementById('root');
 
