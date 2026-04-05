@@ -12,9 +12,7 @@ export const Button: FC<ButtonProps> = ({
   onClick,
 }) => (
   <button
-    className={`button ${variant ?? ''} ${!children ? 'iconic' : ''} ${
-      disabled ? 'disabled' : ''
-    }`}
+    className={`button ${variant ?? ''} ${!children ? 'iconic' : ''}`}
     disabled={disabled}
     onClick={onClick}
   >

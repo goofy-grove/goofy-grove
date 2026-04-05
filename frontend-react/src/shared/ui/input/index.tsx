@@ -2,13 +2,26 @@ import type { FC } from 'react';
 import './styles.scss';
 import type { InputProps } from './types';
 
-export const Input: FC<InputProps> = ({ value, placeholder, onChange }) => {
+export const Input: FC<InputProps> = ({
+  value,
+  placeholder,
+  label,
+  id,
+  disabled,
+  onChange,
+}) => {
   return (
-    <input
-      className="input"
-      value={value}
-      placeholder={placeholder}
-      onChange={(e) => onChange?.(e.target.value)}
-    />
+    <div className="input-wrapper">
+      {label && <label htmlFor={id}>{label}</label>}
+
+      <input
+        className="input"
+        value={value}
+        id={id}
+        disabled={disabled}
+        placeholder={placeholder}
+        onChange={(e) => onChange?.(e.target.value)}
+      />
+    </div>
   );
 };

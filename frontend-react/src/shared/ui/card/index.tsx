@@ -10,6 +10,7 @@ import './styles.scss';
 export const Card: FC<CardProps> = ({
   children,
   closable,
+  title,
   headerRef,
   className,
   actions,
@@ -19,7 +20,7 @@ export const Card: FC<CardProps> = ({
   return (
     <div className={`card ${className ?? ''}`} {...rest}>
       <div className="card__header" ref={headerRef}>
-        <div className="card__header__title">Card title</div>
+        <div className="card__header__title">{title}</div>
 
         <div className="card__header__actions">
           {actions}

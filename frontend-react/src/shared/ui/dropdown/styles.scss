@@ -5,14 +5,14 @@
 
   &__content {
     position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
     z-index: var(--z-dropdown);
     box-shadow: var(--elev-1);
 
     background-color: var(--bg-surface);
     border-radius: var(--border-radius-base);
     border: 1px solid var(--border-default);
+
+    overflow: hidden;
 
     animation: heightExpand 0.25s ease-in-out;
   }

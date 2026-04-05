@@ -15,8 +15,8 @@
   justify-content: center;
   gap: 8px;
 
-  &.disabled {
-    opacity: 0.5;
+  &:disabled {
+    opacity: 0.75;
     pointer-events: none;
   }
 

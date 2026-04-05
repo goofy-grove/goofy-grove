@@ -10,5 +10,6 @@ export default {
     'property-no-unknown': true,
     'max-nesting-depth': null,
     'selector-no-qualifying-type': null,
+    'selector-max-id': 1,
   },
 };

@@ -8,11 +8,26 @@
   font-size: var(--text-lg);
   line-height: var(--leading-normal);
 
-  &:hover {
+  &:disabled ~ label {
+    pointer-events: none;
+  }
+
+  &:disabled {
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  &-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &:hover:not(:disabled) {
     background-color: var(--bg-hover);
   }
 
-  &:focus {
+  &:focus:not(:disabled) {
     outline: none;
     border-color: var(--border-active);
     background-color: var(--bg-hover);

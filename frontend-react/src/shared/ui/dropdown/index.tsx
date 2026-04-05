@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FC } from 'react';
 import { createPortal } from 'react-dom';
-import { useFloating } from '@floating-ui/react';
+import { offset, useFloating } from '@floating-ui/react';
 
 import type { DropdownProps } from './types';
 
@@ -25,6 +25,7 @@ export const Dropdown: FC<DropdownProps> = ({
   const { refs, floatingStyles } = useFloating({
     open: isDropdownOpen,
     placement: 'bottom-start',
+    middleware: [offset(4)],
   });
 
   const handleShow = () => {

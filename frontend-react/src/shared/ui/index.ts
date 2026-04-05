@@ -4,3 +4,4 @@ export * from './card';
 export * from './button';
 export * from './dropdown';
 export * from './modal-system';
+export * from './icons';

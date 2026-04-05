@@ -23,6 +23,13 @@
 
     font-size: var(--text-xl);
 
+    &__title {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     &__actions {
       display: flex;
       align-items: center;

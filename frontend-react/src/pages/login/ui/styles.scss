@@ -1,0 +1,28 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  margin: auto;
+
+  align-items: center;
+
+  width: 768px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 16px;
+  }
+}
+
+.login-page-card {
+  width: 100%;
+  height: max-content;
+
+  &__form {
+    padding: 0 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}

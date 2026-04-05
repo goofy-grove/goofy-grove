@@ -7,10 +7,10 @@ import type {
 
 export type CardProps = ComponentPropsWithoutRef<'div'> &
   PropsWithChildren<{
+    title?: string;
     closable?: boolean;
 
     actions?: ReactNode;
-
     headerRef?: RefObject<HTMLDivElement | null>;
     ref?: RefObject<HTMLDivElement | null>;
 
