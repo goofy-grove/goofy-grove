@@ -9,6 +9,17 @@
   animation: expand var(--transition-smooth-params);
 }
 
+.expanded {
+  width: 100dvw !important;
+  height: 100dvh !important;
+  transform: none !important;
+  border: 0;
+
+  border-radius: 0;
+
+  transition: width var(--transition-smooth-params), height var(--transition-smooth-params), transform var(--transition-smooth-params);
+}
+
 @keyframes expand {
   from {
     transform: scale(0);

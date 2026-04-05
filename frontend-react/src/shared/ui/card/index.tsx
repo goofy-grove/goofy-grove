@@ -12,6 +12,7 @@ export const Card: FC<CardProps> = ({
   closable,
   headerRef,
   className,
+  actions,
   onClose,
   ...rest
 }) => {
@@ -20,9 +21,13 @@ export const Card: FC<CardProps> = ({
       <div className="card__header" ref={headerRef}>
         <div className="card__header__title">Card title</div>
 
-        {closable && (
-          <Button variant="ghost" onClick={onClose} rightIcon={<IconX />} />
-        )}
+        <div className="card__header__actions">
+          {actions}
+
+          {closable && (
+            <Button variant="ghost" onClick={onClose} rightIcon={<IconX />} />
+          )}
+        </div>
       </div>
 
       <div className="card__content">{children}</div>
