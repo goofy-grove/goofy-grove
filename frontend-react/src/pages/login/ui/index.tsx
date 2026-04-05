@@ -1,9 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
-import { Button, Card, IconLoader, Input } from '../../../shared/ui';
+import {
+  Button,
+  Card,
+  IconLoader,
+  Input,
+  LocaleSwitcher,
+} from '../../../shared/ui';
 import './styles.scss';
-import { LocaleSwitcher } from '../../main/ui/locale-switcher';
 
 export const LoginPage = () => {
   const { t } = useTranslation();

@@ -1,9 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { IconChevronDown } from '@tabler/icons-react';
 
-import { Button, Card, Input, Modal, useModal } from '../../../shared/ui';
-
-import { LocaleSwitcher } from './locale-switcher';
+import {
+  Button,
+  Card,
+  Input,
+  LocaleSwitcher,
+  Modal,
+  useModal,
+} from '../../../shared/ui';
 
 export const MainPage = () => {
   const { t } = useTranslation();

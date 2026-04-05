@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import { useLocaleSettings } from '../../../shared/lib';
-import { Select } from '../../../shared/ui';
+import { useLocaleSettings } from '../lib';
+
+import { Select } from './select';
 
 export const LocaleSwitcher = () => {
   const { i18n, t } = useTranslation();
