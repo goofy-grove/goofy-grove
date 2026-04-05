@@ -7,7 +7,6 @@ import {
   IconLoader,
   Input,
   LocaleSwitcher,
-  Text,
 } from '../../../shared/ui';
 import './styles.scss';
 import { useLoginForm } from '../model';
