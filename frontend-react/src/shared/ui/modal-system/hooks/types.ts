@@ -10,7 +10,7 @@ export type ModalRegistry = Record<string, ModalState>;
 export type ModalZIndexRegistry = Record<string, number>;
 
 export type ModalWindowContext = {
-  modals: ModalRegistry;
+  modals: RefObject<ModalRegistry>;
   zIndexes: RefObject<ModalZIndexRegistry>;
   activeId: string | null;
 
