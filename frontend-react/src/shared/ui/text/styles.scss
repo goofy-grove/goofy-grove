@@ -1,0 +1,36 @@
+.text {
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+
+  margin: 0;
+
+  &.secondary {
+    color: var(--text-secondary);
+  }
+
+  &.tertiary {
+    color: var(--text-tertiary);
+  }
+
+  &.link {
+    color: var(--text-link);
+  }
+
+  &.error {
+    color: var(--error);
+  }
+
+  &.success {
+    color: var(--success);
+  }
+
+  &.warning {
+    color: var(--warning);
+  }
+
+  &.accent {
+    color: var(--accent-primary);
+  }
+}
+

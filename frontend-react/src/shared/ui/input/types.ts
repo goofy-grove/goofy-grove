@@ -1,4 +1,9 @@
-export type InputProps = {
+import type { ComponentPropsWithoutRef } from 'react';
+
+export type InputProps = Omit<
+  ComponentPropsWithoutRef<'input'>,
+  'onChange' | 'onInput'
+> & {
   value?: string;
 
   placeholder?: string;

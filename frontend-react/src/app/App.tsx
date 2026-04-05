@@ -6,7 +6,7 @@ import { RouterProvider } from '@tanstack/react-router';
 import { ModalProvider } from '../shared/ui';
 
 import { queryClient, router } from './lib';
-import { AuthProvider, useAuth } from './auth';
+import { AuthProvider, useAuth } from '../shared/auth';
 
 const InnerApp = () => {
   const auth = useAuth();

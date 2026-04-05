@@ -10,7 +10,7 @@
     },
     "errors": {
       "invalid_credentials": "Invalid login or password",
-      "enter_credentials": "Enter login or password"
+      "enter_credentials": "Enter login and password"
     }
   },
   "modals": {

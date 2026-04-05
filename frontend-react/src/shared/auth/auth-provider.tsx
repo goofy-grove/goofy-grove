@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { api } from '../../shared/api';
+import { api } from '../api';
 import { type User } from '../../entities/users';
 
 import { AuthContext } from './use-auth';

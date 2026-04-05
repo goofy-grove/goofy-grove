@@ -1,25 +1,17 @@
 import type { FC } from 'react';
 import './styles.scss';
 import type { InputProps } from './types';
+import { Text } from '../text';
 
-export const Input: FC<InputProps> = ({
-  value,
-  placeholder,
-  label,
-  id,
-  disabled,
-  onChange,
-}) => {
+export const Input: FC<InputProps> = ({ id, label, onChange, ...rest }) => {
   return (
     <div className="input-wrapper">
-      {label && <label htmlFor={id}>{label}</label>}
+      {label && <Text tag="label" htmlFor={id}>{label}</Text>}
 
       <input
         className="input"
-        value={value}
         id={id}
-        disabled={disabled}
-        placeholder={placeholder}
+        {...rest}
         onChange={(e) => onChange?.(e.target.value)}
       />
     </div>

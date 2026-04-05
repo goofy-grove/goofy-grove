@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
 
 import {
   Button,
@@ -7,38 +6,55 @@ import {
   IconLoader,
   Input,
   LocaleSwitcher,
+  Text,
 } from '../../../shared/ui';
 import './styles.scss';
+import { useLoginForm } from '../model';
 
 export const LoginPage = () => {
   const { t } = useTranslation();
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogin = () => {
-    setIsLoading(true);
-  };
+  const {
+    isLoading,
+    username,
+    password,
+    error,
+    setUsername,
+    setPassword,
+    handleSubmit,
+  } = useLoginForm();
 
   return (
     <div className="login-page">
       <Card className="login-page-card" title={t('login.title')}>
         <div className="login-page-card__form">
+          {error && (
+            <Text tag="p" variant="error">
+              {t(error)}
+            </Text>
+          )}
+
           <Input
             id="username"
+            value={username}
             disabled={isLoading}
             label={t('login.labels.username')}
             placeholder={t('login.labels.username')}
+            onChange={setUsername}
           />
 
           <Input
             id="password"
+            type="password"
+            value={password}
             disabled={isLoading}
             label={t('login.labels.password')}
             placeholder={t('login.labels.password')}
+            onChange={setPassword}
           />
 
           <Button
-            onClick={handleLogin}
+            onClick={handleSubmit}
             disabled={isLoading}
             leftIcon={isLoading && <IconLoader isAnimated />}
           >

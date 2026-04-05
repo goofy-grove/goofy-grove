@@ -5,5 +5,6 @@ export * from './button';
 export * from './dropdown';
 export * from './modal-system';
 export * from './icons';
+export * from './text';
 
 export { LocaleSwitcher } from './locale-switcher';
