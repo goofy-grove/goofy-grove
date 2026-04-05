@@ -39,6 +39,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@feature-sliced/steiger-plugin": "^0.5.7",
+    "@tanstack/eslint-plugin-router": "^1.161.6",
     "@tanstack/router-plugin": "^1.167.12",
     "@types/compose-function": "^0.0.33",
     "@types/react": "^19.2.14",

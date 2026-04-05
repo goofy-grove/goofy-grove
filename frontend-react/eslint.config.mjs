@@ -6,6 +6,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import pluginRouter from '@tanstack/eslint-plugin-router'
 
 export default defineConfig(
   globalIgnores(['dist']),
@@ -18,6 +19,9 @@ export default defineConfig(
   eslintPluginImport.flatConfigs.recommended,
   eslintPluginImport.flatConfigs.typescript,
   eslintPluginImport.flatConfigs.react,
+
+  pluginRouter.configs['flat/recommended'],
+
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
@@ -44,6 +48,23 @@ export default defineConfig(
             attributes: false,
           },
         },
+      ],
+      "@typescript-eslint/only-throw-error": [
+        "error",
+        {
+          "allow": [
+            {
+              "from": "package",
+              "package": "@tanstack/router-core",
+              "name": "Redirect"
+            },
+            {
+              "from": "package",
+              "package": "@tanstack/router-core",
+              "name": "NotFoundError"
+            }
+          ]
+        }
       ],
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',

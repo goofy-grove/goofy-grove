@@ -4,12 +4,12 @@ import './assets/general.scss';
 
 import { initI18n } from '../shared/lib';
 
-import { withProviders } from './providers';
+import { App } from './App';
 
 const rootElement = document.getElementById('root');
 
 if (rootElement && !rootElement?.innerHTML) {
   const root = createRoot(rootElement);
 
-  void initI18n().then(() => root.render(withProviders(() => null)()));
+  void initI18n().then(() => root.render(<App />));
 }
