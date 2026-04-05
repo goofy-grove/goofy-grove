@@ -5,6 +5,7 @@ export type ButtonProps = PropsWithChildren<{
   leftIcon?: ReactNode;
 
   disabled?: boolean;
+  className?: string;
 
   variant?: 'default' | 'ghost';
 

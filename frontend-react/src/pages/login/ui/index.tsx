@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import {
+  Alert,
   Button,
   Card,
   IconLoader,
@@ -28,11 +29,7 @@ export const LoginPage = () => {
     <div className="login-page">
       <Card className="login-page-card" title={t('login.title')}>
         <div className="login-page-card__form">
-          {error && (
-            <Text tag="p" variant="error">
-              {t(error)}
-            </Text>
-          )}
+          {error && <Alert type="error" message={t(error)} closable />}
 
           <Input
             id="username"
