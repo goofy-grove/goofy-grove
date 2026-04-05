@@ -7,28 +7,16 @@ export const Route = createFileRoute('/home')({
   beforeLoad: async ({ context, matches, location }) => {
     const route = matches.at(-1);
 
-    if (!route?.staticData?.isAuthRequired) {
-      return;
-    }
-
-    const redirectToLogin = () => {
+    try {
+      if (route?.staticData?.isAuthRequired && !context.auth.user) {
+        await context.auth.getMe();
+      }
+    } catch {
       throw redirect({
         to: '/login',
         replace: true,
         search: { redirect: location.href },
       });
-    };
-
-    try {
-      const user = await context.auth.getMe();
-
-      return { auth: { ...context.auth, user, isAuthenticated: true } };
-    } catch {
-      redirectToLogin();
-    }
-
-    if (route.staticData.isAuthRequired && !context.auth.isAuthenticated) {
-      redirectToLogin();
     }
   },
   staticData: {

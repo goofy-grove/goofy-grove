@@ -4,9 +4,9 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 
 import { ModalProvider } from '../shared/ui';
+import { useAuth, AuthProvider } from '../entities/auth';
 
 import { queryClient, router } from './lib';
-import { AuthProvider, useAuth } from '../shared/auth';
 
 const InnerApp = () => {
   const auth = useAuth();

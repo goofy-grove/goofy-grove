@@ -1,7 +1,7 @@
 import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useState } from 'react';
 
-import { useAuth } from '../../../shared/auth';
+import { useAuth } from '../../../entities/auth';
 
 export const useLoginForm = () => {
   const [username, setUsername] = useState('');

@@ -1,12 +1,18 @@
-import type { FC } from 'react';
-import './styles.scss';
-import type { InputProps } from './types';
 import { Text } from '../text';
+
+import type { InputProps } from './types';
+import type { FC } from 'react';
+
+import './styles.scss';
 
 export const Input: FC<InputProps> = ({ id, label, onChange, ...rest }) => {
   return (
     <div className="input-wrapper">
-      {label && <Text tag="label" htmlFor={id}>{label}</Text>}
+      {label && (
+        <Text tag="label" htmlFor={id}>
+          {label}
+        </Text>
+      )}
 
       <input
         className="input"
