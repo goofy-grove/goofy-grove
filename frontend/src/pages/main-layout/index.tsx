@@ -1,7 +1,7 @@
 import './styles.scss';
 
-import { IconMenu2, IconUserCircle } from '@tabler/icons-react';
-import { Outlet } from '@tanstack/react-router';
+import { IconMenu2, IconUser, IconUserCircle } from '@tabler/icons-react';
+import { Link, Outlet } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 
 import { Button, Input, Text } from '../../shared/ui';
@@ -39,8 +39,15 @@ export const MainLayout = () => {
       </div>
 
       <div className="main-layout__body">
-        <div className={`main-layout__sidebar ${!isSidebarOpened ? 'closed' : ''}`}>
-          <Text tag="h1">sidebar</Text>
+        <div
+          className={`main-layout__sidebar ${!isSidebarOpened ? 'collapsed' : ''}`}
+        >
+          <Button variant="ghost" leftIcon={<IconUser />}>
+            {isSidebarOpened ? 'Personas' : ''}
+          </Button>
+          <Button variant="ghost" leftIcon={<IconUser />}>
+            {isSidebarOpened ? 'Personas' : ''}
+          </Button>
         </div>
 
         <div className="main-layout__content-wrapper">
