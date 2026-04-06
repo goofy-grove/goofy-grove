@@ -1,0 +1,14 @@
+:root {
+  --rp-c-brand: #c084fc;
+  --rp-c-brand-dark: #b36bfb;
+  --rp-c-brand-darker: #a752fb;
+  --rp-c-brand-light: #dab6fd;
+  --rp-c-brand-lighter: #f3e8fe;
+  --rp-c-brand-tint: rgba(192, 132, 252, 0.15);
+}
+
+:where(html.rp-dark) {
+  --rp-c-bg: #0d0f14;
+  --rp-c-divider-light: #2a3140;
+  --rp-code-title-bg: #1b202a;
+}
