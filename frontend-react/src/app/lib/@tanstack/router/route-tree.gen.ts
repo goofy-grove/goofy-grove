@@ -10,42 +10,50 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as HomeRouteImport } from './routes/home'
+import { Route as MainLayoutRouteImport } from './routes/_main-layout'
+import { Route as MainLayoutHomeRouteImport } from './routes/_main-layout/home'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeRoute = HomeRouteImport.update({
+const MainLayoutRoute = MainLayoutRouteImport.update({
+  id: '/_main-layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MainLayoutHomeRoute = MainLayoutHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => MainLayoutRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/home': typeof HomeRoute
+  '/': typeof MainLayoutRouteWithChildren
   '/login': typeof LoginRoute
+  '/home': typeof MainLayoutHomeRoute
 }
 export interface FileRoutesByTo {
-  '/home': typeof HomeRoute
+  '/': typeof MainLayoutRouteWithChildren
   '/login': typeof LoginRoute
+  '/home': typeof MainLayoutHomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/home': typeof HomeRoute
+  '/_main-layout': typeof MainLayoutRouteWithChildren
   '/login': typeof LoginRoute
+  '/_main-layout/home': typeof MainLayoutHomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/home' | '/login'
+  fullPaths: '/' | '/login' | '/home'
   fileRoutesByTo: FileRoutesByTo
-  to: '/home' | '/login'
-  id: '__root__' | '/home' | '/login'
+  to: '/' | '/login' | '/home'
+  id: '__root__' | '/_main-layout' | '/login' | '/_main-layout/home'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  HomeRoute: typeof HomeRoute
+  MainLayoutRoute: typeof MainLayoutRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -58,18 +66,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/home': {
-      id: '/home'
+    '/_main-layout': {
+      id: '/_main-layout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof MainLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_main-layout/home': {
+      id: '/_main-layout/home'
       path: '/home'
       fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof MainLayoutHomeRouteImport
+      parentRoute: typeof MainLayoutRoute
     }
   }
 }
 
+interface MainLayoutRouteChildren {
+  MainLayoutHomeRoute: typeof MainLayoutHomeRoute
+}
+
+const MainLayoutRouteChildren: MainLayoutRouteChildren = {
+  MainLayoutHomeRoute: MainLayoutHomeRoute,
+}
+
+const MainLayoutRouteWithChildren = MainLayoutRoute._addFileChildren(
+  MainLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  HomeRoute: HomeRoute,
+  MainLayoutRoute: MainLayoutRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
