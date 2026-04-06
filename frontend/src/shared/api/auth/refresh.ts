@@ -1,12 +1,13 @@
 import { api } from '../axios';
 import { updateAuthState, withValidation } from '../common';
+
 import { AuthResponseSchema } from './schema';
 
 export const refresh = async () => {
   const refreshTokens = withValidation(AuthResponseSchema, async () => {
     const response = await api.post('/auth/refresh');
 
-    return response.data;
+    return response.data as unknown;
   });
 
   const result = await refreshTokens();

@@ -1,5 +1,6 @@
 import { api } from '../axios';
 import { updateAuthState, withValidation } from '../common';
+
 import { AuthResponseSchema } from './schema';
 
 export const authorize = async (username: string, password: string) => {
@@ -8,8 +9,8 @@ export const authorize = async (username: string, password: string) => {
     async (username: string, password: string) => {
       const response = await api.post('/auth/login', { password, username });
 
-      return response.data;
-    }
+      return response.data as unknown;
+    },
   );
 
   const result = await auth(username, password);

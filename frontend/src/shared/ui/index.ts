@@ -1,7 +1,11 @@
-import AppText from './app-alert.vue';
-import AppAvatar from './app-avatar.vue';
-import AppButton from './app-button.vue';
-import AppInput from './app-input.vue';
+export * from './select';
+export * from './input';
+export * from './card';
+export * from './button';
+export * from './dropdown';
+export * from './modal-system';
+export * from './icons';
+export * from './text';
+export * from './alert';
 
-export * from './modals';
-export { AppAvatar, AppButton, AppInput, AppText };
+export { LocaleSwitcher } from './locale-switcher';
