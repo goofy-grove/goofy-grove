@@ -1,7 +1,7 @@
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithRef } from 'react';
 
 export type InputProps = Omit<
-  ComponentPropsWithoutRef<'input'>,
+  ComponentPropsWithRef<'input'>,
   'onChange' | 'onInput'
 > & {
   value?: string;

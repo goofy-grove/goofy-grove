@@ -12,10 +12,19 @@ import type { ModalProps } from './types';
 
 import './styles.scss';
 
-export const Modal: FC<ModalProps> = ({ id, children }) => {
+export const Modal: FC<ModalProps> = ({
+  id,
+  children,
+  withoutHeader,
+  onClose,
+  bounds = document.body,
+}) => {
   const { closeModal, isModalOpen } = useModal();
 
-  const handleModalClose = () => closeModal(id);
+  const handleModalClose = () => {
+    closeModal(id);
+    onClose?.();
+  };
 
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(400);
@@ -48,19 +57,21 @@ export const Modal: FC<ModalProps> = ({ id, children }) => {
         className={`modal__wrapper ${isExpanded || isMobile ? 'expanded' : ''}`}
         enableResizing={resizeParamters}
         disableDragging={isExpanded || isMobile}
-        bounds={document.body}
+        bounds={bounds}
         default={defaultParameters}
         onResize={handleResize}
         minWidth={300}
         minHeight={200}
-        dragHandleClassName="card__header"
+        dragHandleClassName={withoutHeader ? id : `card-header-${id}`}
       >
         <Card
+          id={id}
           className={`modal ${isExpanded || isMobile ? 'expanded' : ''}`}
           style={{
             width,
             height,
           }}
+          withoutHeader={withoutHeader}
           closable
           onClose={handleModalClose}
           actions={

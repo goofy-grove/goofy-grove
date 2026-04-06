@@ -10,6 +10,8 @@ export type CardProps = ComponentPropsWithoutRef<'div'> &
     title?: string;
     closable?: boolean;
 
+    withoutHeader?: boolean;
+
     actions?: ReactNode;
     headerRef?: RefObject<HTMLDivElement | null>;
     ref?: RefObject<HTMLDivElement | null>;
