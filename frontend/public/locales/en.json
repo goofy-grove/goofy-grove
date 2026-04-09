@@ -31,5 +31,12 @@
   },
   "ui": {
     "select_locale": "Select locale"
+  },
+  "menu": {
+    "personas": "Personas",
+    "characters": "Characters",
+    "chats": "Chats",
+    "settings": "Settings",
+    "other": "Other"
   }
 }

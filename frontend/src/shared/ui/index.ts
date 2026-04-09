@@ -7,5 +7,6 @@ export * from './modal-system';
 export * from './icons';
 export * from './text';
 export * from './alert';
+export * from './hooks';
 
 export { LocaleSwitcher } from './locale-switcher';

@@ -75,6 +75,20 @@
   --z-dropdown: 1000;
 
   --border-radius-base: 8px;
+  --border-radius-full: 9999px;
+
+  // Extra Small Mobile (Portrait): 320px - 480px
+  // Small Mobile (Landscape): 481px – 600px
+  // Small Tablets (Portrait): 601px – 768px
+  // Large Tablets (Landscape): 769px – 1024px
+  // Small Desktops and Laptops: 1025px – 1280px
+  // Large Desktops: 1281px and above
+  // NOTE: https://www.browserstack.com/guide/responsive-design-breakpoints
+  --mobile-xs: 480px;
+  --mobile-sm: 600px;
+  --tablet-sm: 768px;
+  --tablet-lg: 1024px;
+  --desktop-sm: 1280px;
 }
 
 * {

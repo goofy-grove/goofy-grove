@@ -31,5 +31,12 @@
   },
   "ui": {
     "select_locale": "Выберите язык"
+  },
+  "menu": {
+    "personas": "Персоны",
+    "characters": "Персонажи",
+    "chats": "Чаты",
+    "settings": "Настройки",
+    "other": "Другое"
   }
 }
