@@ -15,7 +15,17 @@
     padding: 12px;
 
     &__menu-button {
-      margin-right: auto;
+      // FIXME: Make it as breakpoint variable or mixin
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+
+    &__right-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
     }
   }
 
@@ -28,6 +38,7 @@
 
     @media (max-width: 1024px) {
       padding-left: 0;
+      flex-direction: column;
     }
   }
 
@@ -52,11 +63,9 @@
     }
 
     @media (max-width: 1024px) {
-      transition: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform: translateX(-100%);
+      width: 100%;
+      flex-direction: row;
+      padding: 12px;
     }
   }
 

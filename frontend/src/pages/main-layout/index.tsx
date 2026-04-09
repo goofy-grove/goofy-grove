@@ -1,14 +1,23 @@
 import './styles.scss';
 
-import { IconMenu2, IconUser, IconUserCircle } from '@tabler/icons-react';
-import { Link, Outlet } from '@tanstack/react-router';
+import {
+  IconHome,
+  IconMenu2,
+  IconSettings,
+  IconUser,
+  IconUserCircle,
+} from '@tabler/icons-react';
+import { Outlet } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
 
-import { Button, Input, Text } from '../../shared/ui';
+import { Button, Input } from '../../shared/ui';
 import { useAuthStore } from '../../entities/auth';
 
 export const MainLayout = () => {
-  const [isSidebarOpened, setIsSidebarOpened] = useState(false);
+  const [isSidebarOpened, setIsSidebarOpened] = useState(true);
+  // FIXME: make it as independent hook
+  const isSemiMobile = useMediaQuery({ query: '(max-width: 1024px)' });
   const input = useRef<HTMLInputElement>(null);
   const user = useAuthStore((state) => state.currentUser);
 
@@ -34,19 +43,24 @@ export const MainLayout = () => {
           onClick={() => setIsSidebarOpened(!isSidebarOpened)}
         />
 
-        <Input ref={input} placeholder="Search [Ctrl + K]" />
-        <Button leftIcon={<IconUserCircle />}>{user?.username}</Button>
+        <div className="main-layout__header__right-actions">
+          <Input ref={input} placeholder="Search [Ctrl + K]" />
+          <Button leftIcon={<IconUserCircle />}>{user?.username}</Button>
+        </div>
       </div>
 
       <div className="main-layout__body">
         <div
           className={`main-layout__sidebar ${!isSidebarOpened ? 'collapsed' : ''}`}
         >
-          <Button variant="ghost" leftIcon={<IconUser />}>
-            {isSidebarOpened ? 'Personas' : ''}
+          <Button variant="ghost" leftIcon={<IconHome />}>
+            {isSidebarOpened || isSemiMobile ? 'Home' : ''}
           </Button>
           <Button variant="ghost" leftIcon={<IconUser />}>
-            {isSidebarOpened ? 'Personas' : ''}
+            {isSidebarOpened || isSemiMobile ? 'Personas' : ''}
+          </Button>
+          <Button variant="ghost" leftIcon={<IconSettings />}>
+            {isSidebarOpened || isSemiMobile ? 'Settings' : ''}
           </Button>
         </div>
 

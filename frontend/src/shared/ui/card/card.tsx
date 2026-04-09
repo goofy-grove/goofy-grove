@@ -21,7 +21,7 @@ export const Card: FC<CardProps> = ({
 }) => {
   return (
     <div id={id} className={`card ${className ?? ''}`} {...rest}>
-      {withoutHeader && (
+      {!withoutHeader && (
         <div
           className="card__header"
           id={id ? `card-header-${id}` : ''}
