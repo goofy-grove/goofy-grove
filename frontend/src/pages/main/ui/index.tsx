@@ -1,9 +1,9 @@
 import {
   Button,
+  registerWindow,
   useCurrentWindow,
   useWindow,
   Window,
-  windowRegistry,
   type WindowProps,
 } from '../../../shared/ui';
 
@@ -27,7 +27,7 @@ export const MainPageWindow: FC<
   );
 };
 
-windowRegistry.register('main-page-window', MainPageWindow);
+registerWindow('main-page-window', MainPageWindow);
 
 export const MainPage = () => {
   const { openWindow, isWindowOpen, closeWindow, maximizeWindow } =
