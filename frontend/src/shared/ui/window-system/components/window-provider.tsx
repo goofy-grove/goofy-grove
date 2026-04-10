@@ -5,7 +5,7 @@ import {
   windowRegistry,
   windowService,
   type WindowState,
-} from '../model';
+} from '../services';
 
 export const WindowProvider: FC<PropsWithChildren> = ({ children }) => {
   const [activeWindows, setActiveWindows] = useState<WindowState[]>([]);

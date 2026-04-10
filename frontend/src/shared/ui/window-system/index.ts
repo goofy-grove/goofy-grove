@@ -1,3 +1,3 @@
-export * from './ui';
-export * from './model';
+export * from './components';
+export * from './services';
 export * from './hooks';

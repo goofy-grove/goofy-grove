@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 
-import { WindowContext } from '../model';
+import { WindowContext } from '../services';
 
 export const useWindowSystem = () => {
   const context = useContext(WindowContext);

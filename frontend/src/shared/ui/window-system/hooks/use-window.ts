@@ -1,4 +1,4 @@
-import { windowService } from '../model';
+import { windowService } from '../services';
 
 import { useWindowSystem } from './use-window-system';
 
