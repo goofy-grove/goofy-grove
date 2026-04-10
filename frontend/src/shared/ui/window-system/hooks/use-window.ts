@@ -15,11 +15,24 @@ export const useWindow = <T>(windowId: string) => {
     windowService.closeWindow(windowId);
   };
 
+  const maximizeWindow = () => {
+    windowService.maximizeWindow(windowId);
+  };
+
+  const minimizeWindow = () => {
+    windowService.minimizeWindow(windowId);
+  };
+
   const isWindowOpen = !!windowState;
+
+  const isWindowMaximized = !!windowState && windowState?.isMaximized;
 
   return {
     openWindow,
     closeWindow,
+    maximizeWindow,
+    minimizeWindow,
     isWindowOpen,
+    isWindowMaximized,
   };
 };

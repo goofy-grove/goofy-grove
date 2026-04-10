@@ -1,6 +1,10 @@
 import { EventEmitter } from 'events';
 
-import type { OnWindowCloseHandler, OnWindowOpenHandler } from './types';
+import type {
+  OnWindowCloseHandler,
+  OnWindowMaximizeHandler,
+  OnWindowOpenHandler,
+} from './types';
 
 class WindowService {
   constructor() {
@@ -27,12 +31,28 @@ class WindowService {
     };
   }
 
+  onWindowMaximize(handler: OnWindowMaximizeHandler) {
+    this.bus.on('maximize', handler);
+
+    return () => {
+      this.bus.off('maximize', handler);
+    };
+  }
+
   openWindow<T>(id: string, props?: T) {
     this.bus.emit('open', id, props);
   }
 
   closeWindow(id: string) {
     this.bus.emit('close', id);
+  }
+
+  maximizeWindow(id: string) {
+    this.bus.emit('maximize', id, true);
+  }
+
+  minimizeWindow(id: string) {
+    this.bus.emit('maximize', id, false);
   }
 }
 

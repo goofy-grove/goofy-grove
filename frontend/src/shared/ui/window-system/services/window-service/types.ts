@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react';
+import type { WindowProps } from '../../components';
 
 export type WindowEventType = 'open' | 'close';
 
@@ -14,7 +15,12 @@ export type OnWindowOpenHandler<T extends Record<string, unknown>> = (
 
 export type OnWindowCloseHandler = (id: string) => void;
 
-export type WindowComponent = ComponentType<{
-  onClose: () => void;
-  onMaximize: () => void;
-}>;
+export type OnWindowMaximizeHandler = (
+  id: string,
+  isMaximized: boolean,
+) => void;
+
+export type WindowComponent = ComponentType<
+  Pick<WindowProps, 'onClose' | 'onMaximize' | 'onMinimize'> &
+    Record<string, unknown>
+>;

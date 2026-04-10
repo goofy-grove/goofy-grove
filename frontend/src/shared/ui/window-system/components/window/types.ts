@@ -8,7 +8,9 @@ export type WindowProps = Pick<CardProps, 'withoutHeader'> &
     id: string;
 
     title?: string;
+    isMaximized?: boolean;
 
     onClose?: () => void;
     onMaximize?: () => void;
+    onMinimize?: () => void;
   }>;

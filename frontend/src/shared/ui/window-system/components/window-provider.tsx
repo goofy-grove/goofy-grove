@@ -33,30 +33,32 @@ export const WindowProvider: FC<PropsWithChildren> = ({ children }) => {
       setActiveWindows((prev) => prev.filter((window) => window.id !== id)),
     );
 
+    const unsubscribeMaximize = windowService.onWindowMaximize(
+      (id, isMaximized) =>
+        setActiveWindows((prev) => {
+          const windowToMaximize = prev.find((window) => window.id === id);
+
+          if (!windowToMaximize) {
+            return prev;
+          }
+
+          return [
+            ...prev.filter((window) => window.id !== id),
+            {
+              ...windowToMaximize,
+              isMaximized,
+              lastInteraction: Date.now(),
+            },
+          ];
+        }),
+    );
+
     return () => {
       unsubscribeOpen();
       unsubscribeClose();
+      unsubscribeMaximize();
     };
   }, []);
-
-  const maximizeWindow = (id: string) => {
-    setActiveWindows((prev) => {
-      const windowToMaximize = prev.find((window) => window.id === id);
-
-      if (!windowToMaximize) {
-        return prev;
-      }
-
-      return [
-        ...prev.filter((window) => window.id !== id),
-        {
-          ...windowToMaximize,
-          isMaximized: !windowToMaximize.isMaximized,
-          lastInteraction: Date.now(),
-        },
-      ];
-    });
-  };
 
   return (
     <WindowContext.Provider value={{ activeWindows }}>
@@ -71,10 +73,13 @@ export const WindowProvider: FC<PropsWithChildren> = ({ children }) => {
 
         return (
           <WindowComponent
-            key={windowState.id}
             {...windowState.props}
+            id={windowState.id}
+            key={windowState.id}
+            isMaximized={windowState.isMaximized}
             onClose={() => windowService.closeWindow(windowState.id)}
-            onMaximize={() => maximizeWindow(windowState.id)}
+            onMaximize={() => windowService.maximizeWindow(windowState.id)}
+            onMinimize={() => windowService.minimizeWindow(windowState.id)}
           />
         );
       })}

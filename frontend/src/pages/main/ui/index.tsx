@@ -10,21 +10,26 @@ import type { FC } from 'react';
 
 export const MainPageWindow: FC<
   Pick<WindowProps, 'onClose' | 'onMaximize'>
-> = ({ onClose, onMaximize, ...props }) => (
-  <Window
-    id="main-page-window"
-    {...props}
-    onClose={onClose}
-    onMaximize={onMaximize}
-  >
-    <h1>main page window</h1>
-  </Window>
-);
+> = ({ onClose, onMaximize, ...props }) => {
+  const { minimizeWindow, isWindowMaximized } = useWindow('main-page-window');
+
+  return (
+    <Window
+      id="main-page-window"
+      {...props}
+      onClose={onClose}
+      onMaximize={onMaximize}
+    >
+      <h1>main page window</h1>
+      {isWindowMaximized && <Button onClick={minimizeWindow}>Minimize</Button>}
+    </Window>
+  );
+};
 
 windowRegistry.register('main-page-window', MainPageWindow);
 
 export const MainPage = () => {
-  const { openWindow, isWindowOpen, closeWindow } =
+  const { openWindow, isWindowOpen, closeWindow, maximizeWindow } =
     useWindow('main-page-window');
 
   const handleToggleWindow = () =>
@@ -36,6 +41,7 @@ export const MainPage = () => {
       <Button onClick={handleToggleWindow}>
         {isWindowOpen ? 'Close' : 'Open'} Main Page Window
       </Button>
+      {isWindowOpen && <Button onClick={maximizeWindow}>Maximize</Button>}
     </div>
   );
 };

@@ -15,8 +15,11 @@ export const Window: FC<WindowProps> = ({
   id,
   children,
   withoutHeader,
+  isMaximized,
   title,
   onClose,
+  onMaximize,
+  onMinimize,
   bounds = document.body,
 }) => {
   const handleWindowClose = () => {
@@ -25,8 +28,6 @@ export const Window: FC<WindowProps> = ({
 
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(400);
-
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
@@ -43,15 +44,15 @@ export const Window: FC<WindowProps> = ({
   };
 
   const resizeParamters =
-    isMobile || isExpanded
+    isMobile || isMaximized
       ? { top: false, bottom: false, left: false, right: false }
       : { top: true, bottom: true, left: true, right: true };
 
   return createPortal(
     <Rnd
-      className={`window__wrapper ${isExpanded || isMobile ? 'expanded' : ''}`}
+      className={`window__wrapper ${isMaximized || isMobile ? 'expanded' : ''}`}
       enableResizing={resizeParamters}
-      disableDragging={isExpanded || isMobile}
+      disableDragging={isMaximized || isMobile}
       bounds={bounds}
       default={defaultParameters}
       onResize={handleResize}
@@ -63,7 +64,7 @@ export const Window: FC<WindowProps> = ({
     >
       <Card
         id={id}
-        className={`window ${isExpanded || isMobile ? 'expanded' : ''}`}
+        className={`window ${isMaximized || isMobile ? 'expanded' : ''}`}
         style={{
           width,
           height,
@@ -76,9 +77,9 @@ export const Window: FC<WindowProps> = ({
           <Button
             variant="ghost"
             disabled={isMobile}
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => (isMaximized ? onMinimize?.() : onMaximize?.())}
             rightIcon={
-              isExpanded || isMobile ? <IconMinimize /> : <IconMaximize />
+              isMaximized || isMobile ? <IconMinimize /> : <IconMaximize />
             }
           />
         }
