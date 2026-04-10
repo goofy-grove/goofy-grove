@@ -1,26 +1,51 @@
-import { windowService } from '../services';
+import { useState } from 'react';
 
-import { useWindowSystem } from './use-window-system';
+import { useWindowStore } from '../store';
 
-export const useWindow = <T>(windowId: string) => {
-  const { activeWindows } = useWindowSystem();
+export const useWindow = <T extends Record<string, unknown>>(
+  type: string,
+  instanceId?: string,
+) => {
+  const [currentWindowId, setCurrentWindowId] = useState<string | undefined>(
+    instanceId,
+  );
 
-  const windowState = activeWindows.find((window) => window.id === windowId);
+  const openWindowByType = useWindowStore((state) => state.openWindow);
+  const closeWindowById = useWindowStore((state) => state.closeWindow);
+  const maximizeWindowById = useWindowStore((state) => state.maximizeWindow);
+  const minimizeWindowById = useWindowStore((state) => state.minimizeWindow);
+
+  const windowState = useWindowStore((state) =>
+    state.windows.find((w) => w.instanceId === currentWindowId),
+  );
+
+  if (!windowState && currentWindowId) {
+    setCurrentWindowId(undefined);
+  }
 
   const openWindow = (props?: T) => {
-    windowService.openWindow(windowId, props);
+    if (!currentWindowId) {
+      setCurrentWindowId(openWindowByType(type, props));
+    }
   };
 
   const closeWindow = () => {
-    windowService.closeWindow(windowId);
+    if (currentWindowId) {
+      closeWindowById(currentWindowId);
+      setCurrentWindowId(undefined);
+    }
   };
 
   const maximizeWindow = () => {
-    windowService.maximizeWindow(windowId);
+    if (currentWindowId) {
+      maximizeWindowById(currentWindowId);
+    }
   };
 
   const minimizeWindow = () => {
-    windowService.minimizeWindow(windowId);
+    if (currentWindowId) {
+      minimizeWindowById(currentWindowId);
+    }
   };
 
   const isWindowOpen = !!windowState;

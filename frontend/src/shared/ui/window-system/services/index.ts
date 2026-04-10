@@ -1,3 +1,3 @@
-export * from './window-service';
+export * from './window-registry';
+
 export { WindowContext } from './window-context';
-export type { WindowContextType, WindowState } from './types';

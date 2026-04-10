@@ -3,7 +3,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 
-import { WindowProvider } from '../shared/ui';
+import { WindowsProvider } from '../shared/ui';
 import { useAuth, AuthProvider } from '../entities/auth';
 
 import { queryClient, router } from './lib';
@@ -18,11 +18,11 @@ export const App = () => {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <WindowProvider>
+        <WindowsProvider>
           <AuthProvider>
             <InnerApp />
           </AuthProvider>
-        </WindowProvider>
+        </WindowsProvider>
 
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
