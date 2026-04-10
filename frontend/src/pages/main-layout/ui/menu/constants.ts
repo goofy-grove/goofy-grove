@@ -9,27 +9,27 @@ import {
 export const MENU_ITEMS = [
   {
     title: 'menu.personas',
-    modalId: 'personas-list',
+    windowId: 'personas-list',
     icon: IconUser,
   },
   {
     title: 'menu.characters',
-    modalId: 'characters-list',
+    windowId: 'characters-list',
     icon: IconRobot,
   },
   {
     title: 'menu.chats',
-    modalId: 'chats-list',
+    windowId: 'chats-list',
     icon: IconMessageCircle2,
   },
   {
     title: 'menu.settings',
-    modalId: 'settings',
+    windowId: 'settings',
     icon: IconSettings,
   },
   {
     title: 'menu.other',
-    modalId: 'other',
+    windowId: 'other',
     icon: IconMenu2,
   },
 ];

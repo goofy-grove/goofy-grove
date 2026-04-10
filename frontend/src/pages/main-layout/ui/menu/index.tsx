@@ -12,9 +12,9 @@ import './styles.scss';
 export const Menu: FC<MenuProps> = ({ isCollapsed }) => {
   const { t } = useTranslation();
 
-  return MENU_ITEMS.map(({ title, modalId, icon: Icon }) => (
+  return MENU_ITEMS.map(({ title, windowId, icon: Icon }) => (
     <Button
-      key={modalId}
+      key={windowId}
       className={isCollapsed ? 'full-rounded' : ''}
       variant="ghost"
       leftIcon={<Icon size={isCollapsed ? 28 : 24} />}

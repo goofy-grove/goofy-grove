@@ -1,13 +1,14 @@
 import type { PropsWithChildren } from 'react';
 import type { Props as RndProps } from 'react-rnd';
-import type { CardProps } from '../../card';
+import type { CardProps } from '../../../card';
 
-export type ModalProps = Pick<CardProps, 'withoutHeader'> &
+export type WindowProps = Pick<CardProps, 'withoutHeader'> &
   Pick<RndProps, 'bounds'> &
   PropsWithChildren<{
     id: string;
-    isOpen?: boolean;
+
+    title?: string;
 
     onClose?: () => void;
-    onOpen?: () => void;
+    onMaximize?: () => void;
   }>;
