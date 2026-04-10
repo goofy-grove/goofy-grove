@@ -2,9 +2,9 @@ import { create } from 'zustand';
 // eslint-disable-next-line import/no-unresolved
 import { v4 as uuidv4 } from 'uuid';
 
-import type { WinowState } from './types';
+import type { WindowState } from './types';
 
-export const useWindowStore = create<WinowState>((set) => ({
+export const useWindowStore = create<WindowState>((set) => ({
   windows: [],
 
   openWindow: (type: string, props?: Record<string, unknown>) => {
@@ -18,7 +18,6 @@ export const useWindowStore = create<WinowState>((set) => ({
           lastInteraction: Date.now(),
           type,
           isMaximized: false,
-          isOpen: true,
           props,
         },
       ],

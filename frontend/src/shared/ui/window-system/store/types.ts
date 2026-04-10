@@ -1,6 +1,6 @@
 import type { WindowInstance } from '../types';
 
-export type WinowState = {
+export type WindowState = {
   windows: WindowInstance[];
 
   openWindow: (type: string, props?: Record<string, unknown>) => string;
