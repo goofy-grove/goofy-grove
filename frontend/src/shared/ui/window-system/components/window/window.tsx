@@ -6,29 +6,35 @@ import { useMediaQuery } from 'react-responsive';
 
 import { Card } from '../../../card';
 import { Button } from '../../../button';
+import { useCurrentWindow } from '../../hooks';
 
 import type { WindowProps } from './types';
 
 import './styles.scss';
 
 export const Window: FC<WindowProps> = ({
-  id,
   children,
   withoutHeader,
-  isMaximized,
   title,
-  onClose,
-  onMaximize,
-  onMinimize,
   bounds = document.body,
 }) => {
+  const {
+    instanceId: id,
+    closeWindow,
+    maximizeWindow,
+    minimizeWindow,
+    isMaximized,
+  } = useCurrentWindow();
+
   const handleWindowClose = () => {
-    onClose?.();
+    closeWindow();
   };
 
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(400);
 
+  // FIXME: This is a temporary solution to disable resizing and dragging on mobile devices
+  // need to use hook without raw value
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   const handleResize: RndResizeCallback = (_e, _dir, ref) => {
@@ -65,10 +71,6 @@ export const Window: FC<WindowProps> = ({
       <Card
         id={id}
         className={`window ${isMaximized || isMobile ? 'expanded' : ''}`}
-        style={{
-          width,
-          height,
-        }}
         title={title}
         withoutHeader={withoutHeader}
         closable
@@ -77,7 +79,7 @@ export const Window: FC<WindowProps> = ({
           <Button
             variant="ghost"
             disabled={isMobile}
-            onClick={() => (isMaximized ? onMinimize?.() : onMaximize?.())}
+            onClick={() => (isMaximized ? minimizeWindow() : maximizeWindow())}
             rightIcon={
               isMaximized || isMobile ? <IconMinimize /> : <IconMaximize />
             }

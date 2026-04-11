@@ -12,7 +12,16 @@
     background-color: var(--bg-hover);
   }
 
+  &:hover &__actions {
+    opacity: 1;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+  }
+
   &__info {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 
@@ -31,5 +40,11 @@
       white-space: nowrap;
       color: var(--text-secondary);
     }
+  }
+
+  &__actions {
+    opacity: 0;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 }

@@ -5,12 +5,5 @@ import type { CardProps } from '../../../card';
 export type WindowProps = Pick<CardProps, 'withoutHeader'> &
   Pick<RndProps, 'bounds'> &
   PropsWithChildren<{
-    id: string;
-
     title?: string;
-    isMaximized?: boolean;
-
-    onClose?: () => void;
-    onMaximize?: () => void;
-    onMinimize?: () => void;
   }>;
