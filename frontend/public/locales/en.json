@@ -13,7 +13,7 @@
       "enter_credentials": "Enter login and password"
     }
   },
-  "modals": {
+  "window": {
     "confirm": {
       "title": "Confirm action",
       "cancel": "Cancel",
@@ -21,7 +21,8 @@
     }
   },
   "person": {
-    "modals": {
+    "window": {
+      "list_title": "Personas",
       "edit_title": "Edit person"
     },
     "labels": {

@@ -1,5 +1,5 @@
 import { auth } from './auth';
-import { persons } from './persons';
+import { personas } from './personas';
 import { users } from './user';
 
-export const api = { auth, users, persons };
+export const api = { auth, users, personas };

@@ -1,0 +1,35 @@
+.persona-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border-radius: var(--border-radius-base);
+
+  padding: 8px 12px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--bg-hover);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+
+    &__name {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: var(--font-semibold);
+    }
+
+    &__description {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-secondary);
+    }
+  }
+}

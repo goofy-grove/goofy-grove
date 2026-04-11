@@ -13,7 +13,7 @@
       "enter_credentials": "Введите логин и пароль"
     }
   },
-  "modals": {
+  "window": {
     "confirm": {
       "title": "Подвердите действие",
       "cancel": "Отмена",
@@ -21,7 +21,8 @@
     }
   },
   "person": {
-    "modals": {
+    "window": {
+      "list_title": "Персоны",
       "edit_title": "Изменить персону"
     },
     "labels": {

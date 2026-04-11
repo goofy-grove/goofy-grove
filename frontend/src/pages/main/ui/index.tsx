@@ -1,5 +1,6 @@
 import {
   Button,
+  LocaleSwitcher,
   registerWindow,
   useCurrentWindow,
   useWindow,
@@ -9,18 +10,13 @@ import {
 
 import type { FC } from 'react';
 
-export const MainPageWindow: FC<
-  Pick<WindowProps, 'onClose' | 'onMaximize'>
-> = ({ onClose, onMaximize, ...props }) => {
+export const MainPageWindow: FC<Pick<WindowProps, 'onClose' | 'onMaximize'>> = (
+  props,
+) => {
   const { minimizeWindow, isWindowMaximized } = useCurrentWindow();
 
   return (
-    <Window
-      id="main-page-window"
-      {...props}
-      onClose={onClose}
-      onMaximize={onMaximize}
-    >
+    <Window id="main-page-window" {...props}>
       <h1>main page window</h1>
       {isWindowMaximized && <Button onClick={minimizeWindow}>Minimize</Button>}
     </Window>
@@ -47,6 +43,7 @@ export const MainPage = () => {
         Open Another Window
       </Button>
       {isWindowOpen && <Button onClick={maximizeWindow}>Maximize</Button>}
+      <LocaleSwitcher />
     </div>
   );
 };
