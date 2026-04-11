@@ -1,16 +1,17 @@
-import { IconLoader, useCurrentWindow, Window } from '../../../../shared/ui';
+import { IconLoader, Window } from '../../../../shared/ui';
 import { usePersonasQuery } from '../../model';
 import { PersonaItem } from '../persona-item';
+
+import { PERSONA_LIST_WINDOW_KEY } from './constants';
 
 import type { FC } from 'react';
 import type { PersonaListWindowProps } from './types';
 
 export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
   const { data, isLoading } = usePersonasQuery();
-  const { instanceId } = useCurrentWindow();
 
   return (
-    <Window id={instanceId} {...props}>
+    <Window id={PERSONA_LIST_WINDOW_KEY} {...props}>
       {isLoading && <IconLoader isAnimated />}
 
       {!isLoading &&
