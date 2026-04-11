@@ -7,4 +7,5 @@ export type WindowState = {
   closeWindow: (instanceId: string) => void;
   maximizeWindow: (instanceId: string) => void;
   minimizeWindow: (instanceId: string) => void;
+  updateLastInteraction: (instanceId: string) => void;
 };

@@ -1,5 +1,5 @@
 import { createContext } from 'react';
 
-import type { WindowInstance } from '../types';
+import type { WindowContextType } from './types';
 
-export const WindowContext = createContext<WindowInstance | null>(null);
+export const WindowContext = createContext<WindowContextType | null>(null);

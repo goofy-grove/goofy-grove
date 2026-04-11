@@ -20,9 +20,11 @@ export const Window: FC<WindowProps> = ({
 }) => {
   const {
     instanceId: id,
+    zIndex,
     closeWindow,
     maximizeWindow,
     minimizeWindow,
+    updateLastInteraction: handleWindowInteract,
     isMaximized,
   } = useCurrentWindow();
 
@@ -62,11 +64,13 @@ export const Window: FC<WindowProps> = ({
       bounds={bounds}
       default={defaultParameters}
       onResize={handleResize}
+      onResizeStart={() => handleWindowInteract()}
       minWidth={300}
       minHeight={200}
       dragHandleClassName={
         withoutHeader ? `__card-${id}` : `__card-header-${id}`
       }
+      style={{ zIndex }}
     >
       <Card
         id={id}
@@ -75,6 +79,7 @@ export const Window: FC<WindowProps> = ({
         withoutHeader={withoutHeader}
         closable
         onClose={handleWindowClose}
+        onPointerDown={handleWindowInteract}
         actions={
           <Button
             variant="ghost"

@@ -14,6 +14,9 @@ export const useWindow = <T extends Record<string, unknown>>(
   const closeWindowById = useWindowStore((state) => state.closeWindow);
   const maximizeWindowById = useWindowStore((state) => state.maximizeWindow);
   const minimizeWindowById = useWindowStore((state) => state.minimizeWindow);
+  const updateLastInteractionById = useWindowStore(
+    (state) => state.updateLastInteraction,
+  );
 
   const windowState = useWindowStore((state) =>
     state.windows.find((w) => w.instanceId === currentWindowId),
@@ -48,6 +51,12 @@ export const useWindow = <T extends Record<string, unknown>>(
     }
   };
 
+  const updateLastInteraction = () => {
+    if (currentWindowId) {
+      updateLastInteractionById(currentWindowId);
+    }
+  };
+
   const isWindowOpen = !!windowState;
 
   const isWindowMaximized = !!windowState && windowState?.isMaximized;
@@ -57,6 +66,7 @@ export const useWindow = <T extends Record<string, unknown>>(
     closeWindow,
     maximizeWindow,
     minimizeWindow,
+    updateLastInteraction,
     isWindowOpen,
     isWindowMaximized,
   };

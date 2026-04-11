@@ -63,6 +63,22 @@ export const useWindowStore = create<WindowState>()(
           false,
           { type: 'window-store/minimizeWindow', payload: { instanceId } },
         ),
+
+      updateLastInteraction: (instanceId: string) =>
+        set(
+          (state) => ({
+            windows: state.windows.map((w) =>
+              w.instanceId === instanceId
+                ? { ...w, lastInteraction: Date.now() }
+                : w,
+            ),
+          }),
+          false,
+          {
+            type: 'window-store/updateLastInteraction',
+            payload: { instanceId },
+          },
+        ),
     }),
     { name: 'window-store' },
   ),
