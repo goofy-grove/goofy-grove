@@ -9,16 +9,19 @@ import './styles.scss';
 
 export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
   const { data, isLoading } = usePersonasQuery();
+  const hasPersonas = !isLoading && !!data?.length;
 
   return (
     <Window {...props}>
-      {isLoading && <IconLoader isAnimated />}
+      {isLoading && (
+        <div className="persona-list-loader">
+          <IconLoader size={64} isAnimated />
+        </div>
+      )}
 
       <div className="persona-list scrollbar">
-        {!isLoading &&
-          data?.map((persona) => (
-            <PersonaItem key={persona.uid} {...persona} />
-          ))}
+        {hasPersonas &&
+          data.map((persona) => <PersonaItem key={persona.uid} {...persona} />)}
       </div>
     </Window>
   );
