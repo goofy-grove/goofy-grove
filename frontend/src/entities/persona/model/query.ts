@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { api } from '../../../shared/api';
+import { api } from '@shared/api';
 
 import { Persona } from './entity';
 

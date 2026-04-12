@@ -1,4 +1,4 @@
-import { Text } from '../text';
+import { Text } from '@shared/ui/text';
 
 import type { InputProps } from './types';
 import type { FC } from 'react';

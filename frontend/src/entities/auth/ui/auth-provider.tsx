@@ -1,6 +1,7 @@
-import { api } from '../../../shared/api';
-import { AuthenticatedUser, useAuthStore } from '../model';
-import { AuthContext } from '../model/use-auth';
+import { AuthenticatedUser, useAuthStore } from '@entities/auth/model';
+import { AuthContext } from '@entities/auth/model/use-auth';
+
+import { api } from '@shared/api';
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const user = useAuthStore((state) => state.currentUser);

@@ -1,12 +1,15 @@
+import importAliases from '@dword-design/eslint-plugin-import-alias';
 import js from '@eslint/js';
-import eslintPluginImport from 'eslint-plugin-import';
+import pluginRouter from '@tanstack/eslint-plugin-router';
+import tsParser from '@typescript-eslint/parser';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import { importX } from 'eslint-plugin-import-x';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import pluginRouter from '@tanstack/eslint-plugin-router'
 
 export default defineConfig(
   globalIgnores(['dist']),
@@ -16,31 +19,71 @@ export default defineConfig(
   eslintPluginPrettierRecommended,
 
   tseslint.configs.recommendedTypeChecked,
-  eslintPluginImport.flatConfigs.recommended,
-  eslintPluginImport.flatConfigs.typescript,
-  eslintPluginImport.flatConfigs.react,
+  importX.flatConfigs.recommended,
+  importX.flatConfigs.typescript,
+  importX.flatConfigs.react,
 
   pluginRouter.configs['flat/recommended'],
+
+  // {
+  //   settings: {
+  //     'import-x/resolver-next': [
+  //       createTypeScriptImportResolver({
+  //         alwaysTryTypes: true,
+  //         project: './',
+  //         tsconfig: './tsconfig.json',
+  //       }),
+  //     ]
+  //   },
+  // },
+
+  importAliases.configs.recommended,
 
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
       '@typescript-eslint': tseslint.plugin,
+      '@dword-design/import-alias/prefer-alias': {
+        shouldReadTsConfig: false,
+      },
     },
     languageOptions: {
-      ecmaVersion: 2025,
+      ecmaVersion: 2023,
       globals: globals.browser,
+      parser: tsParser,
       parserOptions: {
-        ecmaVersion: 2025,
+        ecmaVersion: 2023,
         sourceType: 'module',
         ecmaFeatures: { jsx: true },
         projectService: true,
       },
     },
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+          project: './',
+          tsconfig: './tsconfig.eslint.json',
+        }),
+      ]
+    },
     rules: {
       'prettier/prettier': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
+      '@dword-design/import-alias/prefer-alias': [
+        'error',
+        {
+          alias: {
+            "@shared/*": "./src/shared/*",
+            "@entities/*": "./src/entities/*",
+            "@features/*": "./src/features/*",
+            "@widgets/*": "./src/widgets/*",
+            "@pages/*": "./src/pages/*",
+            "@app/*": "./src/app/*"
+          },
+        }
+      ],
       '@typescript-eslint/no-misused-promises': [
         'error',
         {
@@ -49,38 +92,45 @@ export default defineConfig(
           },
         },
       ],
-      "@typescript-eslint/only-throw-error": [
-        "error",
+      '@typescript-eslint/only-throw-error': [
+        'error',
         {
-          "allow": [
+          allow: [
             {
-              "from": "package",
-              "package": "@tanstack/router-core",
-              "name": "Redirect"
+              from: 'package',
+              package: '@tanstack/router-core',
+              name: 'Redirect',
             },
             {
-              "from": "package",
-              "package": "@tanstack/router-core",
-              "name": "NotFoundError"
-            }
-          ]
-        }
+              from: 'package',
+              package: '@tanstack/router-core',
+              name: 'NotFoundError',
+            },
+          ],
+        },
       ],
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-      'import/no-absolute-path': 'error',
+      'import-x/no-absolute-path': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_' },
       ],
-      'import/no-named-as-default': 'off',
+      'import-x/no-named-as-default': 'off',
       'class-methods-use-this': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      'import/order': [
+      'import-x/no-relative-parent-imports': 'off',
+      'import-x/no-relative-packages': 'off',
+      'import-x/order': [
         'error',
         {
           pathGroups: [
-            { pattern: '@/**', group: 'internal', position: 'after' },
+            { pattern: '@app/**', group: 'internal', position: 'after' },
+            { pattern: '@pages/**', group: 'internal', position: 'after' },
+            { pattern: '@widgets/**', group: 'internal', position: 'after' },
+            { pattern: '@features/**', group: 'internal', position: 'after' },
+            { pattern: '@entities/**', group: 'internal', position: 'after' },
+            { pattern: '@shared/**', group: 'internal', position: 'after' },
           ],
           groups: [
             'builtin',
@@ -93,6 +143,8 @@ export default defineConfig(
             'type',
           ],
           'newlines-between': 'always',
+          pathGroupsExcludedImportTypes: ['builtin'],
+          alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
     },

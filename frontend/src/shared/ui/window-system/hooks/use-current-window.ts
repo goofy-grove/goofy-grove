@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 
-import { WindowContext } from '../services';
+import { WindowContext } from '@shared/ui/window-system/services';
 
 import { useWindow } from './use-window';
 

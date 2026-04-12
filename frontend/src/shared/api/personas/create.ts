@@ -1,5 +1,5 @@
-import { api } from '../axios';
-import { withAuth, withValidation } from '../common';
+import { api } from '@shared/api/axios';
+import { withAuth, withValidation } from '@shared/api/common';
 
 import { PersonaSchema } from './schema';
 

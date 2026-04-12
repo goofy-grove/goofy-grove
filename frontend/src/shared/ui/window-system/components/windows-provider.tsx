@@ -1,7 +1,10 @@
 import { type FC, type PropsWithChildren } from 'react';
 
-import { WindowContext } from '../services';
-import { useWindowRegistryStore, useWindowStore } from '../store';
+import { WindowContext } from '@shared/ui/window-system/services';
+import {
+  useWindowRegistryStore,
+  useWindowStore,
+} from '@shared/ui/window-system/store';
 
 import { WINDOW_BASE_Z_INDEX } from './constants';
 

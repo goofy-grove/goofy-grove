@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
+import { useLoginForm } from '@pages/login/model';
+
 import {
   Alert,
   Button,
@@ -7,9 +9,9 @@ import {
   IconLoader,
   Input,
   LocaleSwitcher,
-} from '../../../shared/ui';
+} from '@shared/ui';
+
 import './styles.scss';
-import { useLoginForm } from '../model';
 
 export const LoginPage = () => {
   const { t } = useTranslation();

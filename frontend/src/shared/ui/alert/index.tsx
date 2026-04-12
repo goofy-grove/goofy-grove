@@ -8,8 +8,8 @@ import {
 } from '@tabler/icons-react';
 import { useState, type FC, type ReactNode } from 'react';
 
-import { Text } from '../text';
-import { Button } from '../button';
+import { Button } from '@shared/ui/button';
+import { Text } from '@shared/ui/text';
 
 import type { AlertProps } from './types';
 

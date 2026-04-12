@@ -1,8 +1,8 @@
 import * as z from 'zod';
 
-import { ResponseErrorSchema, ResponseOkSchema } from './schemas';
+import type { ApiFunction } from '@shared/api/common/types';
 
-import type { ApiFunction } from './../types';
+import { ResponseErrorSchema, ResponseOkSchema } from './schemas';
 
 export const withValidation = <
   ApiFn extends ApiFunction<Args>,

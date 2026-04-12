@@ -6,7 +6,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 
-import { PERSONA_LIST_WINDOW_KEY } from '../../../../entities/persona';
+import { PERSONA_LIST_WINDOW_KEY } from '@entities/persona';
 
 export const MENU_ITEMS = [
   {

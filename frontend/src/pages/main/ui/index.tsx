@@ -6,7 +6,7 @@ import {
   useWindow,
   Window,
   type WindowProps,
-} from '../../../shared/ui';
+} from '@shared/ui';
 
 import type { FC } from 'react';
 

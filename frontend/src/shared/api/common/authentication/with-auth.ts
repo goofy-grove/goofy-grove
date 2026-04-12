@@ -1,9 +1,8 @@
-import { refresh } from '../../auth/refresh';
-import { api } from '../../axios';
+import { refresh } from '@shared/api/auth/refresh';
+import { api } from '@shared/api/axios';
+import type { ApiFunction } from '@shared/api/common/types';
 
 import { authState } from './auth-state';
-
-import type { ApiFunction } from '../types';
 
 const MILLISECONDS_IN_SECOND = 1_000;
 

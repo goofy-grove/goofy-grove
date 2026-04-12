@@ -1,10 +1,11 @@
-import { StrictMode } from 'react';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from '@tanstack/react-router';
+import { StrictMode } from 'react';
 
-import { WindowsProvider } from '../shared/ui';
-import { useAuth, AuthProvider } from '../entities/auth';
+import { AuthProvider, useAuth } from '@entities/auth';
+
+import { WindowsProvider } from '@shared/ui';
 
 import { queryClient, router } from './lib';
 

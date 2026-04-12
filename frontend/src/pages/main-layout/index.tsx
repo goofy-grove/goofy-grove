@@ -1,6 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 
-import { useBreakpoints } from '../../shared/ui';
+import { useBreakpoints } from '@shared/ui';
 
 import { Menu } from './ui';
 

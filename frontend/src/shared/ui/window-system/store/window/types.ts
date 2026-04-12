@@ -1,4 +1,4 @@
-import type { WindowInstance } from '../../types';
+import type { WindowInstance } from '@shared/ui/window-system/types';
 
 export type WindowState = {
   windows: WindowInstance[];

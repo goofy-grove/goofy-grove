@@ -1,9 +1,9 @@
 import { IconX } from '@tabler/icons-react';
 
-import { Button } from '../button';
+import { Button } from '@shared/ui/button';
 
-import type { FC } from 'react';
 import type { CardProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

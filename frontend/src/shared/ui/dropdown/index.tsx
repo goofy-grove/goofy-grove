@@ -1,6 +1,6 @@
+import { offset, useFloating } from '@floating-ui/react';
 import { useEffect, useRef, useState, type FC } from 'react';
 import { createPortal } from 'react-dom';
-import { offset, useFloating } from '@floating-ui/react';
 
 import type { DropdownProps } from './types';
 

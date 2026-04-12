@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useWindowStore } from '../store';
+import { useWindowStore } from '@shared/ui/window-system/store';
 
 export const useWindow = <T extends Record<string, unknown>>(
   type: string,

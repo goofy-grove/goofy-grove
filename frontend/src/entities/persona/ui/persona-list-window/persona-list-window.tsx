@@ -1,9 +1,10 @@
-import { IconLoader, Window } from '../../../../shared/ui';
-import { usePersonasQuery } from '../../model';
-import { PersonaItem } from '../persona-item';
+import { usePersonasQuery } from '@entities/persona/model';
+import { PersonaItem } from '@entities/persona/ui/persona-item';
 
-import type { FC } from 'react';
+import { IconLoader, Window } from '@shared/ui';
+
 import type { PersonaListWindowProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

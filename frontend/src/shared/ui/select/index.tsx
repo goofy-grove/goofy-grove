@@ -3,8 +3,8 @@ import './styles.scss';
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
 import { useState, type FC } from 'react';
 
-import { Button } from '../button';
-import { Dropdown } from '../dropdown';
+import { Button } from '@shared/ui/button';
+import { Dropdown } from '@shared/ui/dropdown';
 
 import type { SelectItem, SelectItemProps, SelectProps } from './types';
 

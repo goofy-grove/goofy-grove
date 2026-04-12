@@ -33,7 +33,7 @@ export const initI18n = async (): Promise<void> => {
   _initPromise = (async () => {
     _localeSettings = await getAvailableLocales();
 
-    // eslint-disable-next-line import/no-named-as-default-member
+    // eslint-disable-next-line import-x/no-named-as-default-member
     await i18next
       .use(Backend)
       .use(initReactI18next)

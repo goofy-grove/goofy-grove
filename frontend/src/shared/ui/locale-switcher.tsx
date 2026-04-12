@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { useLocaleSettings } from '../lib';
+import { useLocaleSettings } from '@shared/lib';
 
 import { Select } from './select';
 

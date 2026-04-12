@@ -1,7 +1,7 @@
 import { IconLoader2 } from '@tabler/icons-react';
 
-import type { FC } from 'react';
 import type { IconLoaderProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

@@ -1,12 +1,12 @@
+import { IconMaximize, IconMinimize } from '@tabler/icons-react';
 import { useState, type FC } from 'react';
 import { createPortal } from 'react-dom';
-import { Rnd, type RndResizeCallback } from 'react-rnd';
-import { IconMaximize, IconMinimize } from '@tabler/icons-react';
 import { useMediaQuery } from 'react-responsive';
+import { Rnd, type RndResizeCallback } from 'react-rnd';
 
-import { Card } from '../../../card';
-import { Button } from '../../../button';
-import { useCurrentWindow } from '../../hooks';
+import { Button } from '@shared/ui/button';
+import { Card } from '@shared/ui/card';
+import { useCurrentWindow } from '@shared/ui/window-system/hooks';
 
 import type { WindowProps } from './types';
 

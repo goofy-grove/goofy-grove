@@ -7,10 +7,13 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": [
     "source.fixAll.stylelint",
-    "source.fixAll.eslint"
+    "source.fixAll.eslint",
+    "source.organizeImports"
   ],
   "editor.tabSize": 2,
   "files.eol": "\n",
   "i18n-ally.localesPaths": ["public/locales"],
-  "i18n-ally.keystyle": "nested"
+  "i18n-ally.keystyle": "nested",
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.preferences.importModuleSpecifierEnding": "auto"
 }

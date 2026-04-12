@@ -1,5 +1,5 @@
-import type { FC } from 'react';
 import type { ButtonProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

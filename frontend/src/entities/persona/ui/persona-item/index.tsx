@@ -1,9 +1,9 @@
 import { IconDotsVerticalFilled } from '@tabler/icons-react';
 
-import { Avatar, Button, Dropdown, Text } from '../../../../shared/ui';
+import { Avatar, Button, Dropdown, Text } from '@shared/ui';
 
-import type { FC } from 'react';
 import type { PersonaItemProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

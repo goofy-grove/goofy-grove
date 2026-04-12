@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
-import { Button, useWindow } from '../../../../shared/ui';
-import { PERSONA_LIST_WINDOW_KEY } from '../../../../entities/persona';
+import { PERSONA_LIST_WINDOW_KEY } from '@entities/persona';
+
+import { Button, useWindow } from '@shared/ui';
 
 import { MENU_ITEMS } from './constants';
 
-import type { FC } from 'react';
 import type { MenuProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

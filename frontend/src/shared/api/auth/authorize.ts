@@ -1,5 +1,5 @@
-import { api } from '../axios';
-import { updateAuthState, withValidation } from '../common';
+import { api } from '@shared/api/axios';
+import { updateAuthState, withValidation } from '@shared/api/common';
 
 import { AuthResponseSchema } from './schema';
 

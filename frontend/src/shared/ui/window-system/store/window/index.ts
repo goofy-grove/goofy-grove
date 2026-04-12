@@ -1,7 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-// eslint-disable-next-line import/no-unresolved
-import { v4 as uuidv4 } from 'uuid';
 
 import type { WindowState } from './types';
 
