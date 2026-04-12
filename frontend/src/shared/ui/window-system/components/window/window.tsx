@@ -51,15 +51,10 @@ export const Window: FC<WindowProps> = ({
     height,
   };
 
-  const resizeParamters =
-    isMobile || isMaximized
-      ? { top: false, bottom: false, left: false, right: false }
-      : { top: true, bottom: true, left: true, right: true };
-
   return createPortal(
     <Rnd
       className={`window__wrapper ${isMaximized || isMobile ? 'expanded' : ''}`}
-      enableResizing={resizeParamters}
+      enableResizing={!isMobile && !isMaximized}
       disableDragging={isMaximized || isMobile}
       bounds={bounds}
       default={defaultParameters}
