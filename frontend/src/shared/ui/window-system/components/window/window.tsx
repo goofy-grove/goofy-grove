@@ -16,6 +16,10 @@ export const Window: FC<WindowProps> = ({
   children,
   withoutHeader,
   title,
+  defaultWidth,
+  defaultHeight,
+  defaultX,
+  defaultY,
   bounds = document.body,
 }) => {
   const {
@@ -32,8 +36,8 @@ export const Window: FC<WindowProps> = ({
     closeWindow();
   };
 
-  const [width, setWidth] = useState(600);
-  const [height, setHeight] = useState(400);
+  const [width, setWidth] = useState(defaultWidth || 600);
+  const [height, setHeight] = useState(defaultHeight || 400);
 
   // FIXME: This is a temporary solution to disable resizing and dragging on mobile devices
   // need to use hook without raw value
@@ -45,8 +49,8 @@ export const Window: FC<WindowProps> = ({
   };
 
   const defaultParameters = {
-    x: 100,
-    y: 100,
+    x: defaultX || 100,
+    y: defaultY || 100,
     width,
     height,
   };
@@ -61,7 +65,7 @@ export const Window: FC<WindowProps> = ({
       onResize={handleResize}
       onResizeStart={() => handleWindowInteract()}
       minWidth={300}
-      minHeight={200}
+      minHeight={65}
       dragHandleClassName={
         withoutHeader ? `__card-${id}` : `__card-header-${id}`
       }

@@ -29,7 +29,9 @@ export const MainPage = () => {
   const { openWindow: openAnotherWindow } = useWindow('main-page-window');
 
   const handleToggleWindow = () =>
-    isWindowOpen ? closeWindow() : openWindow({ title: 'Main Page' });
+    isWindowOpen
+      ? closeWindow()
+      : openWindow({ title: 'Main Page', defaultHeight: 'max-content' });
 
   return (
     <div>

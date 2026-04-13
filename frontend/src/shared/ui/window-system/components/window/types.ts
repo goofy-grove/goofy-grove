@@ -7,4 +7,10 @@ export type WindowProps = Pick<CardProps, 'withoutHeader'> &
   Pick<RndProps, 'bounds'> &
   PropsWithChildren<{
     title?: string;
+
+    defaultWidth?: string | number;
+    defaultHeight?: string | number;
+
+    defaultX?: number;
+    defaultY?: number;
   }>;
