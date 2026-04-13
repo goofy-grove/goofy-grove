@@ -9,7 +9,7 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table("persons")
+                    .table("personas")
                     .if_not_exists()
                     .col(string("uid").primary_key())
                     .col(string("name"))
@@ -17,8 +17,8 @@ impl MigrationTrait for Migration {
                     .col(string("creator_id"))
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk_persons_users")
-                            .from("persons", "creator_id")
+                            .name("fk_personas_users")
+                            .from("personas", "creator_id")
                             .to("users", "uid")
                             .on_delete(ForeignKeyAction::Cascade),
                     )
@@ -29,7 +29,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table("persons").to_owned())
+            .drop_table(Table::drop().table("personas").to_owned())
             .await
     }
 }

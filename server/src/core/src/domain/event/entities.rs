@@ -1,12 +1,12 @@
-use crate::domain::prelude::Person;
+use crate::domain::prelude::Persona;
 
 pub trait Event: Send + Sync + 'static {}
 
-pub struct PersonCreatedEvent {
-    pub person: Person,
+pub struct PersonaCreatedEvent {
+    pub persona: Persona,
 }
 
-impl Event for PersonCreatedEvent {}
+impl Event for PersonaCreatedEvent {}
 
 // use std::sync::{Arc, RwLock};
 // use std::any::{Any, TypeId};

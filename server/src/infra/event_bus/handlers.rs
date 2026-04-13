@@ -4,25 +4,25 @@ use gg_core::domain::prelude::*;
 use serde_json::json;
 use socketioxide::SocketIo;
 
-pub struct PersonCreatedEventHandler {
+pub struct PersonaCreatedEventHandler {
     socket: SocketIo,
 }
 
-impl PersonCreatedEventHandler {
+impl PersonaCreatedEventHandler {
     pub fn new(socket: SocketIo) -> Self {
         Self { socket }
     }
 }
 
-impl EventHandler<PersonCreatedEvent> for PersonCreatedEventHandler {
-    fn handle(&self, event: &PersonCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
+    fn handle(&self, event: &PersonaCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         let json = json!({
-            "event": "person.created",
+            "event": "persona.created",
             "data": {
-                "id": event.person.uid().value(),
-                "name": event.person.name().value(),
-                "description": event.person.description().value(),
-                "creator_id": event.person.creator_id().value(),
+                "id": event.persona.uid().value(),
+                "name": event.persona.name().value(),
+                "description": event.persona.description().value(),
+                "creator_id": event.persona.creator_id().value(),
             }
         });
         let socket = self.socket.clone();

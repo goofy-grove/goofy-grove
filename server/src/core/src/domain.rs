@@ -2,7 +2,7 @@ mod auth;
 mod error;
 mod event;
 mod macros;
-mod person;
+mod persona;
 mod ports;
 mod tokens;
 mod user;
@@ -18,8 +18,8 @@ pub mod prelude {
     pub use crate::domain::auth::entities::*;
     pub use crate::domain::auth::ports::*;
 
-    pub use crate::domain::person::entities::*;
-    pub use crate::domain::person::ports::*;
+    pub use crate::domain::persona::entities::*;
+    pub use crate::domain::persona::ports::*;
 
     pub use crate::domain::tokens::entities::*;
     pub use crate::domain::tokens::ports::*;

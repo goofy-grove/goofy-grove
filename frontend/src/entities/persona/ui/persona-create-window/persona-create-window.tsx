@@ -21,7 +21,7 @@ export const PersonaCreateWindow: FC<PersonaCreateWindowProps> = (props) => {
   const { t } = useTranslation();
 
   return (
-    <Window {...props} title={t('person.window.create_title')}>
+    <Window {...props} title={t('persona.window.create_title')}>
       <div className="persona-create-window">
         <div className="persona-create-window__content scrollbar">
           <Input

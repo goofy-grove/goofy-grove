@@ -20,11 +20,11 @@
       "confirm": "Confirm"
     }
   },
-  "person": {
+  "persona": {
     "window": {
       "list_title": "Personas",
-      "edit_title": "Edit person",
-      "create_title": "Create person",
+      "edit_title": "Edit persona",
+      "create_title": "Create persona",
       "actions": {
         "create": "Create"
       }

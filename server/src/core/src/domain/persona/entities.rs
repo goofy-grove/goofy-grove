@@ -1,32 +1,32 @@
 use crate::{domain::prelude::*, generate_entity, impl_as_domain_newtype};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PersonName(String);
+pub struct PersonaName(String);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PersonDescription(String);
+pub struct PersonaDescription(String);
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PersonId(String);
+pub struct PersonaId(String);
 
-impl_as_domain_newtype!(PersonId -> String, PersonName -> String, PersonDescription -> String);
+impl_as_domain_newtype!(PersonaId -> String, PersonaName -> String, PersonaDescription -> String);
 
-generate_entity!(Person {
-    uid: PersonId,
+generate_entity!(Persona {
+    uid: PersonaId,
     creator_id: UserId,
-    name: PersonName,
-    description: PersonDescription
+    name: PersonaName,
+    description: PersonaDescription
 });
 
-impl Validator for Person {
+impl Validator for Persona {
     fn validate(&self) -> DomainValidationResult {
         if self.uid.value().is_empty() {
             DomainValidationResult::Err(DomainValidationError::IdValidationError(
-                "person_id_is_empty".to_owned(),
+                "persona_id_is_empty".to_owned(),
             ))
         } else if self.name.value().is_empty() {
             DomainValidationResult::Err(DomainValidationError::NameValidationError(
-                "person_name_is_empty".to_owned(),
+                "persona_name_is_empty".to_owned(),
             ))
         } else {
             Ok(())

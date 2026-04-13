@@ -40,7 +40,7 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
             leftIcon={<IconPlusFilled />}
             onClick={() => openWindow()}
           >
-            {t('person.window.actions.create')}
+            {t('persona.window.actions.create')}
           </Button>
         </div>
       </div>

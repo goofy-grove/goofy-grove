@@ -7,7 +7,7 @@ import { PersonaSchema } from './schema';
 
 export const getAll = withAuth(
   withValidation(z.array(PersonaSchema), async () => {
-    const response = await api.get('/persons');
+    const response = await api.get('/personas');
 
     return response.data as unknown;
   }),

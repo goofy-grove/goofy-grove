@@ -9,37 +9,37 @@ security:
 tags:
   - name: Authentication
   - name: Users
-  - name: Persons
+  - name: Personas
 paths:
-  /persons:
+  /personas:
     get:
-      tags: [Persons]
+      tags: [Personas]
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PersonsResponse'
+                $ref: '#/components/schemas/PersonasResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         default:
           $ref: '#/components/responses/InternalError'
     post:
-      tags: [Persons]
+      tags: [Personas]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PersonCreateRequest'
+              $ref: '#/components/schemas/PersonaCreateRequest'
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PersonCreateResponse'
+                $ref: '#/components/schemas/PersonaCreateResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         default:
@@ -140,16 +140,16 @@ components:
 
   schemas:
     # Requests
-    PersonCreateRequest:
+    PersonaCreateRequest:
       type: object
       required: [name, description]
       properties:
         name:
           type: string
-          description: Person Name
+          description: Persona Name
         description:
           type: string
-          description: Person Description
+          description: Persona Description
     AuthorizationRequest:
       type: object
       required: [username, password]
@@ -207,7 +207,7 @@ components:
           const: false
         data:
           $ref: '#/components/schemas/User'
-    PersonsResponse:
+    PersonasResponse:
       type: object
       properties:
         error:
@@ -216,30 +216,30 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Person'
-    PersonCreateResponse:
+            $ref: '#/components/schemas/Persona'
+    PersonaCreateResponse:
       type: object
       properties:
         error:
           type: boolean
           const: false
         data:
-          $ref: '#/components/schemas/Person'
+          $ref: '#/components/schemas/Persona'
 
     # Data
-    Person:
+    Persona:
       type: object
       required: [uid, name, description, creator_uid]
       properties:
         uid:
           type: string
-          description: Person Unique ID
+          description: Persona Unique ID
         name:
           type: string
-          description: Person Name
+          description: Persona Name
         description:
           type: string
-          description: Person Description
+          description: Persona Description
         creator_uid:
           type: string
           description: Creator Unique ID (User UID)

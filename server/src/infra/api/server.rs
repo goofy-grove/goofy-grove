@@ -8,9 +8,9 @@ use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 
 use crate::infra::{
-    api::{auth::create_auth_router, persons::create_person_router, users::create_user_router},
+    api::{auth::create_auth_router, personas::create_persona_router, users::create_user_router},
     config::Config,
-    event_bus::{InMemoryEventBus, PersonCreatedEventHandler},
+    event_bus::{InMemoryEventBus, PersonaCreatedEventHandler},
     socketio::create_socketio_layer,
 };
 
@@ -31,14 +31,14 @@ pub fn init_router(
             create_user_router(config.clone(), connection.clone()),
         )
         .nest(
-            "/api/v1/persons",
-            create_person_router(config, connection, event_bus),
+            "/api/v1/personas",
+            create_persona_router(config, connection, event_bus),
         )
         .layer(CorsLayer::very_permissive())
 }
 
 pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketIo) {
-    event_bus.subscribe(PersonCreatedEventHandler::new(socket));
+    event_bus.subscribe(PersonaCreatedEventHandler::new(socket));
 }
 
 pub async fn start_server(

@@ -2,6 +2,6 @@
 
 pub mod prelude;
 
-pub mod persons;
+pub mod personas;
 pub mod tokens;
 pub mod users;

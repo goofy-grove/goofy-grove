@@ -1,6 +1,6 @@
 pub mod server;
 
 mod auth;
-mod persons;
+mod personas;
 mod response;
 mod users;
