@@ -10,13 +10,11 @@ import {
 
 import type { FC } from 'react';
 
-export const MainPageWindow: FC<Pick<WindowProps, 'onClose' | 'onMaximize'>> = (
-  props,
-) => {
+export const MainPageWindow: FC<WindowProps> = (props) => {
   const { minimizeWindow, isWindowMaximized } = useCurrentWindow();
 
   return (
-    <Window id="main-page-window" {...props}>
+    <Window {...props}>
       <h1>main page window</h1>
       {isWindowMaximized && <Button onClick={minimizeWindow}>Minimize</Button>}
     </Window>

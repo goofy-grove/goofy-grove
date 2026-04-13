@@ -12,7 +12,9 @@
     "check:format:fix": "prettier --write \"src/**/*.{ts,tsx}\"",
     "check:lint": "eslint \"src/**/*.{ts,tsx}\"",
     "check:lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "check:types": "tsc --noEmit",
+    "check:types:app": "tsc --noEmit -p ./tsconfig.app.json",
+    "check:types:node": "tsc --noEmit -p ./tsconfig.node.json",
+    "check:types": "npm run check:types:app && npm run check:types:node",
     "check:architecture": "steiger ./src",
     "check:styles": "stylelint ./src/**/*.scss",
     "prepare": "husky"
