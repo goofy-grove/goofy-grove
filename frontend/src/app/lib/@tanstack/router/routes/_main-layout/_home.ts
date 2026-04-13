@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { MainPage } from '@pages/main';
 
-export const Route = createFileRoute('/_main-layout/home')({
+export const Route = createFileRoute('/_main-layout/_home')({
   component: MainPage,
   beforeLoad: async ({ context, matches, location }) => {
     const route = matches.at(-1);

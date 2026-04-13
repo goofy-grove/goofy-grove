@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MainLayoutRouteImport } from './routes/_main-layout'
-import { Route as MainLayoutHomeRouteImport } from './routes/_main-layout/home'
+import { Route as MainLayoutHomeRouteImport } from './routes/_main-layout/_home'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -23,33 +23,30 @@ const MainLayoutRoute = MainLayoutRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainLayoutHomeRoute = MainLayoutHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
+  id: '/_home',
   getParentRoute: () => MainLayoutRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof MainLayoutRouteWithChildren
+  '/': typeof MainLayoutHomeRoute
   '/login': typeof LoginRoute
-  '/home': typeof MainLayoutHomeRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof MainLayoutRouteWithChildren
+  '/': typeof MainLayoutHomeRoute
   '/login': typeof LoginRoute
-  '/home': typeof MainLayoutHomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_main-layout': typeof MainLayoutRouteWithChildren
   '/login': typeof LoginRoute
-  '/_main-layout/home': typeof MainLayoutHomeRoute
+  '/_main-layout/_home': typeof MainLayoutHomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/home'
+  fullPaths: '/' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/home'
-  id: '__root__' | '/_main-layout' | '/login' | '/_main-layout/home'
+  to: '/' | '/login'
+  id: '__root__' | '/_main-layout' | '/login' | '/_main-layout/_home'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -73,10 +70,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_main-layout/home': {
-      id: '/_main-layout/home'
-      path: '/home'
-      fullPath: '/home'
+    '/_main-layout/_home': {
+      id: '/_main-layout/_home'
+      path: ''
+      fullPath: '/'
       preLoaderRoute: typeof MainLayoutHomeRouteImport
       parentRoute: typeof MainLayoutRoute
     }
