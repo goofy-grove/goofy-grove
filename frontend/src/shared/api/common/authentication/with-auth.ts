@@ -15,7 +15,7 @@ export const withAuth =
   >(
     fn: ApiFn,
   ) =>
-  async (...args: Parameters<ApiFn>): Promise<ReturnType<ApiFn>> => {
+  async (...args: Parameters<ApiFn>): Promise<Awaited<ReturnType<ApiFn>>> => {
     if (
       !authState.token ||
       Date.now() > authState.exp * MILLISECONDS_IN_SECOND
@@ -31,5 +31,5 @@ export const withAuth =
 
     api.defaults.headers.common.Authorization = `Bearer ${authState.token}`;
 
-    return fn(...args) as ReturnType<ApiFn>;
+    return fn(...args) as Awaited<ReturnType<ApiFn>>;
   };

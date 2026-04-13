@@ -1,16 +1,23 @@
 import type { ComponentPropsWithRef } from 'react';
 
-export type InputProps = Omit<
-  ComponentPropsWithRef<'input'>,
-  'onChange' | 'onInput'
-> & {
-  value?: string;
-
-  placeholder?: string;
+type InputBaseProps = {
   label?: string;
-  id?: string;
-
-  disabled?: boolean;
-
   onChange?: (value: string) => void;
 };
+
+type InputMultilineProps = Omit<
+  ComponentPropsWithRef<'textarea'>,
+  'onInput' | 'onChange'
+> & {
+  multiline: true;
+};
+
+type InputSinglelineProps = Omit<
+  ComponentPropsWithRef<'input'>,
+  'onInput' | 'onChange'
+> & {
+  multiline?: false;
+};
+
+export type InputProps = InputBaseProps &
+  (InputMultilineProps | InputSinglelineProps);

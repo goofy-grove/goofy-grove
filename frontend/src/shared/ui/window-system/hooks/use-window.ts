@@ -29,6 +29,8 @@ export const useWindow = <T extends Record<string, unknown>>(
   const openWindow = (props?: T) => {
     if (!currentWindowId) {
       setCurrentWindowId(openWindowByType(type, props));
+    } else {
+      updateLastInteractionById(currentWindowId);
     }
   };
 

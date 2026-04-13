@@ -23,7 +23,11 @@
   "person": {
     "window": {
       "list_title": "Персоны",
-      "edit_title": "Изменить персону"
+      "edit_title": "Изменить персону",
+      "create_title": "Создать персону",
+      "actions": {
+        "create": "Создать"
+      }
     },
     "labels": {
       "description": "Описание",

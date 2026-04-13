@@ -2,7 +2,12 @@ import { createRoot } from 'react-dom/client';
 
 import './assets/general.scss';
 
-import { PERSONA_LIST_WINDOW_KEY, PersonaListWindow } from '@entities/persona';
+import {
+  PERSONA_CREATE_WINDOW_KEY,
+  PERSONA_LIST_WINDOW_KEY,
+  PersonaCreateWindow,
+  PersonaListWindow,
+} from '@entities/persona';
 
 import { initI18n } from '@shared/lib';
 import { registerWindow } from '@shared/ui';
@@ -18,3 +23,4 @@ if (rootElement && !rootElement?.innerHTML) {
 }
 
 registerWindow(PERSONA_LIST_WINDOW_KEY, PersonaListWindow);
+registerWindow(PERSONA_CREATE_WINDOW_KEY, PersonaCreateWindow);

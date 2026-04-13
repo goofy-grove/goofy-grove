@@ -1,11 +1,17 @@
 import { Text } from '@shared/ui/text';
 
 import type { InputProps } from './types';
-import type { FC } from 'react';
+import type { ComponentPropsWithRef, FC } from 'react';
 
 import './styles.scss';
 
-export const Input: FC<InputProps> = ({ id, label, onChange, ...rest }) => {
+export const Input: FC<InputProps> = ({
+  id,
+  label,
+  onChange,
+  multiline,
+  ...rest
+}) => {
   return (
     <div className="input-wrapper">
       {label && (
@@ -14,12 +20,21 @@ export const Input: FC<InputProps> = ({ id, label, onChange, ...rest }) => {
         </Text>
       )}
 
-      <input
-        className="input"
-        id={id}
-        {...rest}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
+      {multiline ? (
+        <textarea
+          className="input scrollbar"
+          id={id}
+          {...(rest as ComponentPropsWithRef<'textarea'>)}
+          onChange={(e) => onChange?.(e.target.value)}
+        />
+      ) : (
+        <input
+          className="input"
+          id={id}
+          {...(rest as ComponentPropsWithRef<'input'>)}
+          onChange={(e) => onChange?.(e.target.value)}
+        />
+      )}
     </div>
   );
 };

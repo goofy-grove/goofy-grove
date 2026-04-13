@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 
 import { api } from '@shared/api';
 
+import { PERSONAS_QUERY_KEY } from './constants';
 import { Persona } from './entity';
 
 export const usePersonasQuery = () =>
   useQuery({
-    queryKey: ['personas'],
+    queryKey: [PERSONAS_QUERY_KEY],
     queryFn: async () => {
       const response = await api.personas.getAll();
 
