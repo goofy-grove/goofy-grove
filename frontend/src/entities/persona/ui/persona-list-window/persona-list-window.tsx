@@ -19,7 +19,7 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
   const hasPersonas = !isLoading && !!data?.length;
 
   return (
-    <Window {...props}>
+    <Window {...props} title={t('persona.window.list_title')}>
       <div className="persona-list">
         {isLoading && (
           <div className="persona-list__loader">

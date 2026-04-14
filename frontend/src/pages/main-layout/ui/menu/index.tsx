@@ -18,9 +18,7 @@ export const Menu: FC<MenuProps> = ({ isCollapsed }) => {
 
   const handleOpenWindow = (windowId: string) => {
     if (windowId === PERSONA_LIST_WINDOW_KEY) {
-      openWindow({
-        title: t('persona.window.list_title'),
-      });
+      openWindow();
     }
   };
 
