@@ -1,1 +1,1 @@
-export { api } from './instance';
+export { api, setUpAuthInterceptor } from './instance';

@@ -1,11 +1,23 @@
-import { api } from '@shared/api/axios';
-import { updateAuthState, withValidation } from '@shared/api/common';
+import { api, setUpAuthInterceptor } from '@shared/api/axios';
+import { withValidation } from '@shared/api/common';
 
 import { AuthResponseSchema } from './schema';
 
-export const refresh = async () => {
+const authState = {
+  exp: 0,
+  token: '',
+};
+
+const MILLISECONDS_IN_SECOND = 1_000;
+
+export const updateAuthState = (token: string, exp: number) => {
+  authState.token = token;
+  authState.exp = exp;
+};
+
+const refresh = async () => {
   const refreshTokens = withValidation(AuthResponseSchema, async () => {
-    const response = await api.post('/auth/refresh');
+    const response = await api.post('/auth/refresh', {}, { skipAuth: true });
 
     return response.data as unknown;
   });
@@ -18,3 +30,11 @@ export const refresh = async () => {
 
   updateAuthState(result.data.token, result.data.exp);
 };
+
+setUpAuthInterceptor(() => {
+  if (!authState.token || Date.now() > authState.exp * MILLISECONDS_IN_SECOND) {
+    return null;
+  }
+
+  return authState.token;
+}, refresh);

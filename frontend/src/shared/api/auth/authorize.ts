@@ -1,13 +1,18 @@
 import { api } from '@shared/api/axios';
-import { updateAuthState, withValidation } from '@shared/api/common';
+import { withValidation } from '@shared/api/common';
 
+import { updateAuthState } from './refresh';
 import { AuthResponseSchema } from './schema';
 
 export const authorize = async (username: string, password: string) => {
   const auth = withValidation(
     AuthResponseSchema,
     async (username: string, password: string) => {
-      const response = await api.post('/auth/login', { password, username });
+      const response = await api.post(
+        '/auth/login',
+        { password, username },
+        { skipAuth: true },
+      );
 
       return response.data as unknown;
     },
