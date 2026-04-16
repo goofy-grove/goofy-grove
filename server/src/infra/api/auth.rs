@@ -132,7 +132,6 @@ async fn refresh_token(
     >,
     cookie: CookieJar,
 ) -> Result<Response, Response> {
-    println!("{:?}", cookie.get("refresh_token"));
     let refresh_token = cookie
         .get("refresh_token")
         .ok_or(response::auth_error(&["Refresh token not found"]))?

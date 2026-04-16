@@ -1313,7 +1313,6 @@ dependencies = [
  "env_logger",
  "gg_core",
  "jsonwebtoken",
- "log",
  "migration",
  "sea-orm",
  "serde",

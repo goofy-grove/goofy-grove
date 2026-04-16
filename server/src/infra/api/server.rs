@@ -6,6 +6,7 @@ use sea_orm::DatabaseConnection;
 use socketioxide::{SocketIo, layer::SocketIoLayer};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
+use tracing::info;
 
 use crate::infra::{
     api::{auth::create_auth_router, personas::create_persona_router, users::create_user_router},
@@ -59,7 +60,7 @@ pub async fn start_server(
 
     let listener = TcpListener::bind(config.socket_addr()).await?;
 
-    log::info!(target: "application", "Listening on {}:{}", config.host, config.port);
+    info!(target: "application::server", "Listening on http://{}:{}", config.host, config.port);
 
     axum::serve(listener, app).await?;
 

@@ -13,6 +13,7 @@ use gg_core::{
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 use serde_json::json;
+use tracing::error;
 
 use crate::infra::{
     api::{
@@ -54,7 +55,7 @@ pub async fn get_all_user_personas(
     match personas_result {
         Ok(personas) => response::ok(personas),
         Err(err) => {
-            log::error!("Failed to get personas: {:?}", err);
+            error!(target: "application::api::get_all_user_personas", ?err, "Failed to get personas:");
 
             response::internal_error(&["Failed to get personas"])
         }
@@ -85,7 +86,7 @@ pub async fn create_persona(
     {
         Ok(persona) => response::ok(persona),
         Err(err) => {
-            log::error!("Failed to create persona: {:?}", err);
+            error!(target: "application::api::create_persona", ?err, "Failed to create persona:");
 
             response::internal_error(&["Failed to create persona"])
         }

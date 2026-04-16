@@ -4,24 +4,25 @@ mod repositories;
 use gg_core::{application::auth::RegistrationService, domain::prelude::*};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
+use tracing::info;
 
 use crate::infra::{config::Config, id_generator::UuidGenerator, security::ArgonPasswordSystem};
 
 pub use repositories::*;
 
 pub async fn init_db(config: &Config) -> DatabaseConnection {
-    log::info!(target: "application::db", "Initializing database connection...");
+    info!(target: "application::db", "Initializing database connection...");
 
     let connection = Database::connect(config.database.to_connection_string())
         .await
         .expect("Failed to connect database");
 
-    log::info!(target: "application::db", "Running database migrations");
+    info!(target: "application::db", "Running database migrations");
     Migrator::up(&connection, None)
         .await
         .expect("Failed to run database migrations");
 
-    log::info!(target: "application::db", "Creating master user");
+    info!(target: "application::db", "Creating master user");
     create_master_user(connection.clone()).await;
 
     connection
@@ -46,6 +47,6 @@ pub async fn create_master_user(connection: DatabaseConnection) {
             .await
             .expect("Failed to create master user");
 
-        log::info!(target: "application", "Created user with name: `admin` and password: `password`");
+        info!(target: "application", "Created user with name: `admin` and password: `password`");
     }
 }

@@ -3,6 +3,7 @@ use gg_core::domain::prelude::*;
 use sea_orm::{
     ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
 };
+use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct PersonaRepository {
@@ -36,7 +37,7 @@ impl LoadPersonasPort for PersonaRepository {
                 .collect(),
             Err(err) => {
                 // TODO: add error propagation
-                log::error!("Failed to load personas: {}", err);
+                error!(target: "application::db::load_personas", ?err, "Failed to load personas:");
 
                 vec![]
             }
