@@ -111,6 +111,7 @@ pub async fn authentication_middleware(
     let user = Arc::new(user.unwrap());
 
     socket.extensions.insert(user);
+    socket.join(socket.id);
 
     Ok(())
 }
