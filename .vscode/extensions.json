@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "tamasfe.even-better-toml",
+    "eamodio.gitlens",
+    "lokalise.i18n-ally",
+    "unifiedjs.vscode-mdx",
+    "xyc.vscode-mdx-preview",
+    "42crunch.vscode-openapi",
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker-russian",
+    "rust-lang.rust-analyzer",
+    "yy0931.vscode-sqlite3-editor",
+    "stylelint.vscode-stylelint",
+    "redhat.vscode-yaml"
+  ]
+}
