@@ -36,7 +36,11 @@ impl TokenValidatorPort for JwtAccessTokenValidator {
             }
         })?;
 
-        Ok(TokenData::new(validation.claims.sub))
+        Ok(TokenData::new(
+            validation.claims.uid,
+            validation.claims.sub,
+            validation.claims.exp,
+        ))
     }
 }
 
@@ -69,6 +73,10 @@ impl TokenValidatorPort for JwtRefreshTokenValidator {
             }
         })?;
 
-        Ok(TokenData::new(validation.claims.sub))
+        Ok(TokenData::new(
+            validation.claims.uid,
+            validation.claims.sub,
+            validation.claims.exp,
+        ))
     }
 }

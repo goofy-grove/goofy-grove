@@ -3,6 +3,7 @@ use std::sync::Arc;
 use axum::{
     Extension, Json, Router,
     extract::State,
+    http::HeaderMap,
     response::Response,
     routing::{get, post},
 };
@@ -69,6 +70,7 @@ pub struct PersonaCreateRequest {
 }
 
 pub async fn create_persona(
+    headers: HeaderMap,
     Extension(user): Extension<User>,
     State(persona_state): State<PersonaState<impl GetPersonasQuery, impl CreatePersonaUseCase>>,
     Json(request): Json<PersonaCreateRequest>,
@@ -77,6 +79,12 @@ pub async fn create_persona(
         PersonaName::new(request.name),
         user.uid().to_owned(),
         PersonaDescription::new(request.description),
+        // TODO: Make as a separate function
+        headers
+            .get("x-socket-id")
+            .map(|id| vec![ParticipantId::new(id.to_str().unwrap().to_owned())])
+            .or(Some(Default::default()))
+            .unwrap(),
     );
 
     match persona_state
@@ -84,7 +92,7 @@ pub async fn create_persona(
         .create_persona(command)
         .await
     {
-        Ok(persona) => response::ok(persona),
+        Ok(persona) => response::created(persona),
         Err(err) => {
             error!(target: "application::api::create_persona", ?err, "Failed to create persona:");
 

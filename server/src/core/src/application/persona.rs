@@ -41,6 +41,7 @@ impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
                 self.event_publisher
                     .publish(PersonaCreatedEvent {
                         persona: saved_persona.clone(),
+                        exclude_participants: command.exclude_participants().clone(),
                     })
                     .await;
 

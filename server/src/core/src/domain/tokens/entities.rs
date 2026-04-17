@@ -5,7 +5,7 @@ pub struct Token(String);
 
 impl_as_domain_newtype!(Token -> String);
 
-generate_entity!(TokenData { username: String });
+generate_entity!(TokenData { uid: String, username: String, expires_at: usize });
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct HashedToken(String);

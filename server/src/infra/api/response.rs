@@ -24,6 +24,14 @@ pub fn ok<T: ToJson>(data: T) -> Response<Body> {
         .into_response()
 }
 
+pub fn created<T: ToJson>(data: T) -> Response<Body> {
+    (
+        StatusCode::CREATED,
+        Json(json!({"error": false, "data": data.to_json()})),
+    )
+        .into_response()
+}
+
 pub fn auth_error(reasons: &[&str]) -> Response<Body> {
     (
         StatusCode::UNAUTHORIZED,

@@ -38,6 +38,7 @@ pub fn init_router(
         .layer(CorsLayer::very_permissive())
 }
 
+// FIXME: move it to another module
 pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketIo) {
     event_bus.subscribe(PersonaCreatedEventHandler::new(socket));
 }
@@ -46,7 +47,7 @@ pub async fn start_server(
     config: Arc<Config>,
     connection: DatabaseConnection,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let (socketio_layer, io) = create_socketio_layer()?;
+    let (socketio_layer, io) = create_socketio_layer(connection.clone(), config.clone())?;
     let mut event_bus = InMemoryEventBus::new();
 
     register_event_handlers(&mut event_bus, io);
@@ -55,7 +56,7 @@ pub async fn start_server(
         config.clone(),
         connection.clone(),
         socketio_layer,
-        event_bus.clone(),
+        event_bus,
     );
 
     let listener = TcpListener::bind(config.socket_addr()).await?;

@@ -3,6 +3,7 @@ use std::pin::Pin;
 use gg_core::domain::prelude::*;
 use serde_json::json;
 use socketioxide::SocketIo;
+use tracing::info;
 
 pub struct PersonaCreatedEventHandler {
     socket: SocketIo,
@@ -16,19 +17,34 @@ impl PersonaCreatedEventHandler {
 
 impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
     fn handle(&self, event: &PersonaCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+        let creator_id = event.persona.creator_id().value().to_owned();
         let json = json!({
-            "event": "persona.created",
-            "data": {
-                "id": event.persona.uid().value(),
-                "name": event.persona.name().value(),
-                "description": event.persona.description().value(),
-                "creator_id": event.persona.creator_id().value(),
-            }
+            "id": event.persona.uid().value(),
+            "name": event.persona.name().value(),
+            "description": event.persona.description().value(),
+            "creator_id": creator_id,
         });
         let socket = self.socket.clone();
 
+        let exclude_participants: Vec<String> = event
+            .exclude_participants
+            .clone()
+            .into_iter()
+            .map(|v| v.value().to_owned())
+            .collect();
+
         Box::pin(async move {
-            socket.emit("event", &json).await.ok();
+            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting persona:created event");
+
+            socket
+                .of("/v1")
+                // NOTE: check if it is correct, probably we should handle the None case
+                .unwrap()
+                .within(format!("user:{creator_id}"))
+                .except(exclude_participants)
+                .emit("persona:created", &json)
+                .await
+                .ok();
         })
     }
 }

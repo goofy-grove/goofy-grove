@@ -1,68 +1,15 @@
-use crate::domain::prelude::Persona;
+use crate::{domain::prelude::Persona, impl_as_domain_newtype};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct ParticipantId(String);
+
+impl_as_domain_newtype!(ParticipantId -> String);
 
 pub trait Event: Send + Sync + 'static {}
 
 pub struct PersonaCreatedEvent {
     pub persona: Persona,
+    pub exclude_participants: Vec<ParticipantId>,
 }
 
 impl Event for PersonaCreatedEvent {}
-
-// use std::sync::{Arc, RwLock};
-// use std::any::{Any, TypeId};
-// use std::collections::HashMap;
-
-// type HandlerFn = Arc<
-//     dyn Fn(&dyn Any) -> Pin<Box<dyn Future<Output = ()> + Send>>
-//         + Send
-//         + Sync
-// >;
-
-// pub struct InMemoryEventBus {
-//     handlers: RwLock<HashMap<TypeId, Vec<HandlerFn>>>,
-// }
-
-// impl InMemoryEventBus {
-//     pub fn new() -> Self {
-//         Self {
-//             handlers: RwLock::new(HashMap::new()),
-//         }
-//     }
-
-//     pub fn subscribe<E, H>(&self, handler: H)
-//     where
-//         E: Event,
-//         H: EventHandler<E> + 'static,
-//     {
-//         let mut map = self.handlers.write().unwrap();
-
-//         let entry = map.entry(TypeId::of::<E>()).or_default();
-
-//         let handler = Arc::new(handler);
-
-//         entry.push(Arc::new(move |event: &dyn Any| {
-//             let event = event.downcast_ref::<E>().unwrap();
-//             handler.handle(event)
-//         }));
-//     }
-// }
-
-// impl EventBus for InMemoryEventBus {
-//     fn publish<E: Event>(
-//         &self,
-//         event: E,
-//     ) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-//         let handlers = {
-//             let map = self.handlers.read().unwrap();
-//             map.get(&TypeId::of::<E>())
-//                 .cloned()
-//                 .unwrap_or_default()
-//         };
-
-//         Box::pin(async move {
-//             for handler in handlers {
-//                 handler(&event).await;
-//             }
-//         })
-//     }
-// }

@@ -1,28 +1,49 @@
-use serde_json::Value;
+mod middlewares;
+
+use std::sync::Arc;
+
+use keyv::Keyv;
+use sea_orm::DatabaseConnection;
 use socketioxide::{
-    SocketIo,
-    extract::{Data, SocketRef},
+    SocketIo, SocketIoBuilder,
+    extract::{SocketRef, State},
+    handler::ConnectHandler,
     layer::SocketIoLayer,
 };
 use tracing::info;
 
-pub async fn on_connect(socket: SocketRef, Data(data): Data<Value>) {
-    info!(ns = socket.ns(), ?socket.id, ?data, "Socket.IO connected");
-    socket.emit("auth", &data).ok();
+use crate::infra::config::Config;
 
-    socket.on(
-        "message",
-        async |socket: SocketRef, Data::<String>(data)| {
-            info!(target: "application::socketio", ?data, "Received event:");
-            socket.emit("message-back", &data).ok();
-        },
-    );
+pub async fn on_connect(socket: SocketRef) {
+    info!(target: "application::socketio", id = ?socket.id, "Socket.IO connected");
+
+    socket.on_disconnect(async |socket: SocketRef, State(keyv): State<Arc<Keyv>>| {
+        info!(target: "application::socketio", id = ?socket.id, "Socket.IO disconnected");
+
+        let result = keyv.remove(socket.id.as_str()).await;
+
+        if result.is_err() {
+            info!(target: "application::socketio", err = ?result.err(), "Keyv error:");
+        }
+    });
 }
 
-pub fn create_socketio_layer() -> Result<(SocketIoLayer, SocketIo), Box<dyn std::error::Error>> {
-    let (layer, io) = SocketIo::new_layer();
+pub fn create_socketio_layer(
+    db_connection: DatabaseConnection,
+    config: Arc<Config>,
+) -> Result<(SocketIoLayer, SocketIo), Box<dyn std::error::Error>> {
+    let keyv = Arc::new(Keyv::default());
 
-    io.ns("/", on_connect);
+    let (layer, io) = SocketIoBuilder::new()
+        .with_state(db_connection)
+        .with_state(config)
+        .with_state(keyv)
+        .build_layer();
+
+    io.ns(
+        "/v1",
+        on_connect.with(middlewares::authentication_middleware),
+    );
 
     info!(target: "application::socketio", "Socket.IO layer created");
 
