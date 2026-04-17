@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { api } from '@shared/api';
+import { api, socket } from '@shared/api';
+import { queryClient } from '@shared/lib';
 
 import { PERSONAS_QUERY_KEY } from './constants';
 import { Persona } from './entity';
@@ -26,3 +27,9 @@ export const usePersonasQuery = () =>
       );
     },
   });
+
+socket.on('persona:created', (persona: Persona) => {
+  queryClient.setQueryData<Persona[]>([PERSONAS_QUERY_KEY], (old) =>
+    old ? [...old, persona] : [persona],
+  );
+});

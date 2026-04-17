@@ -1,8 +1,18 @@
 import axios from 'axios';
 
+import { socket } from '@shared/api/socket';
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+  if (socket.connected) {
+    config.headers['x-socket-id'] = socket.id;
+  }
+
+  return config;
 });
 
 export const setUpAuthInterceptor = (

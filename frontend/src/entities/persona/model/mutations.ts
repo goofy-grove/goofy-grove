@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { v4 } from 'uuid';
 
-import { useAuthStore } from '@entities/auth';
+import { useAuthStore } from '@entities/auth/@x/persona';
 
 import { api } from '@shared/api';
 

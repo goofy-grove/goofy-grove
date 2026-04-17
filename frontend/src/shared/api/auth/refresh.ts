@@ -1,5 +1,6 @@
 import { api, setUpAuthInterceptor } from '@shared/api/axios';
 import { withValidation } from '@shared/api/common';
+import { updateSocketAuth } from '@shared/api/socket';
 
 import { AuthResponseSchema } from './schema';
 
@@ -13,6 +14,8 @@ const MILLISECONDS_IN_SECOND = 1_000;
 export const updateAuthState = (token: string, exp: number) => {
   authState.token = token;
   authState.exp = exp;
+
+  updateSocketAuth(token);
 };
 
 const refresh = async () => {

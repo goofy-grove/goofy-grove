@@ -5,9 +5,10 @@ import { StrictMode } from 'react';
 
 import { AuthProvider, useAuth } from '@entities/auth';
 
+import { queryClient } from '@shared/lib';
 import { WindowsProvider } from '@shared/ui';
 
-import { queryClient, router } from './lib';
+import { router } from './lib';
 
 const InnerApp = () => {
   const auth = useAuth();
