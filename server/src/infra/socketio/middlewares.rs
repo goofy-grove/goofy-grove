@@ -54,7 +54,9 @@ pub async fn authentication_middleware(
 
     let username = username.unwrap();
 
-    let username = if username.is_none() {
+    let username = if let Some(username) = username {
+        username.to_string()
+    } else {
         let token_data = jwt_token_validator
             .validate_token(&Token::new(data.token))
             .await;
@@ -94,8 +96,6 @@ pub async fn authentication_middleware(
         socket.join(format!("user:{}", uid));
 
         token_data.username().to_owned()
-    } else {
-        username.unwrap().to_string()
     };
 
     let user = user_get_service
