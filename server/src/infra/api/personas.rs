@@ -83,8 +83,7 @@ pub async fn create_persona(
         headers
             .get("x-socket-id")
             .map(|id| vec![ParticipantId::new(id.to_str().unwrap().to_owned())])
-            .or(Some(Default::default()))
-            .unwrap(),
+            .unwrap_or(Default::default()),
     );
 
     match persona_state
