@@ -1,19 +1,24 @@
 {
   "recommendations": [
+    // Global plugins
     "streetsidesoftware.code-spell-checker",
-    "editorconfig.editorconfig",
-    "dbaeumer.vscode-eslint",
-    "tamasfe.even-better-toml",
+    "streetsidesoftware.code-spell-checker-russian",
     "eamodio.gitlens",
-    "lokalise.i18n-ally",
     "unifiedjs.vscode-mdx",
     "xyc.vscode-mdx-preview",
-    "42crunch.vscode-openapi",
+
+    // Frontend plugins
+    "editorconfig.editorconfig",
+    "dbaeumer.vscode-eslint",
+    "lokalise.i18n-ally",
     "esbenp.prettier-vscode",
-    "streetsidesoftware.code-spell-checker-russian",
+    "stylelint.vscode-stylelint",
+
+    // Server plugins
+    "42crunch.vscode-openapi",
     "rust-lang.rust-analyzer",
     "yy0931.vscode-sqlite3-editor",
-    "stylelint.vscode-stylelint",
+    "tamasfe.even-better-toml",
     "redhat.vscode-yaml"
   ]
 }
