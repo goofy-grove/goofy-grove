@@ -1,8 +1,13 @@
+use thiserror::Error;
+
 use crate::domain::prelude::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum LoadDevicePortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Device not found")]
     DeviceNotFound,
 }
 
@@ -13,10 +18,15 @@ pub trait LoadDevicePort {
     ) -> impl Future<Output = DomainResult<UserToken, LoadDevicePortError>>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum SaveDevicePortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Device already exists")]
     DeviceAlreadyExists,
+
+    #[error("User not found")]
     UserNotFound,
 }
 
@@ -27,9 +37,12 @@ pub trait SaveDevicePort {
     ) -> impl Future<Output = DomainResult<UserToken, SaveDevicePortError>>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum InvalidateDevicePortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Device not found")]
     DeviceNotFound,
 }
 
@@ -40,8 +53,9 @@ pub trait InvalidateDevicePort {
     ) -> impl Future<Output = DomainResult<(), InvalidateDevicePortError>>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum TokenHasherPortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
 }
 
@@ -52,8 +66,9 @@ pub trait TokenHasherPort {
     ) -> impl Future<Output = DomainResult<HashedToken, TokenHasherPortError>>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum TokenGeneratorPortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
 }
 
@@ -64,10 +79,15 @@ pub trait TokenGeneratorPort {
     ) -> impl Future<Output = DomainResult<(String, usize), TokenGeneratorPortError>>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum TokenValidatorPortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Invalid token")]
     TokenInvalid,
+
+    #[error("Token expired")]
     TokenExpired,
 }
 

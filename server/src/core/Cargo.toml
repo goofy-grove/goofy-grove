@@ -6,3 +6,6 @@ edition = "2024"
 [lib]
 name = "gg_core"
 path = "src/lib.rs"
+
+[dependencies]
+thiserror = "2.0.18"

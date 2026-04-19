@@ -1,7 +1,10 @@
+use thiserror::Error;
+
 use crate::domain::prelude::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum CreatePersonaError {
+    #[error("Internal error: {0}")]
     InternalError(String),
 }
 

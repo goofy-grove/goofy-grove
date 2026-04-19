@@ -1,3 +1,5 @@
+// FIXME: remove all of this errors
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DomainValidationError {
     IdValidationError(String),

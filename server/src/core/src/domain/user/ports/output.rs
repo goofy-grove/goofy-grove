@@ -1,8 +1,13 @@
+use thiserror::Error;
+
 use crate::domain::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum LoadUserByNamePortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("User not found")]
     NotFound,
 }
 
@@ -13,9 +18,12 @@ pub trait LoadUserByNamePort {
     ) -> impl Future<Output = DomainResult<User, LoadUserByNamePortError>>;
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum SaveUserPortError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("User already exists")]
     UserAlreadyExists,
 }
 

@@ -1,8 +1,13 @@
+use thiserror::Error;
+
 use crate::domain::prelude::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Error)]
 pub enum GetUserByNameError {
+    #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("User not found")]
     UserNotFound,
 }
 
