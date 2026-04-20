@@ -1,11 +1,11 @@
 use crate::{domain::prelude::*, generate_entity};
 
 generate_entity!(AuthorizationCommand {
-    name: UserName,
+    name: Username,
     secret: Secret
 });
 generate_entity!(RegistrationCommand {
-    name: UserName,
+    name: Username,
     secret: Secret
 });
 

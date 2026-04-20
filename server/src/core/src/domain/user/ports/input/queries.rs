@@ -14,6 +14,6 @@ pub enum GetUserByNameError {
 pub trait GetUserByNameQuery {
     fn get_user_by_name(
         &self,
-        username: &UserName,
-    ) -> impl Future<Output = DomainResult<User, GetUserByNameError>>;
+        username: &Username,
+    ) -> impl Future<Output = Result<User, GetUserByNameError>>;
 }

@@ -16,5 +16,5 @@ pub trait SavePersonaPort {
     fn save_persona(
         &self,
         persona: Persona,
-    ) -> impl Future<Output = DomainResult<Persona, SavePersonaPortError>>;
+    ) -> impl Future<Output = Result<Persona, SavePersonaPortError>>;
 }

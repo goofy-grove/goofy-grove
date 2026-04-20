@@ -21,29 +21,19 @@ impl<T: InvalidateDevicePort, H: TokenHasherPort> InvalidateDeviceUseCase
     async fn invalidate_device(
         &self,
         command: InvalidateDeviceCommand,
-    ) -> DomainResult<(), InvalidateDeviceError> {
+    ) -> Result<(), InvalidateDeviceError> {
         let hashed_token = self
             .token_hasher_port
             .hash_token(command.token().to_owned())
             .await
-            .map_err(|err| {
-                DomainError::UseCaseError(InvalidateDeviceError::InternalError(format!(
-                    "{:?}",
-                    err
-                )))
-            })?;
+            .map_err(|err| InvalidateDeviceError::InternalError(format!("{:?}", err)))?;
 
         self.invalidate_device_port
             .invalidate_device(&hashed_token)
             .await
             .map_err(|err| match err {
-                DomainError::ExternalServiceError(InvalidateDevicePortError::DeviceNotFound) => {
-                    DomainError::UseCaseError(InvalidateDeviceError::DeviceNotFound)
-                }
-                err => DomainError::UseCaseError(InvalidateDeviceError::InternalError(format!(
-                    "{:?}",
-                    err
-                ))),
+                InvalidateDevicePortError::DeviceNotFound => InvalidateDeviceError::DeviceNotFound,
+                err => InvalidateDeviceError::InternalError(format!("{:?}", err)),
             })
     }
 }
@@ -75,34 +65,29 @@ impl<S: SaveDevicePort, G: IdGenerator, C: Clock, H: TokenHasherPort> CreateDevi
     async fn create_device(
         &self,
         command: CreateDeviceCommand,
-    ) -> DomainResult<UserToken, CreateDeviceError> {
+    ) -> Result<UserToken, CreateDeviceError> {
         let hashed_token = self
             .token_hasher_port
             .hash_token(command.token().to_owned())
             .await
-            .map_err(|err| {
-                DomainError::UseCaseError(CreateDeviceError::InternalError(format!("{:?}", err)))
-            })?;
+            .map_err(|err| CreateDeviceError::InternalError(format!("{:?}", err)))?;
 
         let token = UserToken::new(
-            TokenId::new(self.id_generator.generate()),
+            TokenId::try_new(self.id_generator.generate())
+                .map_err(|err| CreateDeviceError::ValidationError(format!("{err}")))?,
             hashed_token,
             command.user_id().to_owned(),
             command.user_agent().to_owned(),
-            LastAccessedAt::new(self.clock.timestamp()),
+            LastAccessedAt::try_new(self.clock.timestamp())
+                .map_err(|err| CreateDeviceError::ValidationError(format!("{err}")))?,
         );
 
         self.create_device_port
             .create_device(token)
             .await
             .map_err(|err| match err {
-                DomainError::ExternalServiceError(SaveDevicePortError::DeviceAlreadyExists) => {
-                    DomainError::UseCaseError(CreateDeviceError::DeviceAlreadyExists)
-                }
-                err => DomainError::UseCaseError(CreateDeviceError::InternalError(format!(
-                    "{:?}",
-                    err
-                ))),
+                SaveDevicePortError::DeviceAlreadyExists => CreateDeviceError::DeviceAlreadyExists,
+                err => CreateDeviceError::InternalError(format!("{:?}", err)),
             })
     }
 }

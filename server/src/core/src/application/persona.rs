@@ -28,9 +28,10 @@ impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
     async fn create_persona(
         &self,
         command: CreatePersonaCommand,
-    ) -> DomainResult<Persona, CreatePersonaError> {
+    ) -> Result<Persona, CreatePersonaError> {
         let persona = Persona::new(
-            PersonaId::new(self.uid_generator.generate()),
+            PersonaId::try_new(self.uid_generator.generate())
+                .map_err(|err| CreatePersonaError::ValidationError(format!("{err}")))?,
             command.creator_id().clone(),
             command.name().clone(),
             command.description().clone(),
@@ -47,9 +48,7 @@ impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
 
                 Ok(saved_persona)
             }
-            Err(err) => Err(DomainError::UseCaseError(
-                CreatePersonaError::InternalError(format!("{:?}", err)),
-            )),
+            Err(err) => Err(CreatePersonaError::InternalError(format!("{:?}", err))),
         }
     }
 }
@@ -61,8 +60,8 @@ impl<L: LoadPersonasPort> GetPersonasService<L> {
 }
 
 impl<L: LoadPersonasPort> GetPersonasQuery for GetPersonasService<L> {
-    async fn get_personas(&self, user_id: &UserId) -> DomainResult<Vec<Persona>, GetPersonasErorr> {
+    async fn get_personas(&self, user_id: &UserId) -> Result<Vec<Persona>, GetPersonasErorr> {
         // TODO: add error propagation
-        DomainResult::Ok(self.load_personas_port.load_personas(user_id).await)
+        Ok(self.load_personas_port.load_personas(user_id).await)
     }
 }

@@ -1,5 +1,5 @@
 // FIXME: remove all of this errors
-
+/* 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DomainValidationError {
     IdValidationError(String),
@@ -23,4 +23,4 @@ pub enum DomainError<T> {
     ExternalServiceError(T),
 }
 
-pub type DomainResult<T, E> = Result<T, DomainError<E>>;
+pub type DomainResult<T, E> = Result<T, DomainError<E>>; */

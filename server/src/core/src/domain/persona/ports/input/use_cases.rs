@@ -6,11 +6,14 @@ use crate::domain::prelude::*;
 pub enum CreatePersonaError {
     #[error("Internal error: {0}")]
     InternalError(String),
+
+    #[error("Validation error: {0}")]
+    ValidationError(String),
 }
 
 pub trait CreatePersonaUseCase {
     fn create_persona(
         &self,
         command: CreatePersonaCommand,
-    ) -> impl Future<Output = DomainResult<Persona, CreatePersonaError>>;
+    ) -> impl Future<Output = Result<Persona, CreatePersonaError>>;
 }

@@ -14,18 +14,13 @@ impl<L: LoadUserByNamePort> GetUserByNameService<L> {
 }
 
 impl<L: LoadUserByNamePort> GetUserByNameQuery for GetUserByNameService<L> {
-    async fn get_user_by_name(&self, id: &UserName) -> DomainResult<User, GetUserByNameError> {
+    async fn get_user_by_name(&self, id: &Username) -> Result<User, GetUserByNameError> {
         self.load_user_by_name_port
             .load_user_by_name(id)
             .await
             .map_err(|err| match err {
-                DomainError::ExternalServiceError(LoadUserByNamePortError::NotFound) => {
-                    DomainError::QueryError(DomainQueryError::NotFound)
-                }
-                err => DomainError::UseCaseError(GetUserByNameError::InternalError(format!(
-                    "{:?}",
-                    err
-                ))),
+                LoadUserByNamePortError::NotFound => GetUserByNameError::UserNotFound,
+                err => GetUserByNameError::InternalError(format!("{:?}", err)),
             })
     }
 }

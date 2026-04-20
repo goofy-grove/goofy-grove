@@ -1,9 +1,6 @@
 use thiserror::Error;
 
-use crate::domain::{
-    error::DomainResult,
-    prelude::{CreateDeviceCommand, InvalidateDeviceCommand, UserToken},
-};
+use crate::domain::prelude::*;
 
 #[derive(Debug, Clone, Error)]
 pub enum CreateDeviceError {
@@ -15,6 +12,9 @@ pub enum CreateDeviceError {
 
     #[error("User not found")]
     UserNotFound,
+
+    #[error("Validation error: {0}")]
+    ValidationError(String),
 }
 
 #[derive(Debug, Clone, Error)]
@@ -30,12 +30,12 @@ pub trait CreateDeviceUseCase {
     fn create_device(
         &self,
         command: CreateDeviceCommand,
-    ) -> impl Future<Output = DomainResult<UserToken, CreateDeviceError>>;
+    ) -> impl Future<Output = Result<UserToken, CreateDeviceError>>;
 }
 
 pub trait InvalidateDeviceUseCase {
     fn invalidate_device(
         &self,
         command: InvalidateDeviceCommand,
-    ) -> impl Future<Output = DomainResult<(), InvalidateDeviceError>>;
+    ) -> impl Future<Output = Result<(), InvalidateDeviceError>>;
 }

@@ -14,8 +14,8 @@ pub enum LoadUserByNamePortError {
 pub trait LoadUserByNamePort {
     fn load_user_by_name(
         &self,
-        name: &UserName,
-    ) -> impl Future<Output = DomainResult<User, LoadUserByNamePortError>>;
+        name: &Username,
+    ) -> impl Future<Output = Result<User, LoadUserByNamePortError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -29,5 +29,5 @@ pub enum SaveUserPortError {
 
 pub trait SaveUserPort {
     fn save_user(&self, user: &User)
-    -> impl Future<Output = DomainResult<User, SaveUserPortError>>;
+    -> impl Future<Output = Result<User, SaveUserPortError>>;
 }

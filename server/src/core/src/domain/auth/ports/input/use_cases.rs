@@ -15,7 +15,7 @@ pub trait AuthorizationUseCase {
     fn authorize(
         &self,
         command: AuthorizationCommand,
-    ) -> impl Future<Output = DomainResult<User, AuthorizationError>>;
+    ) -> impl Future<Output = Result<User, AuthorizationError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -28,11 +28,14 @@ pub enum RegistrationError {
 
     #[error("User already exists")]
     UserAlreadyExists,
+
+    #[error("Validation error: {0}")]
+    ValidationError(String),
 }
 
 pub trait RegistrationUseCase {
     fn register(
         &self,
         command: RegistrationCommand,
-    ) -> impl Future<Output = DomainResult<User, RegistrationError>>;
+    ) -> impl Future<Output = Result<User, RegistrationError>>;
 }

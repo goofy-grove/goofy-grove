@@ -1,9 +1,4 @@
-use crate::{domain::prelude::Persona, impl_as_domain_newtype};
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct ParticipantId(String);
-
-impl_as_domain_newtype!(ParticipantId -> String);
+use crate::domain::prelude::*;
 
 pub trait Event: Send + Sync + 'static {}
 

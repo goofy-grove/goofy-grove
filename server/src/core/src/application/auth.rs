@@ -18,28 +18,22 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> UserAuthorizationService<L,
 impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
     for UserAuthorizationService<L, C>
 {
-    async fn authorize(
-        &self,
-        command: AuthorizationCommand,
-    ) -> DomainResult<User, AuthorizationError> {
+    async fn authorize(&self, command: AuthorizationCommand) -> Result<User, AuthorizationError> {
         let user = self
             .load_user_port
             .load_user_by_name(command.name())
             .await
-            .or(Err(DomainError::UseCaseError(
-                AuthorizationError::UserNotFound,
-            )))?;
+            .or(Err(AuthorizationError::UserNotFound))?;
 
         self.compare_password_port
             .verify(
                 command.secret(),
-                &Secret::new(user.password().value().to_owned()),
+                // NOTE: this unwrap is safe, because user.password has same checks and already checked
+                &user.password().inner().to_owned().try_into().unwrap(),
             )
             .await
             .map(|_| user)
-            .or(Err(DomainError::UseCaseError(
-                AuthorizationError::InvalidCredentials,
-            )))
+            .or(Err(AuthorizationError::InvalidCredentials))
     }
 }
 
@@ -63,32 +57,25 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationService
 impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
     for RegistrationService<S, H, U>
 {
-    async fn register(
-        &self,
-        command: RegistrationCommand,
-    ) -> DomainResult<User, RegistrationError> {
+    async fn register(&self, command: RegistrationCommand) -> Result<User, RegistrationError> {
         let hashed_password = self
             .hash_password_port
             .hash(command.secret())
             .await
-            .or(Err(DomainError::UseCaseError(
-                RegistrationError::FailedToHashPassword,
-            )))?;
+            .or(Err(RegistrationError::FailedToHashPassword))?;
 
         let user = User::new(
-            UserId::new(self.id_generator.generate()),
+            UserId::try_new(self.id_generator.generate())
+                .map_err(|err| RegistrationError::ValidationError(format!("{err}")))?,
             command.name().clone(),
-            hashed_password.value().to_owned().into(),
+            // NOTE: this unwrap is safe, because hashed_password has same checks and already checked
+            hashed_password.into_inner().try_into().unwrap(),
         );
 
         match self.save_user_port.save_user(&user).await {
             Ok(saved_user) => Ok(saved_user),
-            Err(DomainError::ExternalServiceError(SaveUserPortError::UserAlreadyExists)) => Err(
-                DomainError::UseCaseError(RegistrationError::UserAlreadyExists),
-            ),
-            Err(err) => Err(DomainError::UseCaseError(RegistrationError::InternalError(
-                format!("{:?}", err),
-            ))),
+            Err(SaveUserPortError::UserAlreadyExists) => Err(RegistrationError::UserAlreadyExists),
+            Err(err) => Err(RegistrationError::InternalError(format!("{:?}", err))),
         }
     }
 }

@@ -15,7 +15,7 @@ pub trait LoadDevicePort {
     fn load_device(
         &self,
         hashed_token: &HashedToken,
-    ) -> impl Future<Output = DomainResult<UserToken, LoadDevicePortError>>;
+    ) -> impl Future<Output = Result<UserToken, LoadDevicePortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
@@ -34,7 +34,7 @@ pub trait SaveDevicePort {
     fn create_device(
         &self,
         user_token: UserToken,
-    ) -> impl Future<Output = DomainResult<UserToken, SaveDevicePortError>>;
+    ) -> impl Future<Output = Result<UserToken, SaveDevicePortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
@@ -50,7 +50,7 @@ pub trait InvalidateDevicePort {
     fn invalidate_device(
         &self,
         hashed_token: &HashedToken,
-    ) -> impl Future<Output = DomainResult<(), InvalidateDevicePortError>>;
+    ) -> impl Future<Output = Result<(), InvalidateDevicePortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
@@ -63,7 +63,7 @@ pub trait TokenHasherPort {
     fn hash_token(
         &self,
         token: Token,
-    ) -> impl Future<Output = DomainResult<HashedToken, TokenHasherPortError>>;
+    ) -> impl Future<Output = Result<HashedToken, TokenHasherPortError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -76,7 +76,7 @@ pub trait TokenGeneratorPort {
     fn generate_token(
         &self,
         user: &User,
-    ) -> impl Future<Output = DomainResult<(String, usize), TokenGeneratorPortError>>;
+    ) -> impl Future<Output = Result<(String, usize), TokenGeneratorPortError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -95,5 +95,5 @@ pub trait TokenValidatorPort {
     fn validate_token(
         &self,
         token: &Token,
-    ) -> impl Future<Output = DomainResult<TokenData, TokenValidatorPortError>>;
+    ) -> impl Future<Output = Result<TokenData, TokenValidatorPortError>>;
 }

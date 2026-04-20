@@ -1,27 +1,4 @@
 #[macro_export]
-macro_rules! impl_as_domain_newtype {
-    ($($name:ident -> $value_type:ty),*) => {
-        $(
-            impl $name {
-                pub fn new(value: $value_type) -> Self {
-                    Self(value)
-                }
-
-                pub fn value(&self) -> &$value_type {
-                    &self.0
-                }
-            }
-
-            impl From<$value_type> for $name {
-                fn from(value: $value_type) -> Self {
-                    Self::new(value)
-                }
-            }
-        )*
-    };
-}
-
-#[macro_export]
 macro_rules! generate_entity {
     ($name:ident { $( $field:ident: $field_type:ty ),* }) => {
         #[derive(Debug, Clone)]
@@ -39,6 +16,105 @@ macro_rules! generate_entity {
             $( pub fn $field(&self) -> &$field_type {
                 &self.$field
             } )*
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_new_type {
+    (
+        $(#[$meta:meta])*
+        $vis:vis struct $name:ident($inner_ty:ty);
+        error: $error_type:ty;
+        $(sanitize: $sanitize_fn:expr;)?
+        validate: $validate_fn:expr;
+    ) => {
+        $(#[$meta])*
+        $vis struct $name($inner_ty);
+
+        impl $name {
+            pub fn try_new(value: $inner_ty) -> Result<Self, $error_type> {
+                $(
+                    let value = ($sanitize_fn)(value);
+                )?
+
+                ($validate_fn)(&value)?;
+
+                Ok(Self(value))
+            }
+
+            pub fn into_inner(self) -> $inner_ty {
+                self.0
+            }
+
+            pub fn inner(&self) -> &$inner_ty {
+                &self.0
+            }
+        }
+
+        impl TryFrom<$inner_ty> for $name {
+            type Error = $error_type;
+            fn try_from(value: $inner_ty) -> Result<Self, Self::Error> {
+                Self::try_new(value)
+            }
+        }
+    };
+
+    (
+        $(#[$meta:meta])*
+        $vis:vis struct $name:ident($inner_ty:ty);
+        sanitize: $sanitize_fn:expr;
+    ) => {
+        $(#[$meta])*
+        $vis struct $name($inner_ty);
+
+        impl $name {
+            pub fn new(value: $inner_ty) -> Self {
+                let value = ($sanitize_fn)(value);
+                Self(value)
+            }
+
+            pub fn into_inner(self) -> $inner_ty {
+                self.0
+            }
+
+            pub fn inner(&self) -> &$inner_ty {
+                &self.0
+            }
+        }
+
+        impl From<$inner_ty> for $name {
+            fn from(value: $inner_ty) -> Self {
+                Self::new(value)
+            }
+        }
+    };
+
+    (
+        $(#[$meta:meta])*
+        $vis:vis struct $name:ident($inner_ty:ty);
+    ) => {
+        $(#[$meta])*
+        $vis struct $name($inner_ty);
+
+        impl $name {
+            pub fn new(value: $inner_ty) -> Self {
+                Self(value)
+            }
+
+            pub fn into_inner(self) -> $inner_ty {
+                self.0
+            }
+
+            pub fn inner(&self) -> &$inner_ty {
+                &self.0
+            }
+        }
+
+        impl From<$inner_ty> for $name {
+            fn from(value: $inner_ty) -> Self {
+                Self::new(value)
+            }
         }
     };
 }

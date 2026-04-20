@@ -16,7 +16,7 @@ pub trait PasswordVerifierPort {
         &self,
         proposed_password: &Secret,
         confirmed_password: &Secret,
-    ) -> impl Future<Output = DomainResult<(), PasswordVerifierPortError>>;
+    ) -> impl Future<Output = Result<(), PasswordVerifierPortError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -29,5 +29,5 @@ pub trait PasswordHasherPort {
     fn hash(
         &self,
         password: &Secret,
-    ) -> impl Future<Output = DomainResult<Secret, PasswordHasherPortError>>;
+    ) -> impl Future<Output = Result<Secret, PasswordHasherPortError>>;
 }
