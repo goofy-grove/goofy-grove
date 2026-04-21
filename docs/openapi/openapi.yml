@@ -45,6 +45,38 @@ paths:
         default:
           $ref: '#/components/responses/InternalError'
 
+  /personas/{uid}:
+    patch:
+      tags: [Personas]
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Persona Unique ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonaUpdateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaCreateResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
   /users/me:
     get:
       tags: [Users]
@@ -108,7 +140,7 @@ components:
         type: http
         scheme: bearer
         bearerFormat: JWT
-        description: JWT-токен в формате Bearer
+        description: JWT token in Bearer format
 
   responses:
     UnauthorizedError:
@@ -137,12 +169,49 @@ components:
                       code:
                         const: internal_error
 
+    BadRequestError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - properties:
+                  data:
+                    properties:
+                      code:
+                        const: bad_request
+
+    NotFoundError:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - properties:
+                  data:
+                    properties:
+                      code:
+                        const: not_found
+
 
   schemas:
     # Requests
     PersonaCreateRequest:
       type: object
       required: [name, description]
+      properties:
+        name:
+          type: string
+          description: Persona Name
+        description:
+          type: string
+          description: Persona Description
+    PersonaUpdateRequest:
+      type: object
+      description: At least one of `name` or `description` must be provided
+      minProperties: 1
       properties:
         name:
           type: string
@@ -165,6 +234,8 @@ components:
       enum:
         - unauthorized
         - internal_error
+        - bad_request
+        - not_found
 
     # Responses
     ErrorResponse:
@@ -176,9 +247,9 @@ components:
           const: true
         data:
           type: object
-          required: [reason, code]
+          required: [reasons, code]
           properties:
-            reason:
+            reasons:
               type: array
               items:
                 type: string
