@@ -3,7 +3,6 @@ use gg_core::domain::prelude::*;
 use sea_orm::{
     ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
 };
-use tracing::error;
 
 #[derive(Debug, Clone)]
 pub struct PersonaRepository {
@@ -17,41 +16,43 @@ impl PersonaRepository {
 }
 
 impl LoadPersonasPort for PersonaRepository {
-    async fn load_personas(&self, user_id: &UserId) -> Vec<Persona> {
+    async fn load_personas(&self, user_id: &UserId) -> Result<Vec<Persona>, LoadPersonasPortError> {
         let personas = Personas::find()
-            .filter(personas::Column::CreatorId.eq(user_id.value()))
+            .filter(personas::Column::CreatorId.eq(user_id.inner()))
             .all(&self.connection)
-            .await;
+            .await
+            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
 
-        match personas {
-            Ok(personas) => personas
-                .into_iter()
-                .map(|persona| {
-                    Persona::new(
-                        PersonaId::new(persona.uid),
-                        UserId::new(persona.creator_id),
-                        PersonaName::new(persona.name),
-                        PersonaDescription::new(persona.description),
-                    )
-                })
-                .collect(),
-            Err(err) => {
-                // TODO: add error propagation
-                error!(target: "application::db::load_personas", ?err, "Failed to load personas:");
+        let mut result = Vec::with_capacity(personas.len());
 
-                vec![]
-            }
+        for persona in personas {
+            let persona_id = PersonaId::try_new(persona.uid)
+                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+            let creator_id = UserId::try_new(persona.creator_id)
+                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+            let persona_name = PersonaName::try_new(persona.name)
+                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+            let description = PersonaDescription::new(persona.description);
+
+            result.push(Persona::new(
+                persona_id,
+                creator_id,
+                persona_name,
+                description,
+            ));
         }
+
+        Ok(result)
     }
 }
 
 impl SavePersonaPort for PersonaRepository {
-    async fn save_persona(&self, persona: Persona) -> DomainResult<Persona, SavePersonaPortError> {
+    async fn save_persona(&self, persona: Persona) -> Result<Persona, SavePersonaPortError> {
         let new_persona = personas::ActiveModel {
-            uid: Set(persona.uid().value().to_owned()),
-            creator_id: Set(persona.creator_id().value().to_owned()),
-            name: Set(persona.name().value().to_owned()),
-            description: Set(persona.description().value().to_owned()),
+            uid: Set(persona.uid().inner().to_owned()),
+            creator_id: Set(persona.creator_id().inner().to_owned()),
+            name: Set(persona.name().inner().to_owned()),
+            description: Set(persona.description().inner().to_owned()),
         };
         let request = Personas::insert(new_persona)
             .on_conflict(
@@ -68,14 +69,15 @@ impl SavePersonaPort for PersonaRepository {
 
         match request {
             Ok(inserted_persona) => Ok(Persona::new(
-                PersonaId::new(inserted_persona.uid),
-                UserId::new(inserted_persona.creator_id),
-                PersonaName::new(inserted_persona.name),
+                PersonaId::try_new(inserted_persona.uid)
+                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
+                UserId::try_new(inserted_persona.creator_id)
+                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
+                PersonaName::try_new(inserted_persona.name)
+                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
                 PersonaDescription::new(inserted_persona.description),
             )),
-            Err(err) => Err(DomainError::ExternalServiceError(
-                SavePersonaPortError::InternalError(err.to_string()),
-            )),
+            Err(err) => Err(SavePersonaPortError::InternalError(err.to_string())),
         }
     }
 }

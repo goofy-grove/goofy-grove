@@ -1,5 +1,4 @@
 mod auth;
-mod error;
 mod event;
 mod macros;
 mod persona;

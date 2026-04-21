@@ -30,20 +30,19 @@ pub async fn init_db(config: &Config) -> DatabaseConnection {
 
 pub async fn create_master_user(connection: DatabaseConnection) {
     let user_repository = UserRepository::new(connection);
+    // NOTE: static admin username is controlled in code and satisfies Username validation.
+    let admin_username = Username::try_new("admin".to_owned()).unwrap();
+    // NOTE: static admin password is controlled in code and satisfies Secret validation.
+    let admin_password = Secret::try_new("password".to_owned()).unwrap();
 
-    if let Err(DomainError::ExternalServiceError(LoadUserByNamePortError::NotFound)) =
-        user_repository
-            .load_user_by_name(&UserName::new("admin".to_owned()))
-            .await
+    if let Err(LoadUserByNamePortError::NotFound) =
+        user_repository.load_user_by_name(&admin_username).await
     {
         let registration_service =
             RegistrationService::new(user_repository, ArgonPasswordSystem, UuidGenerator);
 
         registration_service
-            .register(RegistrationCommand::new(
-                UserName::new("admin".to_owned()),
-                Secret::new("password".to_owned()),
-            ))
+            .register(RegistrationCommand::new(admin_username, admin_password))
             .await
             .expect("Failed to create master user");
 

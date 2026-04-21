@@ -31,6 +31,8 @@ axum-extra = { version = "0.12.5", features = ["cookie"] }
 argon2 = "0.5.3"
 blake3 = "1.8.3"
 keyv = "0.3.0"
+anyhow = "1.0.102"
+thiserror = "2.0.18"
 
 [dependencies.uuid]
 version = "1.20.0"

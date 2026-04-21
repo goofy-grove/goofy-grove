@@ -20,6 +20,7 @@ use gg_core::{
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 use serde_json::json;
+use thiserror::Error;
 
 use crate::infra::{
     api::response::{self, ToJson},
@@ -70,6 +71,21 @@ struct TokenResponse {
     exp: usize,
 }
 
+#[derive(Debug, Clone, Error)]
+enum GenerateTokensError {
+    #[error("failed_to_generate_access_token")]
+    FailedToGenerateAccessToken,
+
+    #[error("failed_to_generate_refresh_token")]
+    FailedToGenerateRefreshToken,
+
+    #[error("invalid_refresh_token")]
+    InvalidRefreshToken,
+
+    #[error("failed_to_create_user_device")]
+    FailedToCreateUserDevice,
+}
+
 impl ToJson for TokenResponse {
     fn to_json(self) -> serde_json::Value {
         json!({ "token": self.token, "exp": self.exp })
@@ -86,36 +102,39 @@ async fn generate_tokens(
         impl GetUserByNameQuery,
     >,
     user: &User,
-) -> (Response, (String, usize)) {
+) -> Result<(Response, (String, usize)), GenerateTokensError> {
     let (access_token, exp) = auth_state
         .access_token_generator
         .generate_token(user)
         .await
-        .unwrap();
+        .map_err(|_| GenerateTokensError::FailedToGenerateAccessToken)?;
 
     let (refresh_token, refresh_token_lifetime) = auth_state
         .refresh_token_generator
         .generate_token(user)
         .await
-        .unwrap();
+        .map_err(|_| GenerateTokensError::FailedToGenerateRefreshToken)?;
 
-    let _ = auth_state
+    let refresh_token_value_object = Token::try_new(refresh_token.to_owned())
+        .map_err(|_| GenerateTokensError::InvalidRefreshToken)?;
+
+    auth_state
         .create_device_use_case
         .create_device(CreateDeviceCommand::new(
-            Token::new(refresh_token.to_owned()),
+            refresh_token_value_object,
             UserAgent::new("".to_string()),
             user.uid().to_owned(),
         ))
         .await
-        .unwrap();
+        .map_err(|_| GenerateTokensError::FailedToCreateUserDevice)?;
 
-    (
+    Ok((
         response::ok(TokenResponse {
             token: access_token,
             exp,
         }),
         (refresh_token, refresh_token_lifetime),
-    )
+    ))
 }
 
 async fn refresh_token(
@@ -136,13 +155,12 @@ async fn refresh_token(
         .get("refresh_token")
         .ok_or(response::auth_error(&["Refresh token not found"]))?
         .value();
-    let token = Token::new(refresh_token.to_owned());
+    let token = Token::try_new(refresh_token.to_owned())
+        .map_err(|_| response::auth_error(&["Invalid token"]))?;
 
     auth_state
         .invalidate_device_use_case
-        .invalidate_device(InvalidateDeviceCommand::new(Token::new(
-            refresh_token.to_owned(),
-        )))
+        .invalidate_device(InvalidateDeviceCommand::new(token.clone()))
         .await
         .or(Err(response::auth_error(&["Token not found"])))?;
 
@@ -154,12 +172,15 @@ async fn refresh_token(
 
     let user = auth_state
         .get_user_by_name_query
-        .get_user_by_name(&UserName::new(token_data.username().to_owned()))
+        .get_user_by_name(token_data.username())
         .await
         .or(Err(response::auth_error(&["User not found"])))?;
 
     let (mut response, (refresh_token, refresh_token_lifetime)) =
-        generate_tokens(auth_state, &user).await;
+        generate_tokens(auth_state, &user).await.map_err(|err| {
+            let message = err.to_string();
+            response::internal_error(&[&message])
+        })?;
 
     response.headers_mut().insert(
         header::SET_COOKIE,
@@ -187,10 +208,15 @@ async fn authorize_user(
     >,
     Json(payload): Json<AuthorizeUserRequest>,
 ) -> Response {
-    let command = AuthorizationCommand::new(
-        UserName::new(payload.username),
-        Secret::new(payload.password),
-    );
+    let username = match Username::try_new(payload.username) {
+        Ok(value) => value,
+        Err(_) => return response::bad_request(&["Invalid username"]),
+    };
+    let secret = match Secret::try_new(payload.password) {
+        Ok(value) => value,
+        Err(_) => return response::bad_request(&["Invalid password"]),
+    };
+    let command = AuthorizationCommand::new(username, secret);
 
     let auth_result = auth_state.authorization_use_case.authorize(command).await;
 
@@ -201,7 +227,13 @@ async fn authorize_user(
     let user = auth_result.unwrap();
 
     let (mut response, (refresh_token, refresh_token_lifetime)) =
-        generate_tokens(auth_state, &user).await;
+        match generate_tokens(auth_state, &user).await {
+            Ok(value) => value,
+            Err(err) => {
+                let message = err.to_string();
+                return response::internal_error(&[&message]);
+            }
+        };
 
     response.headers_mut().insert(
         header::SET_COOKIE,
@@ -247,13 +279,13 @@ async fn autheticate_current_user(
     if let Some(token) = auth_header.strip_prefix("Bearer ") {
         let token_data = auth_state
             .access_token_validator
-            .validate_token(&Token::new(token.to_string()))
+            .validate_token(&Token::try_new(token.to_string()).ok()?)
             .await
             .ok()?;
 
         let user = auth_state
             .load_user_use_case
-            .load_user_by_name(&UserName::new(token_data.username().to_owned()))
+            .load_user_by_name(token_data.username())
             .await
             .ok()?;
 

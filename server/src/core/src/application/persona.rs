@@ -61,7 +61,9 @@ impl<L: LoadPersonasPort> GetPersonasService<L> {
 
 impl<L: LoadPersonasPort> GetPersonasQuery for GetPersonasService<L> {
     async fn get_personas(&self, user_id: &UserId) -> Result<Vec<Persona>, GetPersonasErorr> {
-        // TODO: add error propagation
-        Ok(self.load_personas_port.load_personas(user_id).await)
+        self.load_personas_port
+            .load_personas(user_id)
+            .await
+            .map_err(|err| GetPersonasErorr::InternalError(err.to_string()))
     }
 }

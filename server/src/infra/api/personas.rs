@@ -36,10 +36,10 @@ pub struct PersonaState<Q: GetPersonasQuery, C: CreatePersonaUseCase> {
 impl ToJson for Persona {
     fn to_json(self) -> serde_json::Value {
         json!({
-            "uid": self.uid().value(),
-            "name": self.name().value(),
-            "description": self.description().value(),
-            "creator_uid": self.creator_id().value(),
+            "uid": self.uid().inner(),
+            "name": self.name().inner(),
+            "description": self.description().inner(),
+            "creator_uid": self.creator_id().inner(),
         })
     }
 }
@@ -75,15 +75,32 @@ pub async fn create_persona(
     State(persona_state): State<PersonaState<impl GetPersonasQuery, impl CreatePersonaUseCase>>,
     Json(request): Json<PersonaCreateRequest>,
 ) -> Response {
+    let persona_name = match PersonaName::try_new(request.name) {
+        Ok(value) => value,
+        Err(_) => return response::bad_request(&["Invalid persona name"]),
+    };
+    let persona_description = PersonaDescription::new(request.description);
+    // TODO: Make as a separate function
+    let exclude_participants = match headers.get("x-socket-id") {
+        Some(id) => {
+            let id = match id.to_str() {
+                Ok(value) => value,
+                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
+            };
+            let participant_id = match ParticipantId::try_new(id.to_owned()) {
+                Ok(value) => value,
+                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
+            };
+            vec![participant_id]
+        }
+        None => vec![],
+    };
+
     let command = CreatePersonaCommand::new(
-        PersonaName::new(request.name),
+        persona_name,
         user.uid().to_owned(),
-        PersonaDescription::new(request.description),
-        // TODO: Make as a separate function
-        headers
-            .get("x-socket-id")
-            .map(|id| vec![ParticipantId::new(id.to_str().unwrap().to_owned())])
-            .unwrap_or(Default::default()),
+        persona_description,
+        exclude_participants,
     );
 
     match persona_state

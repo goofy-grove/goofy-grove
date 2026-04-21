@@ -3,7 +3,7 @@ use std::{fmt::Display, sync::Arc};
 use chrono::Utc;
 use gg_core::{
     application::user::GetUserByNameService,
-    domain::prelude::{GetUserByNameQuery, Token, TokenValidatorPort, UserName},
+    domain::prelude::{GetUserByNameQuery, Token, TokenValidatorPort, Username},
 };
 use keyv::Keyv;
 use sea_orm::DatabaseConnection;
@@ -57,9 +57,8 @@ pub async fn authentication_middleware(
     let username = if let Some(username) = username {
         username.to_string()
     } else {
-        let token_data = jwt_token_validator
-            .validate_token(&Token::new(data.token))
-            .await;
+        let token = Token::try_new(data.token).map_err(|_| AuthenticationError::Unauthorized)?;
+        let token_data = jwt_token_validator.validate_token(&token).await;
 
         if token_data.is_err() {
             info!(target: "application::socketio", err = ?token_data.err(), "Token validation error:");
@@ -75,12 +74,12 @@ pub async fn authentication_middleware(
         }
 
         let token_data = token_data.unwrap();
-        let ttl = token_data.expires_at() - Utc::now().timestamp() as usize;
+        let ttl = (*token_data.expires_at().inner() as i64 - Utc::now().timestamp()).max(0) as u64;
 
         keyv.set_with_ttl(
             socket.id.as_str(),
-            token_data.username().clone(),
-            ttl as u64,
+            token_data.username().inner().to_owned(),
+            ttl,
         )
         .await
         .map_err(|err| {
@@ -91,16 +90,15 @@ pub async fn authentication_middleware(
 
         info!(target: "application::socketio", socket_id = ?socket.id, username = ?token_data.username(), ttl, "Token saved");
 
-        let uid = token_data.uid().to_owned();
+        let uid = token_data.uid().inner().to_owned();
 
         socket.join(format!("user:{}", uid));
 
-        token_data.username().to_owned()
+        token_data.username().inner().to_string()
     };
 
-    let user = user_get_service
-        .get_user_by_name(&UserName::new(username))
-        .await;
+    let username = Username::try_new(username).map_err(|_| AuthenticationError::Unauthorized)?;
+    let user = user_get_service.get_user_by_name(&username).await;
 
     if user.is_err() {
         info!(target: "application::socketio", err = ?user.err(), "User getting error:");

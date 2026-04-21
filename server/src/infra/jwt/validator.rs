@@ -19,27 +19,26 @@ impl JwtAccessTokenValidator {
 }
 
 impl TokenValidatorPort for JwtAccessTokenValidator {
-    async fn validate_token(
-        &self,
-        token: &Token,
-    ) -> DomainResult<TokenData, TokenValidatorPortError> {
+    async fn validate_token(&self, token: &Token) -> Result<TokenData, TokenValidatorPortError> {
         let validation = jsonwebtoken::decode::<JwtAccessData>(
-            token.value(),
+            token.inner(),
             &jsonwebtoken::DecodingKey::from_secret(self.config.jwt.access_token.secret.as_ref()),
             &jsonwebtoken::Validation::default(),
         )
         .map_err(|err| {
             if err.kind() == &jsonwebtoken::errors::ErrorKind::ExpiredSignature {
-                DomainError::ExternalServiceError(TokenValidatorPortError::TokenExpired)
+                TokenValidatorPortError::TokenExpired
             } else {
-                DomainError::ExternalServiceError(TokenValidatorPortError::TokenInvalid)
+                TokenValidatorPortError::TokenInvalid
             }
         })?;
 
         Ok(TokenData::new(
-            validation.claims.uid,
-            validation.claims.sub,
-            validation.claims.exp,
+            UserId::try_new(validation.claims.uid)
+                .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
+            Username::try_new(validation.claims.sub)
+                .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
+            TokenExpires::new(validation.claims.exp),
         ))
     }
 }
@@ -56,27 +55,26 @@ impl JwtRefreshTokenValidator {
 }
 
 impl TokenValidatorPort for JwtRefreshTokenValidator {
-    async fn validate_token(
-        &self,
-        token: &Token,
-    ) -> DomainResult<TokenData, TokenValidatorPortError> {
+    async fn validate_token(&self, token: &Token) -> Result<TokenData, TokenValidatorPortError> {
         let validation = jsonwebtoken::decode::<JwtRefreshData>(
-            token.value(),
+            token.inner(),
             &jsonwebtoken::DecodingKey::from_secret(self.config.jwt.refresh_token.secret.as_ref()),
             &jsonwebtoken::Validation::default(),
         )
         .map_err(|err| {
             if err.kind() == &jsonwebtoken::errors::ErrorKind::ExpiredSignature {
-                DomainError::ExternalServiceError(TokenValidatorPortError::TokenExpired)
+                TokenValidatorPortError::TokenExpired
             } else {
-                DomainError::ExternalServiceError(TokenValidatorPortError::TokenInvalid)
+                TokenValidatorPortError::TokenInvalid
             }
         })?;
 
         Ok(TokenData::new(
-            validation.claims.uid,
-            validation.claims.sub,
-            validation.claims.exp,
+            UserId::try_new(validation.claims.uid)
+                .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
+            Username::try_new(validation.claims.sub)
+                .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
+            TokenExpires::new(validation.claims.exp),
         ))
     }
 }

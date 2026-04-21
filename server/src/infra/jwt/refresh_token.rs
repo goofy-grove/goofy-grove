@@ -27,13 +27,13 @@ impl TokenGeneratorPort for JwtRefreshTokenGenerator {
     async fn generate_token(
         &self,
         user: &User,
-    ) -> DomainResult<(String, usize), TokenGeneratorPortError> {
+    ) -> Result<(String, usize), TokenGeneratorPortError> {
         let expires = (chrono::Utc::now()
             + chrono::Duration::seconds(self.config.jwt.refresh_token.expiration_time as i64))
         .timestamp() as usize;
         let jwt_access_data = JwtRefreshData {
-            uid: user.uid().value().to_owned(),
-            sub: user.name().value().to_owned(),
+            uid: user.uid().inner().to_owned(),
+            sub: user.name().inner().to_owned(),
             exp: expires,
         };
 
@@ -42,11 +42,7 @@ impl TokenGeneratorPort for JwtRefreshTokenGenerator {
             &jwt_access_data,
             &jsonwebtoken::EncodingKey::from_secret(self.config.jwt.refresh_token.secret.as_ref()),
         )
-        .map_err(|err| {
-            DomainError::ExternalServiceError(TokenGeneratorPortError::InternalError(
-                err.to_string(),
-            ))
-        })?;
+        .map_err(|err| TokenGeneratorPortError::InternalError(err.to_string()))?;
 
         Ok((
             token,

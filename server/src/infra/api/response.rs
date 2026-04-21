@@ -40,6 +40,14 @@ pub fn auth_error(reasons: &[&str]) -> Response<Body> {
         .into_response()
 }
 
+pub fn bad_request(reasons: &[&str]) -> Response<Body> {
+    (
+        StatusCode::BAD_REQUEST,
+        Json(json!({"error": true, "data": {"reasons": reasons, "code": "bad_request"}})),
+    )
+        .into_response()
+}
+
 pub fn internal_error(reasons: &[&str]) -> Response<Body> {
     (
         StatusCode::INTERNAL_SERVER_ERROR,

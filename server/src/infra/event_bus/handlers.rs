@@ -17,11 +17,11 @@ impl PersonaCreatedEventHandler {
 
 impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
     fn handle(&self, event: &PersonaCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.persona.creator_id().value().to_owned();
+        let creator_id = event.persona.creator_id().inner().to_owned();
         let json = json!({
-            "id": event.persona.uid().value(),
-            "name": event.persona.name().value(),
-            "description": event.persona.description().value(),
+            "id": event.persona.uid().inner(),
+            "name": event.persona.name().inner(),
+            "description": event.persona.description().inner(),
             "creator_id": creator_id,
         });
         let socket = self.socket.clone();
@@ -30,7 +30,7 @@ impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.value().to_owned())
+            .map(|v| v.inner().to_owned())
             .collect();
 
         Box::pin(async move {
