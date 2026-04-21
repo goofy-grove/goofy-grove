@@ -1,5 +1,8 @@
 use crate::domain::prelude::*;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone)]
 pub struct PersonaCreateService<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> {
     save_persona_port: S,

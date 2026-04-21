@@ -1,5 +1,8 @@
 use crate::domain::prelude::*;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone)]
 pub struct UserAuthorizationService<L: LoadUserByNamePort, C: PasswordVerifierPort> {
     load_user_port: L,

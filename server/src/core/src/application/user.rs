@@ -1,5 +1,8 @@
 use crate::domain::prelude::*;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone)]
 pub struct GetUserByNameService<L: LoadUserByNamePort> {
     load_user_by_name_port: L,

@@ -1,5 +1,8 @@
 use crate::domain::prelude::*;
 
+#[cfg(test)]
+mod tests;
+
 pub trait Event: Send + Sync + 'static {}
 
 pub struct PersonaCreatedEvent {
