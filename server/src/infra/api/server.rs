@@ -11,7 +11,7 @@ use tracing::info;
 use crate::infra::{
     api::{auth::create_auth_router, personas::create_persona_router, users::create_user_router},
     config::Config,
-    event_bus::{InMemoryEventBus, PersonaCreatedEventHandler},
+    event_bus::{InMemoryEventBus, PersonaCreatedEventHandler, PersonaUpdatedEventHandler},
     socketio::create_socketio_layer,
 };
 
@@ -40,7 +40,8 @@ pub fn init_router(
 
 // FIXME: move it to another module
 pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketIo) {
-    event_bus.subscribe(PersonaCreatedEventHandler::new(socket));
+    event_bus.subscribe(PersonaCreatedEventHandler::new(socket.clone()));
+    event_bus.subscribe(PersonaUpdatedEventHandler::new(socket));
 }
 
 pub async fn start_server(

@@ -11,3 +11,10 @@ pub struct PersonaCreatedEvent {
 }
 
 impl Event for PersonaCreatedEvent {}
+
+pub struct PersonaUpdatedEvent {
+    pub persona: Persona,
+    pub exclude_participants: Vec<ParticipantId>,
+}
+
+impl Event for PersonaUpdatedEvent {}

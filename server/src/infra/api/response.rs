@@ -48,6 +48,14 @@ pub fn bad_request(reasons: &[&str]) -> Response<Body> {
         .into_response()
 }
 
+pub fn not_found(reasons: &[&str]) -> Response<Body> {
+    (
+        StatusCode::NOT_FOUND,
+        Json(json!({"error": true, "data": {"reasons": reasons, "code": "not_found"}})),
+    )
+        .into_response()
+}
+
 pub fn internal_error(reasons: &[&str]) -> Response<Body> {
     (
         StatusCode::INTERNAL_SERVER_ERROR,

@@ -15,6 +15,13 @@ pub struct GetPersonasService<L: LoadPersonasPort> {
     load_personas_port: L,
 }
 
+#[derive(Debug, Clone)]
+pub struct PersonaUpdateService<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> {
+    load_persona_port: L,
+    save_persona_port: S,
+    event_publisher: E,
+}
+
 impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> PersonaCreateService<S, U, E> {
     pub fn new(save_persona_port: S, uid_generator: U, event_publisher: E) -> Self {
         Self {
@@ -62,11 +69,70 @@ impl<L: LoadPersonasPort> GetPersonasService<L> {
     }
 }
 
+impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> PersonaUpdateService<L, S, E> {
+    pub fn new(load_persona_port: L, save_persona_port: S, event_publisher: E) -> Self {
+        Self {
+            load_persona_port,
+            save_persona_port,
+            event_publisher,
+        }
+    }
+}
+
 impl<L: LoadPersonasPort> GetPersonasQuery for GetPersonasService<L> {
-    async fn get_personas(&self, user_id: &UserId) -> Result<Vec<Persona>, GetPersonasErorr> {
+    async fn get_personas(&self, user_id: &UserId) -> Result<Vec<Persona>, GetPersonasError> {
         self.load_personas_port
             .load_personas(user_id)
             .await
-            .map_err(|err| GetPersonasErorr::InternalError(err.to_string()))
+            .map_err(|err| GetPersonasError::InternalError(err.to_string()))
+    }
+}
+
+impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUseCase
+    for PersonaUpdateService<L, S, E>
+{
+    async fn update_persona(
+        &self,
+        command: UpdatePersonaCommand,
+        user_id: UserId,
+    ) -> Result<Persona, UpdatePersonaError> {
+        let persona = self
+            .load_persona_port
+            .load_persona(command.id(), &user_id)
+            .await
+            .map_err(|err| match err {
+                LoadPersonasPortError::NotFound => UpdatePersonaError::NotFound,
+                LoadPersonasPortError::InternalError(message) => {
+                    UpdatePersonaError::InternalError(message)
+                }
+            })?;
+
+        let updated_persona = Persona::new(
+            persona.uid().clone(),
+            persona.creator_id().clone(),
+            command
+                .name()
+                .clone()
+                .unwrap_or_else(|| persona.name().clone()),
+            command
+                .description()
+                .clone()
+                .unwrap_or_else(|| persona.description().clone()),
+        );
+
+        let saved_persona = self
+            .save_persona_port
+            .save_persona(updated_persona)
+            .await
+            .map_err(|err| UpdatePersonaError::InternalError(err.to_string()))?;
+
+        self.event_publisher
+            .publish(PersonaUpdatedEvent {
+                persona: saved_persona.clone(),
+                exclude_participants: command.exclude_participants().clone(),
+            })
+            .await;
+
+        Ok(saved_persona)
     }
 }

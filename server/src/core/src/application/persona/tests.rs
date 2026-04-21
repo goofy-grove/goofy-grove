@@ -145,6 +145,6 @@ async fn get_personas_maps_load_errors() {
         service
             .get_personas(&UserId::try_new("user-1".to_string()).unwrap())
             .await,
-        Err(GetPersonasErorr::InternalError(_))
+        Err(GetPersonasError::InternalError(_))
     ));
 }

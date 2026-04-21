@@ -46,6 +46,37 @@ impl LoadPersonasPort for PersonaRepository {
     }
 }
 
+impl LoadPersonaPort for PersonaRepository {
+    async fn load_persona(
+        &self,
+        persona_id: &PersonaId,
+        user_id: &UserId,
+    ) -> Result<Persona, LoadPersonasPortError> {
+        let persona = Personas::find()
+            .filter(personas::Column::Uid.eq(persona_id.inner()))
+            .filter(personas::Column::CreatorId.eq(user_id.inner()))
+            .one(&self.connection)
+            .await
+            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?
+            .ok_or(LoadPersonasPortError::NotFound)?;
+
+        let persona_id = PersonaId::try_new(persona.uid)
+            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+        let creator_id = UserId::try_new(persona.creator_id)
+            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+        let persona_name = PersonaName::try_new(persona.name)
+            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
+        let description = PersonaDescription::new(persona.description);
+
+        Ok(Persona::new(
+            persona_id,
+            creator_id,
+            persona_name,
+            description,
+        ))
+    }
+}
+
 impl SavePersonaPort for PersonaRepository {
     async fn save_persona(&self, persona: Persona) -> Result<Persona, SavePersonaPortError> {
         let new_persona = personas::ActiveModel {

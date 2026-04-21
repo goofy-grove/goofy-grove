@@ -48,3 +48,45 @@ impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
         })
     }
 }
+
+pub struct PersonaUpdatedEventHandler {
+    socket: SocketIo,
+}
+
+impl PersonaUpdatedEventHandler {
+    pub fn new(socket: SocketIo) -> Self {
+        Self { socket }
+    }
+}
+
+impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
+    fn handle(&self, event: &PersonaUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+        let creator_id = event.persona.creator_id().inner().to_owned();
+        let json = json!({
+            "id": event.persona.uid().inner(),
+            "name": event.persona.name().inner(),
+            "description": event.persona.description().inner(),
+            "creator_id": creator_id,
+        });
+        let socket = self.socket.clone();
+        let exclude_participants: Vec<String> = event
+            .exclude_participants
+            .clone()
+            .into_iter()
+            .map(|v| v.inner().to_owned())
+            .collect();
+
+        Box::pin(async move {
+            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting persona:updated event");
+
+            socket
+                .of("/v1")
+                .unwrap()
+                .within(format!("user:{creator_id}"))
+                .except(exclude_participants)
+                .emit("persona:updated", &json)
+                .await
+                .ok();
+        })
+    }
+}

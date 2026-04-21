@@ -8,7 +8,8 @@ generate_entity!(CreatePersonaCommand {
 });
 
 generate_entity!(UpdatePersonaCommand {
-    id: String,
-    name: PersonaName,
-    description: PersonaDescription
+    id: PersonaId,
+    name: Option<PersonaName>,
+    description: Option<PersonaDescription>,
+    exclude_participants: Vec<ParticipantId>
 });

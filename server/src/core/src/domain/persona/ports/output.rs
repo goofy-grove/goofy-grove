@@ -11,8 +11,19 @@ pub trait LoadPersonasPort {
 
 #[derive(Debug, Clone, Error)]
 pub enum LoadPersonasPortError {
+    #[error("Not found")]
+    NotFound,
+
     #[error("Internal error: {0}")]
     InternalError(String),
+}
+
+pub trait LoadPersonaPort {
+    fn load_persona(
+        &self,
+        persona_id: &PersonaId,
+        user_id: &UserId,
+    ) -> impl Future<Output = Result<Persona, LoadPersonasPortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
