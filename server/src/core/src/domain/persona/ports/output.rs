@@ -38,3 +38,20 @@ pub trait SavePersonaPort {
         persona: Persona,
     ) -> impl Future<Output = Result<Persona, SavePersonaPortError>>;
 }
+
+#[derive(Debug, Clone, Error)]
+pub enum DeletePersonaPortError {
+    #[error("Not found")]
+    NotFound,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+pub trait DeletePersonaPort {
+    fn delete_persona(
+        &self,
+        persona_id: &PersonaId,
+        user_id: &UserId,
+    ) -> impl Future<Output = Result<(), DeletePersonaPortError>>;
+}

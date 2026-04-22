@@ -44,6 +44,56 @@ impl LoadPersonasPort for LoadPersonasErr {
 }
 
 #[derive(Clone)]
+struct LoadPersonaOk {
+    persona: Persona,
+}
+impl LoadPersonaPort for LoadPersonaOk {
+    async fn load_persona(
+        &self,
+        _persona_id: &PersonaId,
+        _user_id: &UserId,
+    ) -> Result<Persona, LoadPersonasPortError> {
+        Ok(self.persona.clone())
+    }
+}
+
+#[derive(Clone)]
+struct LoadPersonaNotFound;
+impl LoadPersonaPort for LoadPersonaNotFound {
+    async fn load_persona(
+        &self,
+        _persona_id: &PersonaId,
+        _user_id: &UserId,
+    ) -> Result<Persona, LoadPersonasPortError> {
+        Err(LoadPersonasPortError::NotFound)
+    }
+}
+
+#[derive(Clone)]
+struct DeletePersonaOk;
+impl DeletePersonaPort for DeletePersonaOk {
+    async fn delete_persona(
+        &self,
+        _persona_id: &PersonaId,
+        _user_id: &UserId,
+    ) -> Result<(), DeletePersonaPortError> {
+        Ok(())
+    }
+}
+
+#[derive(Clone)]
+struct DeletePersonaErr;
+impl DeletePersonaPort for DeletePersonaErr {
+    async fn delete_persona(
+        &self,
+        _persona_id: &PersonaId,
+        _user_id: &UserId,
+    ) -> Result<(), DeletePersonaPortError> {
+        Err(DeletePersonaPortError::InternalError("db".into()))
+    }
+}
+
+#[derive(Clone)]
 struct FixedId;
 impl IdGenerator for FixedId {
     fn generate(&self) -> String {
@@ -147,4 +197,77 @@ async fn get_personas_maps_load_errors() {
             .await,
         Err(GetPersonasError::InternalError(_))
     ));
+}
+
+#[tokio::test]
+async fn delete_persona_deletes_and_publishes_event() {
+    let hits = Arc::new(Mutex::new(0));
+    let persona = Persona::new(
+        PersonaId::try_new("persona-1".to_string()).unwrap(),
+        UserId::try_new("user-1".to_string()).unwrap(),
+        PersonaName::try_new("Guide".to_string()).unwrap(),
+        PersonaDescription::new("friendly".to_string()),
+    );
+    let service = PersonaDeleteService::new(
+        LoadPersonaOk { persona },
+        DeletePersonaOk,
+        RecordingPublisher { hits: hits.clone() },
+    );
+
+    let result = service
+        .delete_persona(
+            DeletePersonaCommand::new(
+                PersonaId::try_new("persona-1".to_string()).unwrap(),
+                vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+            ),
+            UserId::try_new("user-1".to_string()).unwrap(),
+        )
+        .await;
+
+    assert!(result.is_ok());
+    assert_eq!(*hits.lock().unwrap(), 1);
+}
+
+#[tokio::test]
+async fn delete_persona_returns_not_found_when_load_fails() {
+    let hits = Arc::new(Mutex::new(0));
+    let service = PersonaDeleteService::new(
+        LoadPersonaNotFound,
+        DeletePersonaOk,
+        RecordingPublisher { hits },
+    );
+
+    let result = service
+        .delete_persona(
+            DeletePersonaCommand::new(PersonaId::try_new("persona-1".to_string()).unwrap(), vec![]),
+            UserId::try_new("user-1".to_string()).unwrap(),
+        )
+        .await;
+
+    assert!(matches!(result, Err(DeletePersonaError::NotFound)));
+}
+
+#[tokio::test]
+async fn delete_persona_maps_delete_errors() {
+    let hits = Arc::new(Mutex::new(0));
+    let persona = Persona::new(
+        PersonaId::try_new("persona-1".to_string()).unwrap(),
+        UserId::try_new("user-1".to_string()).unwrap(),
+        PersonaName::try_new("Guide".to_string()).unwrap(),
+        PersonaDescription::new("friendly".to_string()),
+    );
+    let service = PersonaDeleteService::new(
+        LoadPersonaOk { persona },
+        DeletePersonaErr,
+        RecordingPublisher { hits },
+    );
+
+    let result = service
+        .delete_persona(
+            DeletePersonaCommand::new(PersonaId::try_new("persona-1".to_string()).unwrap(), vec![]),
+            UserId::try_new("user-1".to_string()).unwrap(),
+        )
+        .await;
+
+    assert!(matches!(result, Err(DeletePersonaError::InternalError(_))));
 }

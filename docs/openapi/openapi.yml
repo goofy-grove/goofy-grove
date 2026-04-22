@@ -76,6 +76,30 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Personas]
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Persona Unique ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaDeleteResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
 
   /users/me:
     get:
@@ -296,6 +320,14 @@ components:
           const: false
         data:
           $ref: '#/components/schemas/Persona'
+    PersonaDeleteResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: object
 
     # Data
     Persona:

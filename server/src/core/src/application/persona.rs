@@ -22,6 +22,13 @@ pub struct PersonaUpdateService<L: LoadPersonaPort, S: SavePersonaPort, E: Event
     event_publisher: E,
 }
 
+#[derive(Debug, Clone)]
+pub struct PersonaDeleteService<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> {
+    load_persona_port: L,
+    delete_persona_port: D,
+    event_publisher: E,
+}
+
 impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> PersonaCreateService<S, U, E> {
     pub fn new(save_persona_port: S, uid_generator: U, event_publisher: E) -> Self {
         Self {
@@ -74,6 +81,16 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> PersonaUpdateSer
         Self {
             load_persona_port,
             save_persona_port,
+            event_publisher,
+        }
+    }
+}
+
+impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> PersonaDeleteService<L, D, E> {
+    pub fn new(load_persona_port: L, delete_persona_port: D, event_publisher: E) -> Self {
+        Self {
+            load_persona_port,
+            delete_persona_port,
             event_publisher,
         }
     }
@@ -134,5 +151,45 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
             .await;
 
         Ok(saved_persona)
+    }
+}
+
+impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaUseCase
+    for PersonaDeleteService<L, D, E>
+{
+    async fn delete_persona(
+        &self,
+        command: DeletePersonaCommand,
+        user_id: UserId,
+    ) -> Result<(), DeletePersonaError> {
+        let persona = self
+            .load_persona_port
+            .load_persona(command.id(), &user_id)
+            .await
+            .map_err(|err| match err {
+                LoadPersonasPortError::NotFound => DeletePersonaError::NotFound,
+                LoadPersonasPortError::InternalError(message) => {
+                    DeletePersonaError::InternalError(message)
+                }
+            })?;
+
+        self.delete_persona_port
+            .delete_persona(command.id(), &user_id)
+            .await
+            .map_err(|err| match err {
+                DeletePersonaPortError::NotFound => DeletePersonaError::NotFound,
+                DeletePersonaPortError::InternalError(message) => {
+                    DeletePersonaError::InternalError(message)
+                }
+            })?;
+
+        self.event_publisher
+            .publish(PersonaDeletedEvent {
+                persona,
+                exclude_participants: command.exclude_participants().clone(),
+            })
+            .await;
+
+        Ok(())
     }
 }

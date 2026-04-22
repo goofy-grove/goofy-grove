@@ -3,12 +3,13 @@ use std::sync::Arc;
 use axum::{
     Extension, Json, Router,
     extract::{Path, State},
-    http::HeaderMap,
     response::Response,
-    routing::{get, patch, post},
+    routing::{delete, get, patch, post},
 };
 use gg_core::{
-    application::persona::{GetPersonasService, PersonaCreateService, PersonaUpdateService},
+    application::persona::{
+        GetPersonasService, PersonaCreateService, PersonaDeleteService, PersonaUpdateService,
+    },
     domain::prelude::*,
 };
 use sea_orm::DatabaseConnection;
@@ -19,6 +20,7 @@ use tracing::error;
 use crate::infra::{
     api::{
         auth::{AuthLayerExt, create_auth_state},
+        extract::ExcludeSocketParticipants,
         response::{self, ToJson},
     },
     config::Config,
@@ -28,10 +30,16 @@ use crate::infra::{
 };
 
 #[derive(Debug, Clone)]
-pub struct PersonaState<Q: GetPersonasQuery, C: CreatePersonaUseCase, U: UpdatePersonaUseCase> {
+pub struct PersonaState<
+    Q: GetPersonasQuery,
+    C: CreatePersonaUseCase,
+    U: UpdatePersonaUseCase,
+    D: DeletePersonaUseCase,
+> {
     get_personas_query: Q,
     create_persona_use_case: C,
     update_persona_use_case: U,
+    delete_persona_use_case: D,
 }
 
 impl ToJson for Persona {
@@ -48,7 +56,12 @@ impl ToJson for Persona {
 pub async fn get_all_user_personas(
     Extension(user): Extension<User>,
     State(persona_state): State<
-        PersonaState<impl GetPersonasQuery, impl CreatePersonaUseCase, impl UpdatePersonaUseCase>,
+        PersonaState<
+            impl GetPersonasQuery,
+            impl CreatePersonaUseCase,
+            impl UpdatePersonaUseCase,
+            impl DeletePersonaUseCase,
+        >,
     >,
 ) -> Response {
     let personas_result = persona_state
@@ -73,10 +86,15 @@ pub struct PersonaCreateRequest {
 }
 
 pub async fn create_persona(
-    headers: HeaderMap,
     Extension(user): Extension<User>,
+    ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(persona_state): State<
-        PersonaState<impl GetPersonasQuery, impl CreatePersonaUseCase, impl UpdatePersonaUseCase>,
+        PersonaState<
+            impl GetPersonasQuery,
+            impl CreatePersonaUseCase,
+            impl UpdatePersonaUseCase,
+            impl DeletePersonaUseCase,
+        >,
     >,
     Json(request): Json<PersonaCreateRequest>,
 ) -> Response {
@@ -85,27 +103,11 @@ pub async fn create_persona(
         Err(_) => return response::bad_request(&["Invalid persona name"]),
     };
     let persona_description = PersonaDescription::new(request.description);
-    // TODO: Make as a separate function
-    let exclude_participants = match headers.get("x-socket-id") {
-        Some(id) => {
-            let id = match id.to_str() {
-                Ok(value) => value,
-                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
-            };
-            let participant_id = match ParticipantId::try_new(id.to_owned()) {
-                Ok(value) => value,
-                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
-            };
-            vec![participant_id]
-        }
-        None => vec![],
-    };
-
     let command = CreatePersonaCommand::new(
         persona_name,
         user.uid().to_owned(),
         persona_description,
-        exclude_participants,
+        exclude_participant.into_iter().collect(),
     );
 
     match persona_state
@@ -128,12 +130,26 @@ pub struct PersonaUpdateRequest {
     description: Option<String>,
 }
 
+#[derive(Debug, Clone)]
+pub struct DeletePersonaResponse;
+
+impl ToJson for DeletePersonaResponse {
+    fn to_json(self) -> serde_json::Value {
+        json!({})
+    }
+}
+
 pub async fn patch_persona(
-    headers: HeaderMap,
     Extension(user): Extension<User>,
     Path(persona_id): Path<String>,
+    ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(persona_state): State<
-        PersonaState<impl GetPersonasQuery, impl CreatePersonaUseCase, impl UpdatePersonaUseCase>,
+        PersonaState<
+            impl GetPersonasQuery,
+            impl CreatePersonaUseCase,
+            impl UpdatePersonaUseCase,
+            impl DeletePersonaUseCase,
+        >,
     >,
     Json(request): Json<PersonaUpdateRequest>,
 ) -> Response {
@@ -154,26 +170,11 @@ pub async fn patch_persona(
         None => None,
     };
     let persona_description = request.description.map(PersonaDescription::new);
-    let exclude_participants = match headers.get("x-socket-id") {
-        Some(id) => {
-            let id = match id.to_str() {
-                Ok(value) => value,
-                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
-            };
-            let participant_id = match ParticipantId::try_new(id.to_owned()) {
-                Ok(value) => value,
-                Err(_) => return response::bad_request(&["Invalid x-socket-id header"]),
-            };
-            vec![participant_id]
-        }
-        None => vec![],
-    };
-
     let command = UpdatePersonaCommand::new(
         persona_id,
         persona_name,
         persona_description,
-        exclude_participants,
+        exclude_participant.into_iter().collect(),
     );
 
     match persona_state
@@ -187,6 +188,39 @@ pub async fn patch_persona(
             error!(target: "application::api::patch_persona", ?err, "Failed to patch persona:");
 
             response::internal_error(&["Failed to patch persona"])
+        }
+    }
+}
+
+pub async fn delete_persona(
+    Extension(user): Extension<User>,
+    Path(persona_id): Path<String>,
+    ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
+    State(persona_state): State<
+        PersonaState<
+            impl GetPersonasQuery,
+            impl CreatePersonaUseCase,
+            impl UpdatePersonaUseCase,
+            impl DeletePersonaUseCase,
+        >,
+    >,
+) -> Response {
+    let persona_id = match PersonaId::try_new(persona_id) {
+        Ok(value) => value,
+        Err(_) => return response::bad_request(&["Invalid persona id"]),
+    };
+    let command = DeletePersonaCommand::new(persona_id, exclude_participant.into_iter().collect());
+
+    match persona_state
+        .delete_persona_use_case
+        .delete_persona(command, user.uid().to_owned())
+        .await
+    {
+        Ok(()) => response::ok(DeletePersonaResponse),
+        Err(DeletePersonaError::NotFound) => response::not_found(&["Persona not found"]),
+        Err(err) => {
+            error!(target: "application::api::delete_persona", ?err, "Failed to delete persona:");
+            response::internal_error(&["Failed to delete persona"])
         }
     }
 }
@@ -208,12 +242,18 @@ pub fn create_persona_router(
             PersonaRepository::new(connection.clone()),
             event_bus.clone(),
         ),
+        delete_persona_use_case: PersonaDeleteService::new(
+            PersonaRepository::new(connection.clone()),
+            PersonaRepository::new(connection.clone()),
+            event_bus.clone(),
+        ),
     };
 
     Router::new()
         .route("/", get(get_all_user_personas))
         .route("/", post(create_persona))
         .route("/{id}", patch(patch_persona))
+        .route("/{id}", delete(delete_persona))
         .with_state(personas_state)
         .with_auth(create_auth_state(config, connection))
 }

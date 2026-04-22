@@ -37,3 +37,20 @@ pub trait UpdatePersonaUseCase {
         user_id: UserId,
     ) -> impl Future<Output = Result<Persona, UpdatePersonaError>>;
 }
+
+#[derive(Debug, Clone, Error)]
+pub enum DeletePersonaError {
+    #[error("Not found")]
+    NotFound,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+pub trait DeletePersonaUseCase {
+    fn delete_persona(
+        &self,
+        command: DeletePersonaCommand,
+        user_id: UserId,
+    ) -> impl Future<Output = Result<(), DeletePersonaError>>;
+}

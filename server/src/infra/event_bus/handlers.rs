@@ -90,3 +90,42 @@ impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
         })
     }
 }
+
+pub struct PersonaDeletedEventHandler {
+    socket: SocketIo,
+}
+
+impl PersonaDeletedEventHandler {
+    pub fn new(socket: SocketIo) -> Self {
+        Self { socket }
+    }
+}
+
+impl EventHandler<PersonaDeletedEvent> for PersonaDeletedEventHandler {
+    fn handle(&self, event: &PersonaDeletedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+        let creator_id = event.persona.creator_id().inner().to_owned();
+        let json = json!({
+            "id": event.persona.uid().inner(),
+        });
+        let socket = self.socket.clone();
+        let exclude_participants: Vec<String> = event
+            .exclude_participants
+            .clone()
+            .into_iter()
+            .map(|v| v.inner().to_owned())
+            .collect();
+
+        Box::pin(async move {
+            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting persona:deleted event");
+
+            socket
+                .of("/v1")
+                .unwrap()
+                .within(format!("user:{creator_id}"))
+                .except(exclude_participants)
+                .emit("persona:deleted", &json)
+                .await
+                .ok();
+        })
+    }
+}

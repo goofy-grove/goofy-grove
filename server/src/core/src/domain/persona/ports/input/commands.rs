@@ -13,3 +13,8 @@ generate_entity!(UpdatePersonaCommand {
     description: Option<PersonaDescription>,
     exclude_participants: Vec<ParticipantId>
 });
+
+generate_entity!(DeletePersonaCommand {
+    id: PersonaId,
+    exclude_participants: Vec<ParticipantId>
+});

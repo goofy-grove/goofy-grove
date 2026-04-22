@@ -112,3 +112,24 @@ impl SavePersonaPort for PersonaRepository {
         }
     }
 }
+
+impl DeletePersonaPort for PersonaRepository {
+    async fn delete_persona(
+        &self,
+        persona_id: &PersonaId,
+        user_id: &UserId,
+    ) -> Result<(), DeletePersonaPortError> {
+        let result = Personas::delete_many()
+            .filter(personas::Column::Uid.eq(persona_id.inner()))
+            .filter(personas::Column::CreatorId.eq(user_id.inner()))
+            .exec(&self.connection)
+            .await
+            .map_err(|err| DeletePersonaPortError::InternalError(err.to_string()))?;
+
+        if result.rows_affected == 0 {
+            return Err(DeletePersonaPortError::NotFound);
+        }
+
+        Ok(())
+    }
+}
