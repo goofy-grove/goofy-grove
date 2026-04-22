@@ -76,3 +76,68 @@ export const useCreatePersonaMutation = () =>
       );
     },
   });
+
+export const useUpdatePersonaMutation = () =>
+  useMutation({
+    mutationFn: ({
+      uid,
+      name,
+      description,
+    }: {
+      uid: string;
+      name: string;
+      description: string;
+    }) => api.personas.update(uid, name, description),
+
+    onMutate: async ({ uid, name, description }, context) => {
+      await context.client.cancelQueries({ queryKey: [PERSONAS_QUERY_KEY] });
+
+      const previousPersonas =
+        context.client.getQueryData<Persona[]>([PERSONAS_QUERY_KEY]) || [];
+
+      context.client.setQueryData<Persona[]>(
+        [PERSONAS_QUERY_KEY],
+        (old) =>
+          old?.map((persona) =>
+            persona.uid === uid
+              ? new Persona(persona.uid, name, description, persona.creatorUid)
+              : persona,
+          ) || [],
+      );
+
+      return previousPersonas;
+    },
+
+    onError: (_, __, onMutateResult, context) => {
+      context.client.setQueryData<Persona[]>(
+        [PERSONAS_QUERY_KEY],
+        onMutateResult || [],
+      );
+    },
+
+    onSuccess: (result, { uid }, onMutateResult, context) => {
+      if (result.error) {
+        context.client.setQueryData<Persona[]>(
+          [PERSONAS_QUERY_KEY],
+          onMutateResult || [],
+        );
+
+        throw new Error('Failed to update persona');
+      }
+
+      const updatedPersona = new Persona(
+        result.data.uid,
+        result.data.name,
+        result.data.description,
+        result.data.creator_uid,
+      );
+
+      context.client.setQueryData<Persona[]>(
+        [PERSONAS_QUERY_KEY],
+        (old) =>
+          old?.map((persona) =>
+            persona.uid === uid ? updatedPersona : persona,
+          ) || [updatedPersona],
+      );
+    },
+  });

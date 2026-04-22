@@ -3,9 +3,9 @@ import { createRoot } from 'react-dom/client';
 import './assets/general.scss';
 
 import {
-  PERSONA_CREATE_WINDOW_KEY,
+  PERSONA_FORM_WINDOW_KEY,
   PERSONA_LIST_WINDOW_KEY,
-  PersonaCreateWindow,
+  PersonaFormWindow,
   PersonaListWindow,
 } from '@entities/persona';
 
@@ -19,8 +19,8 @@ const rootElement = document.getElementById('root');
 if (rootElement && !rootElement?.innerHTML) {
   const root = createRoot(rootElement);
 
+  registerWindow(PERSONA_LIST_WINDOW_KEY, PersonaListWindow);
+  registerWindow(PERSONA_FORM_WINDOW_KEY, PersonaFormWindow);
+
   void initI18n().then(() => root.render(<App />));
 }
-
-registerWindow(PERSONA_LIST_WINDOW_KEY, PersonaListWindow);
-registerWindow(PERSONA_CREATE_WINDOW_KEY, PersonaCreateWindow);

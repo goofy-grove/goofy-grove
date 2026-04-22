@@ -2,7 +2,8 @@ import { IconPlusFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { usePersonasQuery } from '@entities/persona/model';
-import { PERSONA_CREATE_WINDOW_KEY, PersonaItem } from '@entities/persona/ui';
+import { PersonaItem, PERSONA_FORM_WINDOW_KEY } from '@entities/persona/ui';
+import type { PersonaFormWindowData } from '@entities/persona/ui';
 
 import { Button, IconLoader, useWindow, Window } from '@shared/ui';
 
@@ -14,9 +15,25 @@ import './styles.scss';
 export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
   const { data, isLoading } = usePersonasQuery();
   const { t } = useTranslation();
-  const { openWindow } = useWindow(PERSONA_CREATE_WINDOW_KEY);
+  const { openWindow } = useWindow<PersonaFormWindowData>(
+    PERSONA_FORM_WINDOW_KEY,
+  );
 
   const hasPersonas = !isLoading && !!data?.length;
+  const handleEdit = (uid: string) => {
+    const persona = data?.find((item) => item.uid === uid);
+
+    if (!persona) {
+      return;
+    }
+
+    openWindow({
+      mode: 'edit',
+      uid: persona.uid,
+      initialName: persona.name,
+      initialDescription: persona.description,
+    });
+  };
 
   return (
     <Window {...props} title={t('persona.window.list_title')}>
@@ -30,7 +47,7 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
         <div className="persona-list__list scrollbar">
           {hasPersonas &&
             data.map((persona) => (
-              <PersonaItem key={persona.uid} {...persona} />
+              <PersonaItem {...persona} key={persona.uid} onEdit={handleEdit} />
             ))}
         </div>
 
@@ -38,7 +55,7 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
           <Button
             className="persona-list__actions__button"
             leftIcon={<IconPlusFilled />}
-            onClick={() => openWindow()}
+            onClick={() => openWindow({ mode: 'create' })}
           >
             {t('persona.window.actions.create')}
           </Button>

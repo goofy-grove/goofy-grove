@@ -6,6 +6,8 @@ import { queryClient } from '@shared/lib';
 import { PERSONAS_QUERY_KEY } from './constants';
 import { Persona } from './entity';
 
+import type { PersonaEventData } from './types';
+
 export const usePersonasQuery = () =>
   useQuery({
     queryKey: [PERSONAS_QUERY_KEY],
@@ -28,8 +30,31 @@ export const usePersonasQuery = () =>
     },
   });
 
-socket.on('persona:created', (persona: Persona) => {
+socket.on('persona:created', (persona: PersonaEventData) => {
+  const newPersona = new Persona(
+    persona.id,
+    persona.name,
+    persona.description,
+    persona.creator_uid,
+  );
+
   queryClient.setQueryData<Persona[]>([PERSONAS_QUERY_KEY], (old) =>
-    old ? [...old, persona] : [persona],
+    old ? [...old, newPersona] : [newPersona],
+  );
+});
+
+socket.on('persona:updated', (persona: PersonaEventData) => {
+  const updatedPersona = new Persona(
+    persona.id,
+    persona.name,
+    persona.description,
+    persona.creator_uid,
+  );
+
+  queryClient.setQueryData<Persona[]>(
+    [PERSONAS_QUERY_KEY],
+    (old) =>
+      old?.map((item) => (item.uid !== persona.id ? item : updatedPersona)) ||
+      [],
   );
 });

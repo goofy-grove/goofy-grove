@@ -26,7 +26,8 @@
       "edit_title": "Edit persona",
       "create_title": "Create persona",
       "actions": {
-        "create": "Create"
+        "create": "Create",
+        "edit": "Edit"
       }
     },
     "labels": {
