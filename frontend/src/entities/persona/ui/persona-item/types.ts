@@ -4,4 +4,5 @@ export type PersonaItemProps = {
   description: string;
 
   onEdit?: (uid: string) => void;
+  onDelete?: (uid: string) => void;
 };

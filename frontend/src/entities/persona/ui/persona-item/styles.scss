@@ -20,6 +20,19 @@
     flex-shrink: 0;
   }
 
+  &__actions__menu {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+
+    // NOTE: should we make component ButtonGroup for this maybe?
+    button {
+      width: 100%;
+      justify-content: flex-start;
+      border-radius: 0;
+    }
+  }
+
   &__info {
     overflow: hidden;
     display: flex;

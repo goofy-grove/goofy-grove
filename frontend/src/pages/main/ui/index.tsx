@@ -1,14 +1,32 @@
 import {
+  IconAlertTriangle,
+  IconCheck,
+  IconInfoCircle,
+  IconSparkles,
+  IconX,
+} from '@tabler/icons-react';
+
+import {
   Button,
   LocaleSwitcher,
+  Text,
+  Window,
   registerWindow,
   useCurrentWindow,
   useWindow,
-  Window,
+  type ButtonColor,
   type WindowProps,
 } from '@shared/ui';
 
 import type { FC } from 'react';
+
+const buttonColors: ButtonColor[] = [
+  'default',
+  'error',
+  'warning',
+  'success',
+  'info',
+];
 
 export const MainPageWindow: FC<WindowProps> = (props) => {
   const { minimizeWindow, isWindowMaximized } = useCurrentWindow();
@@ -44,6 +62,46 @@ export const MainPage = () => {
       </Button>
       {isWindowOpen && <Button onClick={maximizeWindow}>Maximize</Button>}
       <LocaleSwitcher />
+
+      <Text tag="h2">Button variants and colors</Text>
+      <Text tag="h3">Default</Text>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {buttonColors.map((color) => (
+          <Button key={`default-${color}`} color={color}>
+            {color}
+          </Button>
+        ))}
+      </div>
+
+      <Text tag="h3">Ghost</Text>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {buttonColors.map((color) => (
+          <Button key={`ghost-${color}`} variant="ghost" color={color}>
+            {color}
+          </Button>
+        ))}
+      </div>
+
+      <Text tag="h3">With icons</Text>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <Button leftIcon={<IconSparkles size={16} />}>default</Button>
+        <Button color="success" leftIcon={<IconCheck size={16} />}>
+          success
+        </Button>
+        <Button color="warning" leftIcon={<IconAlertTriangle size={16} />}>
+          warning
+        </Button>
+        <Button color="error" leftIcon={<IconX size={16} />}>
+          error
+        </Button>
+        <Button
+          variant="ghost"
+          color="info"
+          rightIcon={<IconInfoCircle size={16} />}
+        >
+          info
+        </Button>
+      </div>
     </div>
   );
 };

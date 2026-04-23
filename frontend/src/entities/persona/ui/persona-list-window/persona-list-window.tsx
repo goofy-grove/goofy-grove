@@ -1,7 +1,10 @@
 import { IconPlusFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-import { usePersonasQuery } from '@entities/persona/model';
+import {
+  useDeletePersonaMutation,
+  usePersonasQuery,
+} from '@entities/persona/model';
 import { PersonaItem, PERSONA_FORM_WINDOW_KEY } from '@entities/persona/ui';
 import type { PersonaFormWindowData } from '@entities/persona/ui';
 
@@ -14,6 +17,7 @@ import './styles.scss';
 
 export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
   const { data, isLoading } = usePersonasQuery();
+  const deletePersona = useDeletePersonaMutation();
   const { t } = useTranslation();
   const { openWindow } = useWindow<PersonaFormWindowData>(
     PERSONA_FORM_WINDOW_KEY,
@@ -35,6 +39,10 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
     });
   };
 
+  const handleDelete = (uid: string) => {
+    void deletePersona.mutateAsync({ uid }).catch(() => undefined);
+  };
+
   return (
     <Window {...props} title={t('persona.window.list_title')}>
       <div className="persona-list">
@@ -47,7 +55,12 @@ export const PersonaListWindow: FC<PersonaListWindowProps> = (props) => {
         <div className="persona-list__list scrollbar">
           {hasPersonas &&
             data.map((persona) => (
-              <PersonaItem {...persona} key={persona.uid} onEdit={handleEdit} />
+              <PersonaItem
+                {...persona}
+                key={persona.uid}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+              />
             ))}
         </div>
 

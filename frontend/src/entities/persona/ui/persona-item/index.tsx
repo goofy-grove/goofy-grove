@@ -1,4 +1,8 @@
-import { IconDotsVerticalFilled, IconPencil } from '@tabler/icons-react';
+import {
+  IconDotsVerticalFilled,
+  IconPencil,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +17,7 @@ export const PersonaItem: FC<PersonaItemProps> = ({
   name,
   description,
   onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,6 +29,11 @@ export const PersonaItem: FC<PersonaItemProps> = ({
   const handleEdit = () => {
     setIsDropdownOpen(false);
     onEdit?.(uid);
+  };
+
+  const handleDelete = () => {
+    setIsDropdownOpen(false);
+    onDelete?.(uid);
   };
 
   return (
@@ -45,13 +55,21 @@ export const PersonaItem: FC<PersonaItemProps> = ({
             <Button variant="ghost" leftIcon={<IconDotsVerticalFilled />} />
           }
         >
-          <div>
+          <div className="persona-item__actions__menu">
             <Button
               variant="ghost"
-              leftIcon={<IconPencil />}
+              leftIcon={<IconPencil size={18} />}
               onClick={handleEdit}
             >
               {t('persona.window.actions.edit')}
+            </Button>
+            <Button
+              variant="ghost"
+              color="error"
+              leftIcon={<IconTrash size={18} />}
+              onClick={handleDelete}
+            >
+              {t('persona.window.actions.delete')}
             </Button>
           </div>
         </Dropdown>

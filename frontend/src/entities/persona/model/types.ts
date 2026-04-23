@@ -4,3 +4,7 @@ export type PersonaEventData = {
   description: string;
   creator_uid: string;
 };
+
+export type PersonaDeletedEventData = {
+  id: string;
+};

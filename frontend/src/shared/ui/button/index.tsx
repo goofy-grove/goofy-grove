@@ -1,6 +1,8 @@
 import type { ButtonProps } from './types';
 import type { FC } from 'react';
 
+export type { ButtonColor, ButtonProps } from './types';
+
 import './styles.scss';
 
 export const Button: FC<ButtonProps> = ({
@@ -8,12 +10,21 @@ export const Button: FC<ButtonProps> = ({
   rightIcon,
   leftIcon,
   className,
-  variant,
+  variant = 'default',
+  color = 'default',
   disabled,
   onClick,
 }) => (
   <button
-    className={`button ${variant ?? ''} ${!children ? 'iconic' : ''} ${className ?? ''}`}
+    className={[
+      'button',
+      variant !== 'default' ? `button--${variant}` : '',
+      color !== 'default' ? `button--${color}` : '',
+      !children ? 'button--iconic' : '',
+      className ?? '',
+    ]
+      .filter(Boolean)
+      .join(' ')}
     disabled={disabled}
     onClick={onClick}
   >

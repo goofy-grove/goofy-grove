@@ -27,7 +27,8 @@
       "create_title": "Создать персону",
       "actions": {
         "create": "Создать",
-        "edit": "Изменить"
+        "edit": "Изменить",
+        "delete": "Удалить"
       }
     },
     "labels": {

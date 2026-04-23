@@ -1,12 +1,72 @@
+@use 'sass:map';
+
+$button-semantic-colors: (
+  error: (
+    accent: var(--error),
+    bg: var(--error-bg),
+  ),
+  warning: (
+    accent: var(--warning),
+    bg: var(--warning-bg),
+  ),
+  success: (
+    accent: var(--success),
+    bg: var(--success-bg),
+  ),
+  info: (
+    accent: var(--info),
+    bg: var(--info-bg),
+  ),
+);
+
+@mixin button-semantic-filled {
+  --button-text: var(--text-primary);
+  --button-bg: var(--semantic-bg);
+  --button-border: var(--semantic-border);
+  --button-hover-bg: color-mix(
+    in srgb,
+    var(--semantic-bg) 80%,
+    var(--semantic-accent) 20%
+  );
+  --button-active-bg: color-mix(
+    in srgb,
+    var(--semantic-bg) 74%,
+    var(--semantic-accent) 26%
+  );
+  --button-focus-bg: var(--button-hover-bg);
+  --button-focus-border: var(--semantic-accent);
+}
+
+@mixin button-semantic-ghost {
+  --button-text: var(--semantic-accent);
+  --button-hover-bg: color-mix(in srgb, var(--semantic-accent) 14%, transparent);
+  --button-active-bg: color-mix(in srgb, var(--semantic-accent) 20%, transparent);
+  --button-focus-ring: 0 0 0 2px
+    color-mix(in srgb, var(--semantic-accent) 35%, transparent);
+}
+
 .button {
-  background-color: var(--bg-surface);
-  color: var(--text-primary);
+  --button-text: var(--text-primary);
+  --button-bg: var(--bg-surface);
+  --button-border: var(--border-default);
+  --button-hover-bg: var(--bg-hover);
+  --button-active-bg: color-mix(
+    in srgb,
+    var(--bg-hover) 92%,
+    var(--text-primary) 8%
+  );
+  --button-focus-bg: var(--button-hover-bg);
+  --button-focus-border: var(--border-active);
+  --button-focus-ring: none;
+
+  background-color: var(--button-bg);
+  color: var(--button-text);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
 
   padding: 8px 12px;
   border-radius: var(--border-radius-base);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--button-border);
 
   cursor: pointer;
 
@@ -20,33 +80,50 @@
     pointer-events: none;
   }
 
-  &.iconic {
+  &.button--iconic {
     padding: 8px;
   }
 
-  &.ghost {
-    background-color: transparent;
-    border: 0;
-
-    &:hover {
-      background-color: transparent;
-      backdrop-filter: brightness(150%);
-    }
-
-    &:active {
-      background-color: transparent;
-      backdrop-filter: brightness(175%);
-    }
+  &.button--ghost {
+    --ghost-accent: var(--bg-hover);
+    --button-bg: transparent;
+    --button-border: transparent;
+    --button-hover-bg: color-mix(in srgb, var(--ghost-accent) 80%, transparent);
+    --button-active-bg: color-mix(in srgb, var(--ghost-accent) 90%, transparent);
+    --button-focus-border: transparent;
   }
 
   &:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--button-hover-bg);
   }
 
-  &:focus {
+  &:active {
+    background-color: var(--button-active-bg);
+  }
+
+  &:focus-visible {
     outline: none;
-    border-color: var(--border-active);
-    background-color: var(--bg-hover);
+    border-color: var(--button-focus-border);
+    background-color: var(--button-focus-bg);
+    box-shadow: var(--button-focus-ring);
+  }
+
+  @each $name, $tokens in $button-semantic-colors {
+    &--#{$name} {
+      --semantic-accent: #{map.get($tokens, accent)};
+      --semantic-bg: #{map.get($tokens, bg)};
+      --semantic-border: color-mix(
+        in srgb,
+        var(--semantic-accent) 50%,
+        var(--border-default)
+      );
+
+      @include button-semantic-filled;
+    }
+
+    &--#{$name}.button--ghost {
+      @include button-semantic-ghost;
+    }
   }
 
   &__icon {

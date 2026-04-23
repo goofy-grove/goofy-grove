@@ -27,7 +27,8 @@
       "create_title": "Create persona",
       "actions": {
         "create": "Create",
-        "edit": "Edit"
+        "edit": "Edit",
+        "delete": "Delete"
       }
     },
     "labels": {

@@ -6,7 +6,7 @@ import { queryClient } from '@shared/lib';
 import { PERSONAS_QUERY_KEY } from './constants';
 import { Persona } from './entity';
 
-import type { PersonaEventData } from './types';
+import type { PersonaDeletedEventData, PersonaEventData } from './types';
 
 export const usePersonasQuery = () =>
   useQuery({
@@ -56,5 +56,12 @@ socket.on('persona:updated', (persona: PersonaEventData) => {
     (old) =>
       old?.map((item) => (item.uid !== persona.id ? item : updatedPersona)) ||
       [],
+  );
+});
+
+socket.on('persona:deleted', (payload: PersonaDeletedEventData) => {
+  queryClient.setQueryData<Persona[]>(
+    [PERSONAS_QUERY_KEY],
+    (old) => old?.filter((item) => item.uid !== payload.id) || [],
   );
 });

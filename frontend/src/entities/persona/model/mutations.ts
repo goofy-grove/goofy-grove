@@ -141,3 +141,40 @@ export const useUpdatePersonaMutation = () =>
       );
     },
   });
+
+export const useDeletePersonaMutation = () =>
+  useMutation({
+    mutationFn: ({ uid }: { uid: string }) => api.personas.remove(uid),
+
+    onMutate: async ({ uid }, context) => {
+      await context.client.cancelQueries({ queryKey: [PERSONAS_QUERY_KEY] });
+
+      const previousPersonas =
+        context.client.getQueryData<Persona[]>([PERSONAS_QUERY_KEY]) || [];
+
+      context.client.setQueryData<Persona[]>(
+        [PERSONAS_QUERY_KEY],
+        (old) => old?.filter((persona) => persona.uid !== uid) || [],
+      );
+
+      return previousPersonas;
+    },
+
+    onError: (_, __, onMutateResult, context) => {
+      context.client.setQueryData<Persona[]>(
+        [PERSONAS_QUERY_KEY],
+        onMutateResult || [],
+      );
+    },
+
+    onSuccess: (result, __, onMutateResult, context) => {
+      if (result.error) {
+        context.client.setQueryData<Persona[]>(
+          [PERSONAS_QUERY_KEY],
+          onMutateResult || [],
+        );
+
+        throw new Error('Failed to delete persona');
+      }
+    },
+  });
