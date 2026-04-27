@@ -2,6 +2,7 @@
 
 pub mod prelude;
 
+pub mod characters;
 pub mod personas;
 pub mod tokens;
 pub mod users;
