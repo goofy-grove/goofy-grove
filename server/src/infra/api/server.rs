@@ -9,9 +9,13 @@ use tower_http::cors::CorsLayer;
 use tracing::info;
 
 use crate::infra::{
-    api::{auth::create_auth_router, personas::create_persona_router, users::create_user_router},
+    api::{
+        auth::create_auth_router, characters::create_character_router,
+        personas::create_persona_router, users::create_user_router,
+    },
     config::Config,
     event_bus::{
+        CharacterCreatedEventHandler, CharacterDeletedEventHandler, CharacterUpdatedEventHandler,
         InMemoryEventBus, PersonaCreatedEventHandler, PersonaDeletedEventHandler,
         PersonaUpdatedEventHandler,
     },
@@ -36,7 +40,11 @@ pub fn init_router(
         )
         .nest(
             "/api/v1/personas",
-            create_persona_router(config, connection, event_bus),
+            create_persona_router(config.clone(), connection.clone(), event_bus.clone()),
+        )
+        .nest(
+            "/api/v1/characters",
+            create_character_router(config, connection, event_bus),
         )
         .layer(CorsLayer::very_permissive())
 }
@@ -45,7 +53,10 @@ pub fn init_router(
 pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketIo) {
     event_bus.subscribe(PersonaCreatedEventHandler::new(socket.clone()));
     event_bus.subscribe(PersonaUpdatedEventHandler::new(socket.clone()));
-    event_bus.subscribe(PersonaDeletedEventHandler::new(socket));
+    event_bus.subscribe(PersonaDeletedEventHandler::new(socket.clone()));
+    event_bus.subscribe(CharacterCreatedEventHandler::new(socket.clone()));
+    event_bus.subscribe(CharacterUpdatedEventHandler::new(socket.clone()));
+    event_bus.subscribe(CharacterDeletedEventHandler::new(socket));
 }
 
 pub async fn start_server(

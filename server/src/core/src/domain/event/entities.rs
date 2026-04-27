@@ -25,3 +25,24 @@ pub struct PersonaDeletedEvent {
 }
 
 impl Event for PersonaDeletedEvent {}
+
+pub struct CharacterCreatedEvent {
+    pub character: Character,
+    pub exclude_participants: Vec<ParticipantId>,
+}
+
+impl Event for CharacterCreatedEvent {}
+
+pub struct CharacterUpdatedEvent {
+    pub character: Character,
+    pub exclude_participants: Vec<ParticipantId>,
+}
+
+impl Event for CharacterUpdatedEvent {}
+
+pub struct CharacterDeletedEvent {
+    pub character: Character,
+    pub exclude_participants: Vec<ParticipantId>,
+}
+
+impl Event for CharacterDeletedEvent {}

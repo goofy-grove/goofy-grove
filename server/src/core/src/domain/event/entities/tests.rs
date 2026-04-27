@@ -52,3 +52,56 @@ fn persona_deleted_event_is_constructible() {
     assert_eq!(event.exclude_participants.len(), 1);
     assert_eq!(event.exclude_participants[0].inner(), "user-2");
 }
+
+#[test]
+fn character_created_event_is_constructible() {
+    let event = CharacterCreatedEvent {
+        character: Character::new(
+            CharacterId::try_new("character-1".to_string()).unwrap(),
+            UserId::try_new("user-1".to_string()).unwrap(),
+            CharacterName::try_new("Knight".to_string()).unwrap(),
+            CharacterDescription::new("brave".to_string()),
+        ),
+        exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+    };
+
+    assert_eq!(event.character.uid().inner(), "character-1");
+    assert_eq!(event.exclude_participants.len(), 1);
+    assert_eq!(event.exclude_participants[0].inner(), "user-2");
+}
+
+#[test]
+fn character_updated_event_is_constructible() {
+    let event = CharacterUpdatedEvent {
+        character: Character::new(
+            CharacterId::try_new("character-1".to_string()).unwrap(),
+            UserId::try_new("user-1".to_string()).unwrap(),
+            CharacterName::try_new("Knight".to_string()).unwrap(),
+            CharacterDescription::new("updated".to_string()),
+        ),
+        exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+    };
+
+    assert_eq!(event.character.uid().inner(), "character-1");
+    assert_eq!(event.character.description().inner(), "updated");
+    assert_eq!(event.exclude_participants.len(), 1);
+    assert_eq!(event.exclude_participants[0].inner(), "user-2");
+}
+
+#[test]
+fn character_deleted_event_is_constructible() {
+    let event = CharacterDeletedEvent {
+        character: Character::new(
+            CharacterId::try_new("character-1".to_string()).unwrap(),
+            UserId::try_new("user-1".to_string()).unwrap(),
+            CharacterName::try_new("Knight".to_string()).unwrap(),
+            CharacterDescription::new("deleted".to_string()),
+        ),
+        exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+    };
+
+    assert_eq!(event.character.uid().inner(), "character-1");
+    assert_eq!(event.character.description().inner(), "deleted");
+    assert_eq!(event.exclude_participants.len(), 1);
+    assert_eq!(event.exclude_participants[0].inner(), "user-2");
+}

@@ -10,6 +10,7 @@ tags:
   - name: Authentication
   - name: Users
   - name: Personas
+  - name: Characters
 paths:
   /personas:
     get:
@@ -101,6 +102,95 @@ paths:
         default:
           $ref: '#/components/responses/InternalError'
 
+  /characters:
+    get:
+      tags: [Characters]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharactersResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Characters]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CharacterCreateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterCreateResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /characters/{uid}:
+    patch:
+      tags: [Characters]
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Character Unique ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CharacterUpdateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterCreateResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Characters]
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Character Unique ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterDeleteResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
   /users/me:
     get:
       tags: [Users]
@@ -243,6 +333,27 @@ components:
         description:
           type: string
           description: Persona Description
+    CharacterCreateRequest:
+      type: object
+      required: [name, description]
+      properties:
+        name:
+          type: string
+          description: Character Name
+        description:
+          type: string
+          description: Character Description
+    CharacterUpdateRequest:
+      type: object
+      description: At least one of `name` or `description` must be provided
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          description: Character Name
+        description:
+          type: string
+          description: Character Description
     AuthorizationRequest:
       type: object
       required: [username, password]
@@ -328,6 +439,32 @@ components:
           const: false
         data:
           type: object
+    CharactersResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Character'
+    CharacterCreateResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Character'
+    CharacterDeleteResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: object
 
     # Data
     Persona:
@@ -343,6 +480,22 @@ components:
         description:
           type: string
           description: Persona Description
+        creator_uid:
+          type: string
+          description: Creator Unique ID (User UID)
+    Character:
+      type: object
+      required: [uid, name, description, creator_uid]
+      properties:
+        uid:
+          type: string
+          description: Character Unique ID
+        name:
+          type: string
+          description: Character Name
+        description:
+          type: string
+          description: Character Description
         creator_uid:
           type: string
           description: Creator Unique ID (User UID)
