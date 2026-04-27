@@ -3,6 +3,12 @@ import { createRoot } from 'react-dom/client';
 import './assets/general.scss';
 
 import {
+  CHARACTER_FORM_WINDOW_KEY,
+  CHARACTER_LIST_WINDOW_KEY,
+  CharacterFormWindow,
+  CharacterListWindow,
+} from '@entities/character';
+import {
   PERSONA_FORM_WINDOW_KEY,
   PERSONA_LIST_WINDOW_KEY,
   PersonaFormWindow,
@@ -21,6 +27,8 @@ if (rootElement && !rootElement?.innerHTML) {
 
   registerWindow(PERSONA_LIST_WINDOW_KEY, PersonaListWindow);
   registerWindow(PERSONA_FORM_WINDOW_KEY, PersonaFormWindow);
+  registerWindow(CHARACTER_LIST_WINDOW_KEY, CharacterListWindow);
+  registerWindow(CHARACTER_FORM_WINDOW_KEY, CharacterFormWindow);
 
   void initI18n().then(() => root.render(<App />));
 }

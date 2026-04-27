@@ -6,6 +6,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 
+import { CHARACTER_LIST_WINDOW_KEY } from '@entities/character';
 import { PERSONA_LIST_WINDOW_KEY } from '@entities/persona';
 
 export const MENU_ITEMS = [
@@ -16,7 +17,7 @@ export const MENU_ITEMS = [
   },
   {
     title: 'menu.characters',
-    windowId: 'characters-list',
+    windowId: CHARACTER_LIST_WINDOW_KEY,
     icon: IconRobot,
   },
   {

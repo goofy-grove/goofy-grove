@@ -36,6 +36,22 @@
       "name": "Name"
     }
   },
+  "character": {
+    "window": {
+      "list_title": "Characters",
+      "edit_title": "Edit character",
+      "create_title": "Create character",
+      "actions": {
+        "create": "Create",
+        "edit": "Edit",
+        "delete": "Delete"
+      }
+    },
+    "labels": {
+      "description": "Description",
+      "name": "Name"
+    }
+  },
   "ui": {
     "select_locale": "Select locale"
   },

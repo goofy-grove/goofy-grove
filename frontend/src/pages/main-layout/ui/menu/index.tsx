@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { CHARACTER_LIST_WINDOW_KEY } from '@entities/character';
 import { PERSONA_LIST_WINDOW_KEY } from '@entities/persona';
 
 import { Button, useWindow } from '@shared/ui';
@@ -14,11 +15,18 @@ import './styles.scss';
 export const Menu: FC<MenuProps> = ({ isCollapsed }) => {
   const { t } = useTranslation();
 
-  const { openWindow } = useWindow(PERSONA_LIST_WINDOW_KEY);
+  const { openWindow: openPersonaWindow } = useWindow(PERSONA_LIST_WINDOW_KEY);
+  const { openWindow: openCharacterWindow } = useWindow(
+    CHARACTER_LIST_WINDOW_KEY,
+  );
 
   const handleOpenWindow = (windowId: string) => {
     if (windowId === PERSONA_LIST_WINDOW_KEY) {
-      openWindow();
+      openPersonaWindow();
+    }
+
+    if (windowId === CHARACTER_LIST_WINDOW_KEY) {
+      openCharacterWindow();
     }
   };
 
