@@ -1,9 +1,28 @@
 #[macro_export]
 macro_rules! generate_entity {
-    ($name:ident { $( $field:ident: $field_type:ty ),* }) => {
+    ($(#[$meta:meta])+ $name:ident { $( $vis:vis $field:ident: $field_type:ty ),* }) => {
+        $(#[$meta])+
+        pub struct $name {
+            $( $vis $field: $field_type ),*
+        }
+
+        impl $name {
+            pub fn new($( $field: $field_type ),*) -> Self {
+                Self {
+                    $( $field ),*
+                }
+            }
+
+            $( pub fn $field(&self) -> &$field_type {
+                &self.$field
+            } )*
+        }
+    };
+
+    ($name:ident { $( $vis:vis $field:ident: $field_type:ty ),* }) => {
         #[derive(Debug, Clone)]
         pub struct $name {
-            $( $field: $field_type ),*
+            $( $vis $field: $field_type ),*
         }
 
         impl $name {

@@ -1,6 +1,7 @@
 mod auth;
 mod character;
 mod event;
+mod file;
 mod macros;
 mod persona;
 mod ports;
@@ -30,6 +31,10 @@ pub mod prelude {
     pub use crate::domain::event::entities::*;
     pub use crate::domain::event::ports::*;
     pub use crate::domain::event::rules::*;
+
+    pub use crate::domain::file::entities::*;
+    pub use crate::domain::file::ports::*;
+    pub use crate::domain::file::rules::*;
 
     pub use crate::domain::ports::*;
 }

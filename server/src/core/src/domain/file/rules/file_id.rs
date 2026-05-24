@@ -2,23 +2,20 @@ use thiserror::Error;
 
 use crate::impl_new_type;
 
-#[cfg(test)]
-mod tests;
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Error)]
-pub enum PersonaIdValidationError {
-    #[error("persona_id_empty")]
+pub enum FileIdValidationError {
+    #[error("file_id_empty")]
     Empty,
 }
 
 impl_new_type!(
     #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-    pub struct PersonaId(String);
-    error: PersonaIdValidationError;
+    pub struct FileId(String);
+    error: FileIdValidationError;
     sanitize: |id: String| id.trim().to_owned();
     validate: |id: &str| {
         if id.is_empty() {
-            Err(PersonaIdValidationError::Empty)
+            Err(FileIdValidationError::Empty)
         } else {
             Ok(())
         }
