@@ -120,11 +120,11 @@ async fn generate_tokens(
 
     auth_state
         .create_device_use_case
-        .create_device(CreateDeviceCommand::new(
-            refresh_token_value_object,
-            UserAgent::new("".to_string()),
-            user.uid().to_owned(),
-        ))
+        .create_device(CreateDeviceCommand {
+            token: refresh_token_value_object,
+            user_agent: UserAgent::new("".to_string()),
+            user_id: user.uid.clone(),
+        })
         .await
         .map_err(|_| GenerateTokensError::FailedToCreateUserDevice)?;
 
@@ -160,11 +160,13 @@ async fn refresh_token(
 
     auth_state
         .invalidate_device_use_case
-        .invalidate_device(InvalidateDeviceCommand::new(token.clone()))
+        .invalidate_device(InvalidateDeviceCommand {
+            token: token.clone(),
+        })
         .await
         .or(Err(response::auth_error(&["Token not found"])))?;
 
-    let token_data = auth_state
+    let TokenData { username, .. } = auth_state
         .token_validator_port
         .validate_token(&token)
         .await
@@ -172,7 +174,7 @@ async fn refresh_token(
 
     let user = auth_state
         .get_user_by_name_query
-        .get_user_by_name(token_data.username())
+        .get_user_by_name(&username)
         .await
         .or(Err(response::auth_error(&["User not found"])))?;
 
@@ -216,7 +218,7 @@ async fn authorize_user(
         Ok(value) => value,
         Err(_) => return response::bad_request(&["Invalid password"]),
     };
-    let command = AuthorizationCommand::new(username, secret);
+    let command = AuthorizationCommand { name: username, secret };
 
     let auth_result = auth_state.authorization_use_case.authorize(command).await;
 
@@ -277,7 +279,7 @@ async fn autheticate_current_user(
     auth_state: AuthenticationState<impl TokenValidatorPort, impl LoadUserByNamePort>,
 ) -> Option<User> {
     if let Some(token) = auth_header.strip_prefix("Bearer ") {
-        let token_data = auth_state
+        let TokenData { username, .. } = auth_state
             .access_token_validator
             .validate_token(&Token::try_new(token.to_string()).ok()?)
             .await
@@ -285,7 +287,7 @@ async fn autheticate_current_user(
 
         let user = auth_state
             .load_user_use_case
-            .load_user_by_name(token_data.username())
+            .load_user_by_name(&username)
             .await
             .ok()?;
 

@@ -1,20 +1,23 @@
-use crate::{domain::prelude::*, generate_entity};
+use crate::domain::prelude::*;
 
-generate_entity!(CreateCharacterCommand {
-    name: CharacterName,
-    creator_id: UserId,
-    description: CharacterDescription,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct CreateCharacterCommand {
+    pub name: CharacterName,
+    pub creator_id: UserId,
+    pub description: CharacterDescription,
+    pub exclude_participants: Vec<ParticipantId>,
+}
 
-generate_entity!(UpdateCharacterCommand {
-    id: CharacterId,
-    name: Option<CharacterName>,
-    description: Option<CharacterDescription>,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct UpdateCharacterCommand {
+    pub id: CharacterId,
+    pub name: Option<CharacterName>,
+    pub description: Option<CharacterDescription>,
+    pub exclude_participants: Vec<ParticipantId>,
+}
 
-generate_entity!(DeleteCharacterCommand {
-    id: CharacterId,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct DeleteCharacterCommand {
+    pub id: CharacterId,
+    pub exclude_participants: Vec<ParticipantId>,
+}

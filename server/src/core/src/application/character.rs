@@ -46,20 +46,27 @@ impl<S: SaveCharacterPort, U: IdGenerator, E: EventPublisher> CreateCharacterUse
         &self,
         command: CreateCharacterCommand,
     ) -> Result<Character, CreateCharacterError> {
-        let character = Character::new(
-            CharacterId::try_new(self.uid_generator.generate())
+        let CreateCharacterCommand {
+            name,
+            creator_id,
+            description,
+            exclude_participants,
+        } = command;
+
+        let character = Character {
+            uid: CharacterId::try_new(self.uid_generator.generate())
                 .map_err(|err| CreateCharacterError::ValidationError(format!("{err}")))?,
-            command.creator_id().clone(),
-            command.name().clone(),
-            command.description().clone(),
-        );
+            creator_id,
+            name,
+            description,
+        };
 
         match self.save_character_port.save_character(character).await {
             Ok(saved_character) => {
                 self.event_publisher
                     .publish(CharacterCreatedEvent {
                         character: saved_character.clone(),
-                        exclude_participants: command.exclude_participants().clone(),
+                        exclude_participants,
                     })
                     .await;
 
@@ -119,9 +126,16 @@ impl<L: LoadCharacterPort, S: SaveCharacterPort, E: EventPublisher> UpdateCharac
         command: UpdateCharacterCommand,
         user_id: UserId,
     ) -> Result<Character, UpdateCharacterError> {
+        let UpdateCharacterCommand {
+            id,
+            name,
+            description,
+            exclude_participants,
+        } = command;
+
         let character = self
             .load_character_port
-            .load_character(command.id(), &user_id)
+            .load_character(&id, &user_id)
             .await
             .map_err(|err| match err {
                 LoadCharactersPortError::NotFound => UpdateCharacterError::NotFound,
@@ -130,18 +144,19 @@ impl<L: LoadCharacterPort, S: SaveCharacterPort, E: EventPublisher> UpdateCharac
                 }
             })?;
 
-        let updated_character = Character::new(
-            character.uid().clone(),
-            character.creator_id().clone(),
-            command
-                .name()
-                .clone()
-                .unwrap_or_else(|| character.name().clone()),
-            command
-                .description()
-                .clone()
-                .unwrap_or_else(|| character.description().clone()),
-        );
+        let Character {
+            uid,
+            creator_id,
+            name: existing_name,
+            description: existing_description,
+        } = character;
+
+        let updated_character = Character {
+            uid,
+            creator_id,
+            name: name.unwrap_or(existing_name),
+            description: description.unwrap_or(existing_description),
+        };
 
         let saved_character = self
             .save_character_port
@@ -152,7 +167,7 @@ impl<L: LoadCharacterPort, S: SaveCharacterPort, E: EventPublisher> UpdateCharac
         self.event_publisher
             .publish(CharacterUpdatedEvent {
                 character: saved_character.clone(),
-                exclude_participants: command.exclude_participants().clone(),
+                exclude_participants,
             })
             .await;
 
@@ -168,9 +183,14 @@ impl<L: LoadCharacterPort, D: DeleteCharacterPort, E: EventPublisher> DeleteChar
         command: DeleteCharacterCommand,
         user_id: UserId,
     ) -> Result<(), DeleteCharacterError> {
+        let DeleteCharacterCommand {
+            id,
+            exclude_participants,
+        } = command;
+
         let character = self
             .load_character_port
-            .load_character(command.id(), &user_id)
+            .load_character(&id, &user_id)
             .await
             .map_err(|err| match err {
                 LoadCharactersPortError::NotFound => DeleteCharacterError::NotFound,
@@ -180,7 +200,7 @@ impl<L: LoadCharacterPort, D: DeleteCharacterPort, E: EventPublisher> DeleteChar
             })?;
 
         self.delete_character_port
-            .delete_character(command.id(), &user_id)
+            .delete_character(&id, &user_id)
             .await
             .map_err(|err| match err {
                 DeleteCharacterPortError::NotFound => DeleteCharacterError::NotFound,
@@ -192,7 +212,7 @@ impl<L: LoadCharacterPort, D: DeleteCharacterPort, E: EventPublisher> DeleteChar
         self.event_publisher
             .publish(CharacterDeletedEvent {
                 character,
-                exclude_participants: command.exclude_participants().clone(),
+                exclude_participants,
             })
             .await;
 

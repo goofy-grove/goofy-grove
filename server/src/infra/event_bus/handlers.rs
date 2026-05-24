@@ -17,20 +17,19 @@ impl PersonaCreatedEventHandler {
 
 impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
     fn handle(&self, event: &PersonaCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.persona.creator_id().inner().to_owned();
+        let creator_id = event.persona.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.persona.uid().inner(),
-            "name": event.persona.name().inner(),
-            "description": event.persona.description().inner(),
+            "id": event.persona.uid.inner(),
+            "name": event.persona.name.inner(),
+            "description": event.persona.description.inner(),
             "creator_id": creator_id,
         });
         let socket = self.socket.clone();
-
         let exclude_participants: Vec<String> = event
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {
@@ -61,11 +60,11 @@ impl PersonaUpdatedEventHandler {
 
 impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
     fn handle(&self, event: &PersonaUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.persona.creator_id().inner().to_owned();
+        let creator_id = event.persona.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.persona.uid().inner(),
-            "name": event.persona.name().inner(),
-            "description": event.persona.description().inner(),
+            "id": event.persona.uid.inner(),
+            "name": event.persona.name.inner(),
+            "description": event.persona.description.inner(),
             "creator_id": creator_id,
         });
         let socket = self.socket.clone();
@@ -73,7 +72,7 @@ impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {
@@ -103,16 +102,16 @@ impl PersonaDeletedEventHandler {
 
 impl EventHandler<PersonaDeletedEvent> for PersonaDeletedEventHandler {
     fn handle(&self, event: &PersonaDeletedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.persona.creator_id().inner().to_owned();
+        let creator_id = event.persona.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.persona.uid().inner(),
+            "id": event.persona.uid.inner(),
         });
         let socket = self.socket.clone();
         let exclude_participants: Vec<String> = event
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {
@@ -142,11 +141,11 @@ impl CharacterCreatedEventHandler {
 
 impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
     fn handle(&self, event: &CharacterCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.character.creator_id().inner().to_owned();
+        let creator_id = event.character.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.character.uid().inner(),
-            "name": event.character.name().inner(),
-            "description": event.character.description().inner(),
+            "id": event.character.uid.inner(),
+            "name": event.character.name.inner(),
+            "description": event.character.description.inner(),
             "creator_id": creator_id,
         });
         let socket = self.socket.clone();
@@ -154,7 +153,7 @@ impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {
@@ -184,11 +183,11 @@ impl CharacterUpdatedEventHandler {
 
 impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
     fn handle(&self, event: &CharacterUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.character.creator_id().inner().to_owned();
+        let creator_id = event.character.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.character.uid().inner(),
-            "name": event.character.name().inner(),
-            "description": event.character.description().inner(),
+            "id": event.character.uid.inner(),
+            "name": event.character.name.inner(),
+            "description": event.character.description.inner(),
             "creator_id": creator_id,
         });
         let socket = self.socket.clone();
@@ -196,7 +195,7 @@ impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {
@@ -226,16 +225,16 @@ impl CharacterDeletedEventHandler {
 
 impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
     fn handle(&self, event: &CharacterDeletedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.character.creator_id().inner().to_owned();
+        let creator_id = event.character.creator_id.inner().to_owned();
         let json = json!({
-            "id": event.character.uid().inner(),
+            "id": event.character.uid.inner(),
         });
         let socket = self.socket.clone();
         let exclude_participants: Vec<String> = event
             .exclude_participants
             .clone()
             .into_iter()
-            .map(|v| v.inner().to_owned())
+            .map(|id| id.into_inner())
             .collect();
 
         Box::pin(async move {

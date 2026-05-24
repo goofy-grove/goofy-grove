@@ -1,11 +1,12 @@
-use crate::{domain::prelude::*, generate_entity};
+use crate::domain::prelude::*;
 
 #[cfg(test)]
 mod tests;
 
-generate_entity!(Persona {
-    uid: PersonaId,
-    creator_id: UserId,
-    name: PersonaName,
-    description: PersonaDescription
-});
+#[derive(Debug, Clone)]
+pub struct Persona {
+    pub uid: PersonaId,
+    pub creator_id: UserId,
+    pub name: PersonaName,
+    pub description: PersonaDescription,
+}

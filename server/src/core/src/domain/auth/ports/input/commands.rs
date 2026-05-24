@@ -1,15 +1,19 @@
-use crate::{domain::prelude::*, generate_entity};
+use crate::domain::prelude::*;
 
-generate_entity!(AuthorizationCommand {
-    name: Username,
-    secret: Secret
-});
-generate_entity!(RegistrationCommand {
-    name: Username,
-    secret: Secret
-});
+#[derive(Debug, Clone)]
+pub struct AuthorizationCommand {
+    pub name: Username,
+    pub secret: Secret,
+}
 
-generate_entity!(ValidateTokenCommand {
-    first_token: Token,
-    secret: Secret
-});
+#[derive(Debug, Clone)]
+pub struct RegistrationCommand {
+    pub name: Username,
+    pub secret: Secret,
+}
+
+#[derive(Debug, Clone)]
+pub struct ValidateTokenCommand {
+    pub first_token: Token,
+    pub secret: Secret,
+}

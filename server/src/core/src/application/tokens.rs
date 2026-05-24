@@ -25,9 +25,11 @@ impl<T: InvalidateDevicePort, H: TokenHasherPort> InvalidateDeviceUseCase
         &self,
         command: InvalidateDeviceCommand,
     ) -> Result<(), InvalidateDeviceError> {
+        let InvalidateDeviceCommand { token } = command;
+
         let hashed_token = self
             .token_hasher_port
-            .hash_token(command.token().to_owned())
+            .hash_token(token)
             .await
             .map_err(|err| InvalidateDeviceError::InternalError(format!("{:?}", err)))?;
 
@@ -69,21 +71,27 @@ impl<S: SaveDevicePort, G: IdGenerator, C: Clock, H: TokenHasherPort> CreateDevi
         &self,
         command: CreateDeviceCommand,
     ) -> Result<UserToken, CreateDeviceError> {
+        let CreateDeviceCommand {
+            token,
+            user_id,
+            user_agent,
+        } = command;
+
         let hashed_token = self
             .token_hasher_port
-            .hash_token(command.token().to_owned())
+            .hash_token(token)
             .await
             .map_err(|err| CreateDeviceError::InternalError(format!("{:?}", err)))?;
 
-        let token = UserToken::new(
-            TokenId::try_new(self.id_generator.generate())
+        let token = UserToken {
+            uid: TokenId::try_new(self.id_generator.generate())
                 .map_err(|err| CreateDeviceError::ValidationError(format!("{err}")))?,
             hashed_token,
-            command.user_id().to_owned(),
-            command.user_agent().to_owned(),
-            LastAccessedAt::try_new(self.clock.timestamp())
+            user_id,
+            user_agent,
+            last_accessed_at: LastAccessedAt::try_new(self.clock.timestamp())
                 .map_err(|err| CreateDeviceError::ValidationError(format!("{err}")))?,
-        );
+        };
 
         self.create_device_port
             .create_device(token)

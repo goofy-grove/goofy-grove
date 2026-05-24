@@ -28,33 +28,40 @@ impl LoadDevicePort for TokensRepository {
             .map_err(|err| LoadDevicePortError::InternalError(err.to_string()))?
             .ok_or(LoadDevicePortError::DeviceNotFound)?;
 
-        Ok(UserToken::new(
-            TokenId::try_new(token.uid)
+        Ok(UserToken {
+            uid: TokenId::try_new(token.uid)
                 .map_err(|err| LoadDevicePortError::InternalError(err.to_string()))?,
-            HashedToken::try_new(token.hashed_token)
+            hashed_token: HashedToken::try_new(token.hashed_token)
                 .map_err(|err| LoadDevicePortError::InternalError(err.to_string()))?,
-            UserId::try_new(token.user_id)
+            user_id: UserId::try_new(token.user_id)
                 .map_err(|err| LoadDevicePortError::InternalError(err.to_string()))?,
-            UserAgent::new(token.user_agent),
-            LastAccessedAt::try_new(token.last_accessed_at.and_utc().timestamp())
+            user_agent: UserAgent::new(token.user_agent),
+            last_accessed_at: LastAccessedAt::try_new(token.last_accessed_at.and_utc().timestamp())
                 .map_err(|err| LoadDevicePortError::InternalError(err.to_string()))?,
-        ))
+        })
     }
 }
 
 impl SaveDevicePort for TokensRepository {
     async fn create_device(&self, token: UserToken) -> Result<UserToken, SaveDevicePortError> {
+        let UserToken {
+            uid,
+            hashed_token,
+            user_id,
+            user_agent,
+            last_accessed_at,
+        } = token;
+
         let token = tokens::ActiveModel {
-            uid: Set(token.uid().inner().to_owned()),
-            hashed_token: Set(token.hashed_token().inner().to_owned()),
-            user_id: Set(token.user_id().inner().to_owned()),
-            user_agent: Set(token.user_agent().inner().to_owned()),
-            last_accessed_at: Set(DateTime::from_timestamp(
-                token.last_accessed_at().inner().to_owned(),
-                0,
-            )
-            .unwrap()
-            .naive_utc()),
+            uid: Set(uid.into_inner()),
+            hashed_token: Set(hashed_token.into_inner()),
+            user_id: Set(user_id.into_inner()),
+            user_agent: Set(user_agent.into_inner()),
+            last_accessed_at: Set(
+                DateTime::from_timestamp(last_accessed_at.into_inner(), 0)
+                    .unwrap()
+                    .naive_utc(),
+            ),
         };
 
         let result = Tokens::insert(token)
@@ -62,17 +69,17 @@ impl SaveDevicePort for TokensRepository {
             .await;
 
         match result {
-            Ok(token) => Ok(UserToken::new(
-                TokenId::try_new(token.uid)
+            Ok(token) => Ok(UserToken {
+                uid: TokenId::try_new(token.uid)
                     .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
-                HashedToken::try_new(token.hashed_token)
+                hashed_token: HashedToken::try_new(token.hashed_token)
                     .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
-                UserId::try_new(token.user_id)
+                user_id: UserId::try_new(token.user_id)
                     .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
-                UserAgent::new(token.user_agent),
-                LastAccessedAt::try_new(token.last_accessed_at.and_utc().timestamp())
+                user_agent: UserAgent::new(token.user_agent),
+                last_accessed_at: LastAccessedAt::try_new(token.last_accessed_at.and_utc().timestamp())
                     .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
-            )),
+            }),
             Err(err) => {
                 if let Some(SqlErr::UniqueConstraintViolation(_)) = err.sql_err() {
                     Err(SaveDevicePortError::DeviceAlreadyExists)

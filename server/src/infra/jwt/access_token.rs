@@ -32,8 +32,8 @@ impl TokenGeneratorPort for JwtAccessTokenGenerator {
             + chrono::Duration::seconds(self.config.jwt.access_token.expiration_time as i64))
         .timestamp() as usize;
         let jwt_access_data = JwtAccessData {
-            uid: user.uid().inner().to_owned(),
-            sub: user.name().inner().to_owned(),
+            uid: user.uid.inner().to_owned(),
+            sub: user.name.inner().to_owned(),
             exp: expires,
         };
 

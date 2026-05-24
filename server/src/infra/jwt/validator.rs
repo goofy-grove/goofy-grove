@@ -33,13 +33,13 @@ impl TokenValidatorPort for JwtAccessTokenValidator {
             }
         })?;
 
-        Ok(TokenData::new(
-            UserId::try_new(validation.claims.uid)
+        Ok(TokenData {
+            uid: UserId::try_new(validation.claims.uid)
                 .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
-            Username::try_new(validation.claims.sub)
+            username: Username::try_new(validation.claims.sub)
                 .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
-            TokenExpires::new(validation.claims.exp),
-        ))
+            expires_at: TokenExpires::new(validation.claims.exp),
+        })
     }
 }
 
@@ -69,12 +69,12 @@ impl TokenValidatorPort for JwtRefreshTokenValidator {
             }
         })?;
 
-        Ok(TokenData::new(
-            UserId::try_new(validation.claims.uid)
+        Ok(TokenData {
+            uid: UserId::try_new(validation.claims.uid)
                 .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
-            Username::try_new(validation.claims.sub)
+            username: Username::try_new(validation.claims.sub)
                 .map_err(|err| TokenValidatorPortError::InternalError(err.to_string()))?,
-            TokenExpires::new(validation.claims.exp),
-        ))
+            expires_at: TokenExpires::new(validation.claims.exp),
+        })
     }
 }

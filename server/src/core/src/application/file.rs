@@ -13,7 +13,14 @@ impl<S: SaveFileToStoragePort, S1: SaveFilePort, I: IdGenerator> CreateFileUseCa
     for CreateFileService<S, S1, I>
 {
     async fn create_file(&self, command: CreateFileCommand) -> Result<FileId, CreateFileError> {
-        let file_extension = Path::new(command.original_name().inner())
+        let CreateFileCommand {
+            content_type,
+            original_name,
+            owner_id,
+            content,
+        } = command;
+
+        let file_extension = Path::new(original_name.inner())
             .extension()
             .and_then(OsStr::to_str)
             .unwrap_or_default();
@@ -21,19 +28,17 @@ impl<S: SaveFileToStoragePort, S1: SaveFilePort, I: IdGenerator> CreateFileUseCa
         let file_id = self.id_generator_port.generate();
         let filename = format!("{}-{}", file_id, file_extension);
 
-        let file_meta = FileMeta::new(
-            FileId::try_new(file_id)
+        let file_meta = FileMeta {
+            id: FileId::try_new(file_id)
                 .map_err(|err| CreateFileError::ValidationError(format!("{err}")))?,
-            Filename::try_new(filename)
+            filename: Filename::try_new(filename)
                 .map_err(|err| CreateFileError::ValidationError(format!("{err}")))?,
-            command.owner_id().clone(),
-            command.original_name().clone(),
-            command.content_type().clone(),
-            FileSize::try_new(command.content().inner().len())
+            owner_id,
+            original_name,
+            content_type,
+            size: FileSize::try_new(content.inner().len())
                 .map_err(|err| CreateFileError::ValidationError(format!("{err}")))?,
-        );
-
-        let CreateFileCommand { content, .. } = command;
+        };
 
         self.save_file_to_storage_port
             .save_file_to_storage(&file_meta, content)

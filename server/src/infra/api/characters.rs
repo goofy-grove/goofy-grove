@@ -46,10 +46,10 @@ pub struct CharacterState<
 impl ToJson for Character {
     fn to_json(self) -> serde_json::Value {
         json!({
-            "uid": self.uid().inner(),
-            "name": self.name().inner(),
-            "description": self.description().inner(),
-            "creator_uid": self.creator_id().inner(),
+            "uid": self.uid.inner(),
+            "name": self.name.inner(),
+            "description": self.description.inner(),
+            "creator_uid": self.creator_id.inner(),
         })
     }
 }
@@ -65,9 +65,11 @@ pub async fn get_all_user_characters(
         >,
     >,
 ) -> Response {
+    let User { uid, .. } = user;
+
     let characters_result = character_state
         .get_characters_query
-        .get_characters(user.uid())
+        .get_characters(&uid)
         .await;
 
     match characters_result {
@@ -104,12 +106,13 @@ pub async fn create_character(
         Err(_) => return response::bad_request(&["Invalid character name"]),
     };
     let character_description = CharacterDescription::new(request.description);
-    let command = CreateCharacterCommand::new(
-        character_name,
-        user.uid().to_owned(),
-        character_description,
-        exclude_participant.into_iter().collect(),
-    );
+    let User { uid, .. } = user;
+    let command = CreateCharacterCommand {
+        name: character_name,
+        creator_id: uid,
+        description: character_description,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match character_state
         .create_character_use_case
@@ -171,16 +174,17 @@ pub async fn patch_character(
         None => None,
     };
     let character_description = request.description.map(CharacterDescription::new);
-    let command = UpdateCharacterCommand::new(
-        character_id,
-        character_name,
-        character_description,
-        exclude_participant.into_iter().collect(),
-    );
+    let User { uid, .. } = user;
+    let command = UpdateCharacterCommand {
+        id: character_id,
+        name: character_name,
+        description: character_description,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match character_state
         .update_character_use_case
-        .update_character(command, user.uid().to_owned())
+        .update_character(command, uid)
         .await
     {
         Ok(character) => response::ok(character),
@@ -210,12 +214,15 @@ pub async fn delete_character(
         Ok(value) => value,
         Err(_) => return response::bad_request(&["Invalid character id"]),
     };
-    let command =
-        DeleteCharacterCommand::new(character_id, exclude_participant.into_iter().collect());
+    let User { uid, .. } = user;
+    let command = DeleteCharacterCommand {
+        id: character_id,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match character_state
         .delete_character_use_case
-        .delete_character(command, user.uid().to_owned())
+        .delete_character(command, uid)
         .await
     {
         Ok(()) => response::ok(DeleteCharacterResponse),

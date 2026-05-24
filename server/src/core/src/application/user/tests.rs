@@ -28,11 +28,11 @@ impl LoadUserByNamePort for LoadUserInternalErr {
 
 #[tokio::test]
 async fn get_user_by_name_returns_user() {
-    let user = User::new(
-        UserId::try_new("user-1".to_string()).unwrap(),
-        Username::try_new("john".to_string()).unwrap(),
-        UserPassword::try_new("hashed".to_string()).unwrap(),
-    );
+    let user = User {
+        uid: UserId::try_new("user-1".to_string()).unwrap(),
+        name: Username::try_new("john".to_string()).unwrap(),
+        password: UserPassword::try_new("hashed".to_string()).unwrap(),
+    };
     let service = GetUserByNameService::new(LoadUserOk { user });
 
     assert!(

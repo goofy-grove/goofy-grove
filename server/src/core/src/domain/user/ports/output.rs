@@ -28,5 +28,5 @@ pub enum SaveUserPortError {
 }
 
 pub trait SaveUserPort {
-    fn save_user(&self, user: &User) -> impl Future<Output = Result<User, SaveUserPortError>>;
+    fn save_user(&self, user: User) -> impl Future<Output = Result<User, SaveUserPortError>>;
 }

@@ -34,12 +34,12 @@ impl LoadPersonasPort for PersonaRepository {
                 .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
             let description = PersonaDescription::new(persona.description);
 
-            result.push(Persona::new(
-                persona_id,
+            result.push(Persona {
+                uid: persona_id,
                 creator_id,
-                persona_name,
+                name: persona_name,
                 description,
-            ));
+            });
         }
 
         Ok(result)
@@ -68,22 +68,29 @@ impl LoadPersonaPort for PersonaRepository {
             .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
         let description = PersonaDescription::new(persona.description);
 
-        Ok(Persona::new(
-            persona_id,
+        Ok(Persona {
+            uid: persona_id,
             creator_id,
-            persona_name,
+            name: persona_name,
             description,
-        ))
+        })
     }
 }
 
 impl SavePersonaPort for PersonaRepository {
     async fn save_persona(&self, persona: Persona) -> Result<Persona, SavePersonaPortError> {
+        let Persona {
+            uid,
+            creator_id,
+            name,
+            description,
+        } = persona;
+
         let new_persona = personas::ActiveModel {
-            uid: Set(persona.uid().inner().to_owned()),
-            creator_id: Set(persona.creator_id().inner().to_owned()),
-            name: Set(persona.name().inner().to_owned()),
-            description: Set(persona.description().inner().to_owned()),
+            uid: Set(uid.into_inner()),
+            creator_id: Set(creator_id.into_inner()),
+            name: Set(name.into_inner()),
+            description: Set(description.into_inner()),
         };
         let request = Personas::insert(new_persona)
             .on_conflict(
@@ -99,15 +106,15 @@ impl SavePersonaPort for PersonaRepository {
             .await;
 
         match request {
-            Ok(inserted_persona) => Ok(Persona::new(
-                PersonaId::try_new(inserted_persona.uid)
+            Ok(inserted_persona) => Ok(Persona {
+                uid: PersonaId::try_new(inserted_persona.uid)
                     .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                UserId::try_new(inserted_persona.creator_id)
+                creator_id: UserId::try_new(inserted_persona.creator_id)
                     .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                PersonaName::try_new(inserted_persona.name)
+                name: PersonaName::try_new(inserted_persona.name)
                     .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                PersonaDescription::new(inserted_persona.description),
-            )),
+                description: PersonaDescription::new(inserted_persona.description),
+            }),
             Err(err) => Err(SavePersonaPortError::InternalError(err.to_string())),
         }
     }

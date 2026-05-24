@@ -53,15 +53,15 @@ impl PasswordVerifierPort for VerifyFail {
 #[derive(Clone)]
 struct SaveUserOk;
 impl SaveUserPort for SaveUserOk {
-    async fn save_user(&self, user: &User) -> Result<User, SaveUserPortError> {
-        Ok(user.clone())
+    async fn save_user(&self, user: User) -> Result<User, SaveUserPortError> {
+        Ok(user)
     }
 }
 
 #[derive(Clone)]
 struct SaveUserExists;
 impl SaveUserPort for SaveUserExists {
-    async fn save_user(&self, _user: &User) -> Result<User, SaveUserPortError> {
+    async fn save_user(&self, _user: User) -> Result<User, SaveUserPortError> {
         Err(SaveUserPortError::UserAlreadyExists)
     }
 }
@@ -69,7 +69,7 @@ impl SaveUserPort for SaveUserExists {
 #[derive(Clone)]
 struct SaveUserInternalErr;
 impl SaveUserPort for SaveUserInternalErr {
-    async fn save_user(&self, _user: &User) -> Result<User, SaveUserPortError> {
+    async fn save_user(&self, _user: User) -> Result<User, SaveUserPortError> {
         Err(SaveUserPortError::InternalError("db-down".into()))
     }
 }
@@ -100,11 +100,11 @@ impl IdGenerator for FixedId {
 }
 
 fn sample_user() -> User {
-    User::new(
-        UserId::try_new("user-id-1".to_string()).unwrap(),
-        Username::try_new("john".to_string()).unwrap(),
-        UserPassword::try_new("hashed".to_string()).unwrap(),
-    )
+    User {
+        uid: UserId::try_new("user-id-1".to_string()).unwrap(),
+        name: Username::try_new("john".to_string()).unwrap(),
+        password: UserPassword::try_new("hashed".to_string()).unwrap(),
+    }
 }
 
 #[tokio::test]
@@ -115,10 +115,10 @@ async fn authorize_returns_user_for_valid_credentials() {
         },
         VerifyOk,
     );
-    let command = AuthorizationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("plain".to_string()).unwrap(),
-    );
+    let command = AuthorizationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("plain".to_string()).unwrap(),
+    };
 
     assert!(service.authorize(command).await.is_ok());
 }
@@ -126,10 +126,10 @@ async fn authorize_returns_user_for_valid_credentials() {
 #[tokio::test]
 async fn authorize_returns_not_found_when_user_missing() {
     let service = UserAuthorizationService::new(LoadUserNotFound, VerifyOk);
-    let command = AuthorizationCommand::new(
-        Username::try_new("ghost".to_string()).unwrap(),
-        Secret::try_new("plain".to_string()).unwrap(),
-    );
+    let command = AuthorizationCommand {
+        name: Username::try_new("ghost".to_string()).unwrap(),
+        secret: Secret::try_new("plain".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.authorize(command).await,
@@ -140,10 +140,10 @@ async fn authorize_returns_not_found_when_user_missing() {
 #[tokio::test]
 async fn authorize_maps_load_user_internal_error_to_user_not_found() {
     let service = UserAuthorizationService::new(LoadUserInternalErr, VerifyOk);
-    let command = AuthorizationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("plain".to_string()).unwrap(),
-    );
+    let command = AuthorizationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("plain".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.authorize(command).await,
@@ -159,10 +159,10 @@ async fn authorize_returns_invalid_credentials_when_password_mismatch() {
         },
         VerifyFail,
     );
-    let command = AuthorizationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("wrong".to_string()).unwrap(),
-    );
+    let command = AuthorizationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("wrong".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.authorize(command).await,
@@ -173,10 +173,10 @@ async fn authorize_returns_invalid_credentials_when_password_mismatch() {
 #[tokio::test]
 async fn register_creates_user_on_success() {
     let service = RegistrationService::new(SaveUserOk, HashOk, FixedId);
-    let command = RegistrationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("secret".to_string()).unwrap(),
-    );
+    let command = RegistrationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("secret".to_string()).unwrap(),
+    };
 
     assert!(service.register(command).await.is_ok());
 }
@@ -184,10 +184,10 @@ async fn register_creates_user_on_success() {
 #[tokio::test]
 async fn register_maps_user_exists_error() {
     let service = RegistrationService::new(SaveUserExists, HashOk, FixedId);
-    let command = RegistrationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("secret".to_string()).unwrap(),
-    );
+    let command = RegistrationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("secret".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.register(command).await,
@@ -198,10 +198,10 @@ async fn register_maps_user_exists_error() {
 #[tokio::test]
 async fn register_maps_internal_save_error() {
     let service = RegistrationService::new(SaveUserInternalErr, HashOk, FixedId);
-    let command = RegistrationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("secret".to_string()).unwrap(),
-    );
+    let command = RegistrationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("secret".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.register(command).await,
@@ -212,10 +212,10 @@ async fn register_maps_internal_save_error() {
 #[tokio::test]
 async fn register_maps_hashing_error() {
     let service = RegistrationService::new(SaveUserOk, HashErr, FixedId);
-    let command = RegistrationCommand::new(
-        Username::try_new("john".to_string()).unwrap(),
-        Secret::try_new("secret".to_string()).unwrap(),
-    );
+    let command = RegistrationCommand {
+        name: Username::try_new("john".to_string()).unwrap(),
+        secret: Secret::try_new("secret".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.register(command).await,

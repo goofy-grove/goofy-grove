@@ -3,7 +3,7 @@ use std::{fmt::Display, sync::Arc};
 use chrono::Utc;
 use gg_core::{
     application::user::GetUserByNameService,
-    domain::prelude::{GetUserByNameQuery, Token, TokenValidatorPort, Username},
+    domain::prelude::{GetUserByNameQuery, Token, TokenData, TokenValidatorPort, Username},
 };
 use keyv::Keyv;
 use sea_orm::DatabaseConnection;
@@ -73,28 +73,29 @@ pub async fn authentication_middleware(
             return Err(AuthenticationError::Unauthorized);
         }
 
-        let token_data = token_data.unwrap();
-        let ttl = (*token_data.expires_at().inner() as i64 - Utc::now().timestamp()).max(0) as u64;
+        let TokenData {
+            uid,
+            username,
+            expires_at,
+        } = token_data.unwrap();
 
-        keyv.set_with_ttl(
-            socket.id.as_str(),
-            token_data.username().inner().to_owned(),
-            ttl,
-        )
-        .await
-        .map_err(|err| {
-            info!(target: "application::socketio", ?err, "Keyv error:");
+        let ttl = (*expires_at.inner() as i64 - Utc::now().timestamp()).max(0) as u64;
 
-            AuthenticationError::Unknown
-        })?;
+        info!(target: "application::socketio", socket_id = ?socket.id, username = ?username, ttl, "Token saved");
 
-        info!(target: "application::socketio", socket_id = ?socket.id, username = ?token_data.username(), ttl, "Token saved");
+        let username_for_cache = username.clone().into_inner();
 
-        let uid = token_data.uid().inner().to_owned();
+        keyv.set_with_ttl(socket.id.as_str(), username_for_cache, ttl)
+            .await
+            .map_err(|err| {
+                info!(target: "application::socketio", ?err, "Keyv error:");
 
-        socket.join(format!("user:{}", uid));
+                AuthenticationError::Unknown
+            })?;
 
-        token_data.username().inner().to_string()
+        socket.join(format!("user:{}", uid.into_inner()));
+
+        username.into_inner()
     };
 
     let username = Username::try_new(username).map_err(|_| AuthenticationError::Unauthorized)?;

@@ -16,8 +16,8 @@ use crate::infra::{
 impl ToJson for User {
     fn to_json(self) -> serde_json::Value {
         json!({
-            "id": self.uid().inner(),
-            "username": self.name().inner(),
+            "id": self.uid.inner(),
+            "username": self.name.inner(),
         })
     }
 }

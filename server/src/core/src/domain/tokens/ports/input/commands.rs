@@ -1,12 +1,13 @@
-use crate::{
-    domain::prelude::{Token, UserAgent, UserId},
-    generate_entity,
-};
+use crate::domain::prelude::*;
 
-generate_entity!(CreateDeviceCommand {
-    token: Token,
-    user_agent: UserAgent,
-    user_id: UserId
-});
+#[derive(Debug, Clone)]
+pub struct CreateDeviceCommand {
+    pub token: Token,
+    pub user_agent: UserAgent,
+    pub user_id: UserId,
+}
 
-generate_entity!(InvalidateDeviceCommand { token: Token });
+#[derive(Debug, Clone)]
+pub struct InvalidateDeviceCommand {
+    pub token: Token,
+}

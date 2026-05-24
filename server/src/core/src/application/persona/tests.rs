@@ -125,12 +125,12 @@ impl EventPublisher for RecordingPublisher {
 }
 
 fn sample_command() -> CreatePersonaCommand {
-    CreatePersonaCommand::new(
-        PersonaName::try_new("Guide".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        PersonaDescription::new("friendly".to_string()),
-        vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
-    )
+    CreatePersonaCommand {
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+        exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+    }
 }
 
 #[tokio::test]
@@ -170,12 +170,12 @@ async fn create_persona_maps_validation_error_for_invalid_generated_id() {
 
 #[tokio::test]
 async fn get_personas_returns_loaded_list() {
-    let persona = Persona::new(
-        PersonaId::try_new("persona-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        PersonaName::try_new("Guide".to_string()).unwrap(),
-        PersonaDescription::new("friendly".to_string()),
-    );
+    let persona = Persona {
+        uid: PersonaId::try_new("persona-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+    };
     let service = GetPersonasService::new(LoadPersonasOk {
         personas: vec![persona],
     });
@@ -202,12 +202,12 @@ async fn get_personas_maps_load_errors() {
 #[tokio::test]
 async fn delete_persona_deletes_and_publishes_event() {
     let hits = Arc::new(Mutex::new(0));
-    let persona = Persona::new(
-        PersonaId::try_new("persona-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        PersonaName::try_new("Guide".to_string()).unwrap(),
-        PersonaDescription::new("friendly".to_string()),
-    );
+    let persona = Persona {
+        uid: PersonaId::try_new("persona-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+    };
     let service = PersonaDeleteService::new(
         LoadPersonaOk { persona },
         DeletePersonaOk,
@@ -216,10 +216,10 @@ async fn delete_persona_deletes_and_publishes_event() {
 
     let result = service
         .delete_persona(
-            DeletePersonaCommand::new(
-                PersonaId::try_new("persona-1".to_string()).unwrap(),
-                vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
-            ),
+            DeletePersonaCommand {
+                id: PersonaId::try_new("persona-1".to_string()).unwrap(),
+                exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;
@@ -239,7 +239,10 @@ async fn delete_persona_returns_not_found_when_load_fails() {
 
     let result = service
         .delete_persona(
-            DeletePersonaCommand::new(PersonaId::try_new("persona-1".to_string()).unwrap(), vec![]),
+            DeletePersonaCommand {
+                id: PersonaId::try_new("persona-1".to_string()).unwrap(),
+                exclude_participants: vec![],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;
@@ -250,12 +253,12 @@ async fn delete_persona_returns_not_found_when_load_fails() {
 #[tokio::test]
 async fn delete_persona_maps_delete_errors() {
     let hits = Arc::new(Mutex::new(0));
-    let persona = Persona::new(
-        PersonaId::try_new("persona-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        PersonaName::try_new("Guide".to_string()).unwrap(),
-        PersonaDescription::new("friendly".to_string()),
-    );
+    let persona = Persona {
+        uid: PersonaId::try_new("persona-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+    };
     let service = PersonaDeleteService::new(
         LoadPersonaOk { persona },
         DeletePersonaErr,
@@ -264,7 +267,10 @@ async fn delete_persona_maps_delete_errors() {
 
     let result = service
         .delete_persona(
-            DeletePersonaCommand::new(PersonaId::try_new("persona-1".to_string()).unwrap(), vec![]),
+            DeletePersonaCommand {
+                id: PersonaId::try_new("persona-1".to_string()).unwrap(),
+                exclude_participants: vec![],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;

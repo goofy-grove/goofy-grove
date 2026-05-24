@@ -97,11 +97,11 @@ impl Clock for FixedClock {
 }
 
 fn create_command() -> CreateDeviceCommand {
-    CreateDeviceCommand::new(
-        Token::try_new("raw-token".to_string()).unwrap(),
-        UserAgent::new("browser".to_string()),
-        UserId::try_new("user-1".to_string()).unwrap(),
-    )
+    CreateDeviceCommand {
+        token: Token::try_new("raw-token".to_string()).unwrap(),
+        user_agent: UserAgent::new("browser".to_string()),
+        user_id: UserId::try_new("user-1".to_string()).unwrap(),
+    }
 }
 
 #[tokio::test]
@@ -144,7 +144,9 @@ async fn create_device_maps_hashing_error() {
 #[tokio::test]
 async fn invalidate_device_success() {
     let service = InvalidateDeviceService::new(InvalidateOk, HashTokenOk);
-    let command = InvalidateDeviceCommand::new(Token::try_new("raw-token".to_string()).unwrap());
+    let command = InvalidateDeviceCommand {
+        token: Token::try_new("raw-token".to_string()).unwrap(),
+    };
 
     assert!(service.invalidate_device(command).await.is_ok());
 }
@@ -152,7 +154,9 @@ async fn invalidate_device_success() {
 #[tokio::test]
 async fn invalidate_device_maps_not_found_error() {
     let service = InvalidateDeviceService::new(InvalidateNotFound, HashTokenOk);
-    let command = InvalidateDeviceCommand::new(Token::try_new("raw-token".to_string()).unwrap());
+    let command = InvalidateDeviceCommand {
+        token: Token::try_new("raw-token".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.invalidate_device(command).await,
@@ -163,7 +167,9 @@ async fn invalidate_device_maps_not_found_error() {
 #[tokio::test]
 async fn invalidate_device_maps_internal_storage_error() {
     let service = InvalidateDeviceService::new(InvalidateInternalErr, HashTokenOk);
-    let command = InvalidateDeviceCommand::new(Token::try_new("raw-token".to_string()).unwrap());
+    let command = InvalidateDeviceCommand {
+        token: Token::try_new("raw-token".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.invalidate_device(command).await,
@@ -174,7 +180,9 @@ async fn invalidate_device_maps_internal_storage_error() {
 #[tokio::test]
 async fn invalidate_device_maps_hashing_error() {
     let service = InvalidateDeviceService::new(InvalidateOk, HashTokenErr);
-    let command = InvalidateDeviceCommand::new(Token::try_new("raw-token".to_string()).unwrap());
+    let command = InvalidateDeviceCommand {
+        token: Token::try_new("raw-token".to_string()).unwrap(),
+    };
 
     assert!(matches!(
         service.invalidate_device(command).await,

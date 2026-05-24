@@ -45,10 +45,10 @@ pub struct PersonaState<
 impl ToJson for Persona {
     fn to_json(self) -> serde_json::Value {
         json!({
-            "uid": self.uid().inner(),
-            "name": self.name().inner(),
-            "description": self.description().inner(),
-            "creator_uid": self.creator_id().inner(),
+            "uid": self.uid.inner(),
+            "name": self.name.inner(),
+            "description": self.description.inner(),
+            "creator_uid": self.creator_id.inner(),
         })
     }
 }
@@ -66,7 +66,7 @@ pub async fn get_all_user_personas(
 ) -> Response {
     let personas_result = persona_state
         .get_personas_query
-        .get_personas(user.uid())
+        .get_personas(&user.uid)
         .await;
 
     match personas_result {
@@ -103,12 +103,12 @@ pub async fn create_persona(
         Err(_) => return response::bad_request(&["Invalid persona name"]),
     };
     let persona_description = PersonaDescription::new(request.description);
-    let command = CreatePersonaCommand::new(
-        persona_name,
-        user.uid().to_owned(),
-        persona_description,
-        exclude_participant.into_iter().collect(),
-    );
+    let command = CreatePersonaCommand {
+        name: persona_name,
+        creator_id: user.uid.clone(),
+        description: persona_description,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match persona_state
         .create_persona_use_case
@@ -170,16 +170,16 @@ pub async fn patch_persona(
         None => None,
     };
     let persona_description = request.description.map(PersonaDescription::new);
-    let command = UpdatePersonaCommand::new(
-        persona_id,
-        persona_name,
-        persona_description,
-        exclude_participant.into_iter().collect(),
-    );
+    let command = UpdatePersonaCommand {
+        id: persona_id,
+        name: persona_name,
+        description: persona_description,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match persona_state
         .update_persona_use_case
-        .update_persona(command, user.uid().to_owned())
+        .update_persona(command, user.uid.clone())
         .await
     {
         Ok(persona) => response::ok(persona),
@@ -209,11 +209,14 @@ pub async fn delete_persona(
         Ok(value) => value,
         Err(_) => return response::bad_request(&["Invalid persona id"]),
     };
-    let command = DeletePersonaCommand::new(persona_id, exclude_participant.into_iter().collect());
+    let command = DeletePersonaCommand {
+        id: persona_id,
+        exclude_participants: exclude_participant.into_iter().collect(),
+    };
 
     match persona_state
         .delete_persona_use_case
-        .delete_persona(command, user.uid().to_owned())
+        .delete_persona(command, user.uid.clone())
         .await
     {
         Ok(()) => response::ok(DeletePersonaResponse),

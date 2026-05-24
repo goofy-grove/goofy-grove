@@ -46,20 +46,27 @@ impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
         &self,
         command: CreatePersonaCommand,
     ) -> Result<Persona, CreatePersonaError> {
-        let persona = Persona::new(
-            PersonaId::try_new(self.uid_generator.generate())
+        let CreatePersonaCommand {
+            name,
+            creator_id,
+            description,
+            exclude_participants,
+        } = command;
+
+        let persona = Persona {
+            uid: PersonaId::try_new(self.uid_generator.generate())
                 .map_err(|err| CreatePersonaError::ValidationError(format!("{err}")))?,
-            command.creator_id().clone(),
-            command.name().clone(),
-            command.description().clone(),
-        );
+            creator_id,
+            name,
+            description,
+        };
 
         match self.save_persona_port.save_persona(persona).await {
             Ok(saved_persona) => {
                 self.event_publisher
                     .publish(PersonaCreatedEvent {
                         persona: saved_persona.clone(),
-                        exclude_participants: command.exclude_participants().clone(),
+                        exclude_participants,
                     })
                     .await;
 
@@ -113,9 +120,16 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
         command: UpdatePersonaCommand,
         user_id: UserId,
     ) -> Result<Persona, UpdatePersonaError> {
+        let UpdatePersonaCommand {
+            id,
+            name,
+            description,
+            exclude_participants,
+        } = command;
+
         let persona = self
             .load_persona_port
-            .load_persona(command.id(), &user_id)
+            .load_persona(&id, &user_id)
             .await
             .map_err(|err| match err {
                 LoadPersonasPortError::NotFound => UpdatePersonaError::NotFound,
@@ -124,18 +138,19 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
                 }
             })?;
 
-        let updated_persona = Persona::new(
-            persona.uid().clone(),
-            persona.creator_id().clone(),
-            command
-                .name()
-                .clone()
-                .unwrap_or_else(|| persona.name().clone()),
-            command
-                .description()
-                .clone()
-                .unwrap_or_else(|| persona.description().clone()),
-        );
+        let Persona {
+            uid,
+            creator_id,
+            name: existing_name,
+            description: existing_description,
+        } = persona;
+
+        let updated_persona = Persona {
+            uid,
+            creator_id,
+            name: name.unwrap_or(existing_name),
+            description: description.unwrap_or(existing_description),
+        };
 
         let saved_persona = self
             .save_persona_port
@@ -146,7 +161,7 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
         self.event_publisher
             .publish(PersonaUpdatedEvent {
                 persona: saved_persona.clone(),
-                exclude_participants: command.exclude_participants().clone(),
+                exclude_participants,
             })
             .await;
 
@@ -162,9 +177,14 @@ impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaU
         command: DeletePersonaCommand,
         user_id: UserId,
     ) -> Result<(), DeletePersonaError> {
+        let DeletePersonaCommand {
+            id,
+            exclude_participants,
+        } = command;
+
         let persona = self
             .load_persona_port
-            .load_persona(command.id(), &user_id)
+            .load_persona(&id, &user_id)
             .await
             .map_err(|err| match err {
                 LoadPersonasPortError::NotFound => DeletePersonaError::NotFound,
@@ -174,7 +194,7 @@ impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaU
             })?;
 
         self.delete_persona_port
-            .delete_persona(command.id(), &user_id)
+            .delete_persona(&id, &user_id)
             .await
             .map_err(|err| match err {
                 DeletePersonaPortError::NotFound => DeletePersonaError::NotFound,
@@ -186,7 +206,7 @@ impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaU
         self.event_publisher
             .publish(PersonaDeletedEvent {
                 persona,
-                exclude_participants: command.exclude_participants().clone(),
+                exclude_participants,
             })
             .await;
 

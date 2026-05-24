@@ -1,20 +1,23 @@
-use crate::{domain::prelude::*, generate_entity};
+use crate::domain::prelude::*;
 
-generate_entity!(CreatePersonaCommand {
-    name: PersonaName,
-    creator_id: UserId,
-    description: PersonaDescription,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct CreatePersonaCommand {
+    pub name: PersonaName,
+    pub creator_id: UserId,
+    pub description: PersonaDescription,
+    pub exclude_participants: Vec<ParticipantId>,
+}
 
-generate_entity!(UpdatePersonaCommand {
-    id: PersonaId,
-    name: Option<PersonaName>,
-    description: Option<PersonaDescription>,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct UpdatePersonaCommand {
+    pub id: PersonaId,
+    pub name: Option<PersonaName>,
+    pub description: Option<PersonaDescription>,
+    pub exclude_participants: Vec<ParticipantId>,
+}
 
-generate_entity!(DeletePersonaCommand {
-    id: PersonaId,
-    exclude_participants: Vec<ParticipantId>
-});
+#[derive(Debug, Clone)]
+pub struct DeletePersonaCommand {
+    pub id: PersonaId,
+    pub exclude_participants: Vec<ParticipantId>,
+}

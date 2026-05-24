@@ -24,14 +24,14 @@ impl LoadUserByNamePort for UserRepository {
             .await;
 
         match result {
-            Ok(Some(user)) => Ok(User::new(
-                UserId::try_new(user.uid)
+            Ok(Some(user)) => Ok(User {
+                uid: UserId::try_new(user.uid)
                     .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-                Username::try_new(user.name)
+                name: Username::try_new(user.name)
                     .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-                UserPassword::try_new(user.password)
+                password: UserPassword::try_new(user.password)
                     .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-            )),
+            }),
             Ok(None) => Err(LoadUserByNamePortError::NotFound),
             Err(err) => Err(LoadUserByNamePortError::InternalError(err.to_string())),
         }
@@ -39,22 +39,28 @@ impl LoadUserByNamePort for UserRepository {
 }
 
 impl SaveUserPort for UserRepository {
-    async fn save_user(&self, user: &User) -> Result<User, SaveUserPortError> {
+    async fn save_user(&self, user: User) -> Result<User, SaveUserPortError> {
+        let User {
+            uid,
+            name,
+            password,
+        } = user;
+
         let new_user = users::ActiveModel {
-            uid: Set(user.uid().inner().to_owned()),
-            name: Set(user.name().inner().to_owned()),
-            password: Set(user.password().inner().to_owned()),
+            uid: Set(uid.into_inner()),
+            name: Set(name.into_inner()),
+            password: Set(password.into_inner()),
         };
 
         match new_user.insert(&self.connection).await {
-            Ok(inserted_user) => Ok(User::new(
-                UserId::try_new(inserted_user.uid)
+            Ok(inserted_user) => Ok(User {
+                uid: UserId::try_new(inserted_user.uid)
                     .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-                Username::try_new(inserted_user.name)
+                name: Username::try_new(inserted_user.name)
                     .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-                UserPassword::try_new(inserted_user.password)
+                password: UserPassword::try_new(inserted_user.password)
                     .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-            )),
+            }),
             Err(err) => Err(SaveUserPortError::InternalError(err.to_string())),
         }
     }

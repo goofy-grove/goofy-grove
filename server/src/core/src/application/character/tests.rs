@@ -131,12 +131,12 @@ impl EventPublisher for RecordingPublisher {
 }
 
 fn sample_command() -> CreateCharacterCommand {
-    CreateCharacterCommand::new(
-        CharacterName::try_new("Knight".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        CharacterDescription::new("brave".to_string()),
-        vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
-    )
+    CreateCharacterCommand {
+        name: CharacterName::try_new("Knight".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        description: CharacterDescription::new("brave".to_string()),
+        exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+    }
 }
 
 #[tokio::test]
@@ -178,12 +178,12 @@ async fn create_character_maps_validation_error_for_invalid_generated_id() {
 
 #[tokio::test]
 async fn get_characters_returns_loaded_list() {
-    let character = Character::new(
-        CharacterId::try_new("character-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        CharacterName::try_new("Knight".to_string()).unwrap(),
-        CharacterDescription::new("brave".to_string()),
-    );
+    let character = Character {
+        uid: CharacterId::try_new("character-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: CharacterName::try_new("Knight".to_string()).unwrap(),
+        description: CharacterDescription::new("brave".to_string()),
+    };
     let service = GetCharactersService::new(LoadCharactersOk {
         characters: vec![character],
     });
@@ -210,12 +210,12 @@ async fn get_characters_maps_load_errors() {
 #[tokio::test]
 async fn update_character_updates_existing_and_publishes_event() {
     let hits = Arc::new(Mutex::new(0));
-    let character = Character::new(
-        CharacterId::try_new("character-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        CharacterName::try_new("Knight".to_string()).unwrap(),
-        CharacterDescription::new("brave".to_string()),
-    );
+    let character = Character {
+        uid: CharacterId::try_new("character-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: CharacterName::try_new("Knight".to_string()).unwrap(),
+        description: CharacterDescription::new("brave".to_string()),
+    };
     let service = CharacterUpdateService::new(
         LoadCharacterOk { character },
         SaveCharacterOk,
@@ -224,18 +224,18 @@ async fn update_character_updates_existing_and_publishes_event() {
 
     let result = service
         .update_character(
-            UpdateCharacterCommand::new(
-                CharacterId::try_new("character-1".to_string()).unwrap(),
-                Some(CharacterName::try_new("Mage".to_string()).unwrap()),
-                None,
-                vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
-            ),
+            UpdateCharacterCommand {
+                id: CharacterId::try_new("character-1".to_string()).unwrap(),
+                name: Some(CharacterName::try_new("Mage".to_string()).unwrap()),
+                description: None,
+                exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await
         .unwrap();
 
-    assert_eq!(result.name().inner(), "Mage");
+    assert_eq!(result.name.inner(), "Mage");
     assert_eq!(*hits.lock().unwrap(), 1);
 }
 
@@ -250,12 +250,12 @@ async fn update_character_returns_not_found_when_load_fails() {
 
     let result = service
         .update_character(
-            UpdateCharacterCommand::new(
-                CharacterId::try_new("character-1".to_string()).unwrap(),
-                Some(CharacterName::try_new("Mage".to_string()).unwrap()),
-                None,
-                vec![],
-            ),
+            UpdateCharacterCommand {
+                id: CharacterId::try_new("character-1".to_string()).unwrap(),
+                name: Some(CharacterName::try_new("Mage".to_string()).unwrap()),
+                description: None,
+                exclude_participants: vec![],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;
@@ -266,12 +266,12 @@ async fn update_character_returns_not_found_when_load_fails() {
 #[tokio::test]
 async fn delete_character_deletes_and_publishes_event() {
     let hits = Arc::new(Mutex::new(0));
-    let character = Character::new(
-        CharacterId::try_new("character-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        CharacterName::try_new("Knight".to_string()).unwrap(),
-        CharacterDescription::new("brave".to_string()),
-    );
+    let character = Character {
+        uid: CharacterId::try_new("character-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: CharacterName::try_new("Knight".to_string()).unwrap(),
+        description: CharacterDescription::new("brave".to_string()),
+    };
     let service = CharacterDeleteService::new(
         LoadCharacterOk { character },
         DeleteCharacterOk,
@@ -280,10 +280,10 @@ async fn delete_character_deletes_and_publishes_event() {
 
     let result = service
         .delete_character(
-            DeleteCharacterCommand::new(
-                CharacterId::try_new("character-1".to_string()).unwrap(),
-                vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
-            ),
+            DeleteCharacterCommand {
+                id: CharacterId::try_new("character-1".to_string()).unwrap(),
+                exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;
@@ -303,10 +303,10 @@ async fn delete_character_returns_not_found_when_load_fails() {
 
     let result = service
         .delete_character(
-            DeleteCharacterCommand::new(
-                CharacterId::try_new("character-1".to_string()).unwrap(),
-                vec![],
-            ),
+            DeleteCharacterCommand {
+                id: CharacterId::try_new("character-1".to_string()).unwrap(),
+                exclude_participants: vec![],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;
@@ -317,12 +317,12 @@ async fn delete_character_returns_not_found_when_load_fails() {
 #[tokio::test]
 async fn delete_character_maps_delete_errors() {
     let hits = Arc::new(Mutex::new(0));
-    let character = Character::new(
-        CharacterId::try_new("character-1".to_string()).unwrap(),
-        UserId::try_new("user-1".to_string()).unwrap(),
-        CharacterName::try_new("Knight".to_string()).unwrap(),
-        CharacterDescription::new("brave".to_string()),
-    );
+    let character = Character {
+        uid: CharacterId::try_new("character-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("user-1".to_string()).unwrap(),
+        name: CharacterName::try_new("Knight".to_string()).unwrap(),
+        description: CharacterDescription::new("brave".to_string()),
+    };
     let service = CharacterDeleteService::new(
         LoadCharacterOk { character },
         DeleteCharacterErr,
@@ -331,10 +331,10 @@ async fn delete_character_maps_delete_errors() {
 
     let result = service
         .delete_character(
-            DeleteCharacterCommand::new(
-                CharacterId::try_new("character-1".to_string()).unwrap(),
-                vec![],
-            ),
+            DeleteCharacterCommand {
+                id: CharacterId::try_new("character-1".to_string()).unwrap(),
+                exclude_participants: vec![],
+            },
             UserId::try_new("user-1".to_string()).unwrap(),
         )
         .await;

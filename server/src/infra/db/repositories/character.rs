@@ -37,12 +37,12 @@ impl LoadCharactersPort for CharacterRepository {
                 .map_err(|err| LoadCharactersPortError::InternalError(err.to_string()))?;
             let description = CharacterDescription::new(character.description);
 
-            result.push(Character::new(
-                character_id,
+            result.push(Character {
+                uid: character_id,
                 creator_id,
-                character_name,
+                name: character_name,
                 description,
-            ));
+            });
         }
 
         Ok(result)
@@ -71,12 +71,12 @@ impl LoadCharacterPort for CharacterRepository {
             .map_err(|err| LoadCharactersPortError::InternalError(err.to_string()))?;
         let description = CharacterDescription::new(character.description);
 
-        Ok(Character::new(
-            character_id,
+        Ok(Character {
+            uid: character_id,
             creator_id,
-            character_name,
+            name: character_name,
             description,
-        ))
+        })
     }
 }
 
@@ -85,11 +85,18 @@ impl SaveCharacterPort for CharacterRepository {
         &self,
         character: Character,
     ) -> Result<Character, SaveCharacterPortError> {
+        let Character {
+            uid,
+            creator_id,
+            name,
+            description,
+        } = character;
+
         let new_character = characters::ActiveModel {
-            uid: Set(character.uid().inner().to_owned()),
-            user_id: Set(character.creator_id().inner().to_owned()),
-            name: Set(character.name().inner().to_owned()),
-            description: Set(character.description().inner().to_owned()),
+            uid: Set(uid.into_inner()),
+            user_id: Set(creator_id.into_inner()),
+            name: Set(name.into_inner()),
+            description: Set(description.into_inner()),
         };
         let request = Characters::insert(new_character)
             .on_conflict(
@@ -105,15 +112,15 @@ impl SaveCharacterPort for CharacterRepository {
             .await;
 
         match request {
-            Ok(inserted_character) => Ok(Character::new(
-                CharacterId::try_new(inserted_character.uid)
+            Ok(inserted_character) => Ok(Character {
+                uid: CharacterId::try_new(inserted_character.uid)
                     .map_err(|err| SaveCharacterPortError::InternalError(err.to_string()))?,
-                UserId::try_new(inserted_character.user_id)
+                creator_id: UserId::try_new(inserted_character.user_id)
                     .map_err(|err| SaveCharacterPortError::InternalError(err.to_string()))?,
-                CharacterName::try_new(inserted_character.name)
+                name: CharacterName::try_new(inserted_character.name)
                     .map_err(|err| SaveCharacterPortError::InternalError(err.to_string()))?,
-                CharacterDescription::new(inserted_character.description),
-            )),
+                description: CharacterDescription::new(inserted_character.description),
+            }),
             Err(err) => Err(SaveCharacterPortError::InternalError(err.to_string())),
         }
     }

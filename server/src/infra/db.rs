@@ -42,7 +42,10 @@ pub async fn create_master_user(connection: DatabaseConnection) {
             RegistrationService::new(user_repository, ArgonPasswordSystem, UuidGenerator);
 
         registration_service
-            .register(RegistrationCommand::new(admin_username, admin_password))
+            .register(RegistrationCommand {
+                name: admin_username,
+                secret: admin_password,
+            })
             .await
             .expect("Failed to create master user");
 

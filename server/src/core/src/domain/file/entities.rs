@@ -1,10 +1,11 @@
-use crate::{domain::prelude::*, generate_entity};
+use crate::domain::prelude::*;
 
-generate_entity!(FileMeta {
-    id: FileId,
-    filename: Filename,
-    owner_id: UserId,
-    original_name: FileOriginalName,
-    content_type: FileContentType,
-    size: FileSize
-});
+#[derive(Debug, Clone)]
+pub struct FileMeta {
+    pub id: FileId,
+    pub filename: Filename,
+    pub owner_id: UserId,
+    pub original_name: FileOriginalName,
+    pub content_type: FileContentType,
+    pub size: FileSize,
+}
