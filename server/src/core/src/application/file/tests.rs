@@ -463,9 +463,10 @@ async fn delete_file_ok() {
     let fid = FileId::try_new("del-1".to_string()).unwrap();
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
-    db.lock()
-        .unwrap()
-        .insert(fid.clone(), fixture_meta("del-1", uid.clone(), scope.clone()));
+    db.lock().unwrap().insert(
+        fid.clone(),
+        fixture_meta("del-1", uid.clone(), scope.clone()),
+    );
 
     let service = DeleteFileService::new(
         DeleteFileFromDb { db: db.clone() },
@@ -475,10 +476,7 @@ async fn delete_file_ok() {
     );
 
     service
-        .delete_file(
-            DeleteFileCommand { id: fid.clone() },
-            uid.clone(),
-        )
+        .delete_file(DeleteFileCommand { id: fid.clone() }, uid.clone())
         .await
         .unwrap();
 
@@ -591,9 +589,7 @@ async fn get_file_returns_bytes() {
         .insert(fid.clone(), vec![10u8, 20, 30]);
 
     let service = GetFileService::new(
-        LoadStorageFromMap {
-            bytes: bytes_map,
-        },
+        LoadStorageFromMap { bytes: bytes_map },
         LoadFileFromMap { db },
         EnsureReadOk,
     );
@@ -616,9 +612,7 @@ async fn get_file_access_denied_after_meta_load() {
     bytes_map.lock().unwrap().insert(fid.clone(), vec![7]);
 
     let service = GetFileService::new(
-        LoadStorageFromMap {
-            bytes: bytes_map,
-        },
+        LoadStorageFromMap { bytes: bytes_map },
         LoadFileFromMap { db },
         EnsureReadDenied,
     );

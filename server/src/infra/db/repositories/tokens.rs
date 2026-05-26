@@ -57,11 +57,9 @@ impl SaveDevicePort for TokensRepository {
             hashed_token: Set(hashed_token.into_inner()),
             user_id: Set(user_id.into_inner()),
             user_agent: Set(user_agent.into_inner()),
-            last_accessed_at: Set(
-                DateTime::from_timestamp(last_accessed_at.into_inner(), 0)
-                    .unwrap()
-                    .naive_utc(),
-            ),
+            last_accessed_at: Set(DateTime::from_timestamp(last_accessed_at.into_inner(), 0)
+                .unwrap()
+                .naive_utc()),
         };
 
         let result = Tokens::insert(token)
@@ -77,8 +75,10 @@ impl SaveDevicePort for TokensRepository {
                 user_id: UserId::try_new(token.user_id)
                     .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
                 user_agent: UserAgent::new(token.user_agent),
-                last_accessed_at: LastAccessedAt::try_new(token.last_accessed_at.and_utc().timestamp())
-                    .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
+                last_accessed_at: LastAccessedAt::try_new(
+                    token.last_accessed_at.and_utc().timestamp(),
+                )
+                .map_err(|err| SaveDevicePortError::InternalError(err.to_string()))?,
             }),
             Err(err) => {
                 if let Some(SqlErr::UniqueConstraintViolation(_)) = err.sql_err() {

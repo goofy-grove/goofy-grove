@@ -16,7 +16,7 @@ impl_new_type!(
     pub struct FileSize(usize);
     error: FileSizeValidationError;
     validate: |size: &usize| {
-        if *size <= 0 {
+        if *size != 0 {
             Err(FileSizeValidationError::NotPositive)
         } else {
             Ok(())

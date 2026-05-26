@@ -1,3 +1,3 @@
 pub mod entities;
-pub mod rules;
 pub mod ports;
+pub mod rules;

@@ -33,7 +33,9 @@ pub fn assert_file_matches_policy(
         });
     }
 
-    if !policy.allowed_content_types.is_empty() && !policy.allowed_content_types.contains(&content_type) {
+    if !policy.allowed_content_types.is_empty()
+        && !policy.allowed_content_types.contains(content_type)
+    {
         return Err(FilePolicyViolationError::InvalidContentType {
             allowed_content_types: policy.allowed_content_types,
             content_type: content_type.clone(),

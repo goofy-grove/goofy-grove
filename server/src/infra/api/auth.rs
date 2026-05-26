@@ -218,7 +218,10 @@ async fn authorize_user(
         Ok(value) => value,
         Err(_) => return response::bad_request(&["Invalid password"]),
     };
-    let command = AuthorizationCommand { name: username, secret };
+    let command = AuthorizationCommand {
+        name: username,
+        secret,
+    };
 
     let auth_result = auth_state.authorization_use_case.authorize(command).await;
 
