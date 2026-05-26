@@ -6,4 +6,7 @@ pub enum FileScope {
         user_id: UserId,
         persona_id: PersonaId,
     },
+    UserAvatar {
+        user_id: UserId,
+    },
 }

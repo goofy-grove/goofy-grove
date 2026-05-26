@@ -2,6 +2,9 @@ use thiserror::Error;
 
 use crate::impl_new_type;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Error)]
 pub enum FilenameValidationError {
     #[error("filename_empty")]

@@ -1,5 +1,8 @@
 use crate::domain::prelude::*;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Debug, Clone)]
 pub struct CreateFileService<
     S: SaveFileToStoragePort,
