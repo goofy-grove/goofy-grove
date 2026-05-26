@@ -4,8 +4,15 @@ use crate::domain::prelude::*;
 pub struct FileMeta {
     pub id: FileId,
     pub filename: Filename,
-    pub owner_id: UserId,
+    pub uploaded_by: UserId,
+    pub scope: FileScope,
     pub original_name: FileOriginalName,
     pub content_type: FileContentType,
     pub size: FileSize,
+}
+
+#[derive(Debug, Clone)]
+pub struct FilePolicy {
+    pub max_size: FileSize,
+    pub allowed_content_types: Vec<FileContentType>,
 }
