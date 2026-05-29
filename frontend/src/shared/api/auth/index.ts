@@ -1,3 +1,3 @@
-import { authorize } from './authorize';
+import { authenticate } from './authenticate';
 
-export const auth = { authorize };
+export const auth = { authenticate };

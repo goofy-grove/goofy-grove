@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::domain::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
-pub enum AuthorizationError {
+pub enum AuthenticationError {
     #[error("Invalid credentials")]
     InvalidCredentials,
 
@@ -11,11 +11,11 @@ pub enum AuthorizationError {
     UserNotFound,
 }
 
-pub trait AuthorizationUseCase {
-    fn authorize(
+pub trait AuthenticationUseCase {
+    fn authenticate(
         &self,
-        command: AuthorizationCommand,
-    ) -> impl Future<Output = Result<User, AuthorizationError>>;
+        command: AuthenticationCommand,
+    ) -> impl Future<Output = Result<User, AuthenticationError>>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]

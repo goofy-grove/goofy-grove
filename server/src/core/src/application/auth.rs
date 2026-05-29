@@ -4,12 +4,12 @@ use crate::domain::prelude::*;
 mod tests;
 
 #[derive(Debug, Clone)]
-pub struct UserAuthorizationService<L: LoadUserByNamePort, C: PasswordVerifierPort> {
+pub struct UserAuthenticationService<L: LoadUserByNamePort, C: PasswordVerifierPort> {
     load_user_port: L,
     compare_password_port: C,
 }
 
-impl<L: LoadUserByNamePort, C: PasswordVerifierPort> UserAuthorizationService<L, C> {
+impl<L: LoadUserByNamePort, C: PasswordVerifierPort> UserAuthenticationService<L, C> {
     pub fn new(load_user_port: L, compare_password_port: C) -> Self {
         Self {
             load_user_port,
@@ -18,17 +18,20 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> UserAuthorizationService<L,
     }
 }
 
-impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
-    for UserAuthorizationService<L, C>
+impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthenticationUseCase
+    for UserAuthenticationService<L, C>
 {
-    async fn authorize(&self, command: AuthorizationCommand) -> Result<User, AuthorizationError> {
-        let AuthorizationCommand { name, secret } = command;
+    async fn authenticate(
+        &self,
+        command: AuthenticationCommand,
+    ) -> Result<User, AuthenticationError> {
+        let AuthenticationCommand { name, secret } = command;
 
         let user = self
             .load_user_port
             .load_user_by_name(&name)
             .await
-            .or(Err(AuthorizationError::UserNotFound))?;
+            .or(Err(AuthenticationError::UserNotFound))?;
 
         self.compare_password_port
             .verify(
@@ -38,7 +41,7 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthorizationUseCase
             )
             .await
             .map(|_| user)
-            .or(Err(AuthorizationError::InvalidCredentials))
+            .or(Err(AuthenticationError::InvalidCredentials))
     }
 }
 

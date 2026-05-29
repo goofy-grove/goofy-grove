@@ -11,7 +11,7 @@ use axum::{
 use axum_extra::extract::CookieJar;
 use gg_core::{
     application::{
-        auth::UserAuthorizationService,
+        auth::UserAuthenticationService,
         tokens::{CreateDeviceService, InvalidateDeviceService},
         user::GetUserByNameService,
     },
@@ -36,8 +36,8 @@ use crate::infra::{
 };
 
 #[derive(Debug, Clone)]
-struct AuthorizationState<
-    A: AuthorizationUseCase,
+struct LoginAuthenticationState<
+    A: AuthenticationUseCase,
     T: TokenGeneratorPort,
     T1: TokenGeneratorPort,
     C: CreateDeviceUseCase,
@@ -45,7 +45,7 @@ struct AuthorizationState<
     I: InvalidateDeviceUseCase,
     U: GetUserByNameQuery,
 > {
-    authorization_use_case: A,
+    authentication_use_case: A,
     access_token_generator: T,
     refresh_token_generator: T1,
     create_device_use_case: C,
@@ -61,7 +61,7 @@ pub struct AuthenticationState<V: TokenValidatorPort, L: LoadUserByNamePort> {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-struct AuthorizeUserRequest {
+struct AuthenticateUserRequest {
     username: String,
     password: String,
 }
@@ -92,8 +92,8 @@ impl ToJson for TokenResponse {
     }
 }
 async fn generate_tokens(
-    auth_state: AuthorizationState<
-        impl AuthorizationUseCase,
+    auth_state: LoginAuthenticationState<
+        impl AuthenticationUseCase,
         impl TokenGeneratorPort,
         impl TokenGeneratorPort,
         impl CreateDeviceUseCase,
@@ -139,8 +139,8 @@ async fn generate_tokens(
 
 async fn refresh_token(
     State(auth_state): State<
-        AuthorizationState<
-            impl AuthorizationUseCase,
+        LoginAuthenticationState<
+            impl AuthenticationUseCase,
             impl TokenGeneratorPort,
             impl TokenGeneratorPort,
             impl CreateDeviceUseCase,
@@ -196,10 +196,10 @@ async fn refresh_token(
     Ok(response)
 }
 
-async fn authorize_user(
+async fn authenticate_user(
     State(auth_state): State<
-        AuthorizationState<
-            impl AuthorizationUseCase,
+        LoginAuthenticationState<
+            impl AuthenticationUseCase,
             impl TokenGeneratorPort,
             impl TokenGeneratorPort,
             impl CreateDeviceUseCase,
@@ -208,7 +208,7 @@ async fn authorize_user(
             impl GetUserByNameQuery,
         >,
     >,
-    Json(payload): Json<AuthorizeUserRequest>,
+    Json(payload): Json<AuthenticateUserRequest>,
 ) -> Response {
     let username = match Username::try_new(payload.username) {
         Ok(value) => value,
@@ -218,15 +218,15 @@ async fn authorize_user(
         Ok(value) => value,
         Err(_) => return response::bad_request(&["Invalid password"]),
     };
-    let command = AuthorizationCommand {
+    let command = AuthenticationCommand {
         name: username,
         secret,
     };
 
-    let auth_result = auth_state.authorization_use_case.authorize(command).await;
+    let auth_result = auth_state.authentication_use_case.authenticate(command).await;
 
     if auth_result.is_err() {
-        return response::auth_error(&["Failed to authorize user"]);
+        return response::auth_error(&["Failed to authenticate user"]);
     }
 
     let user = auth_result.unwrap();
@@ -268,7 +268,7 @@ async fn authentication_layer(
         return Err(response::auth_error(&["Token not found"]));
     };
 
-    if let Some(current_user) = autheticate_current_user(auth_header, auth_state).await {
+    if let Some(current_user) = authenticate_current_user(auth_header, auth_state).await {
         req.extensions_mut().insert(current_user);
 
         Ok(next.run(req).await)
@@ -277,7 +277,7 @@ async fn authentication_layer(
     }
 }
 
-async fn autheticate_current_user(
+async fn authenticate_current_user(
     auth_header: &str,
     auth_state: AuthenticationState<impl TokenValidatorPort, impl LoadUserByNamePort>,
 ) -> Option<User> {
@@ -328,8 +328,8 @@ where
 }
 
 pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -> Router {
-    let app_state = AuthorizationState {
-        authorization_use_case: UserAuthorizationService::new(
+    let app_state = LoginAuthenticationState {
+        authentication_use_case: UserAuthenticationService::new(
             UserRepository::new(connection.clone()),
             ArgonPasswordSystem,
         ),
@@ -350,7 +350,7 @@ pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -
     };
 
     Router::new()
-        .route("/login", post(authorize_user))
+        .route("/login", post(authenticate_user))
         .route("/refresh", post(refresh_token))
         .with_state(app_state)
 }

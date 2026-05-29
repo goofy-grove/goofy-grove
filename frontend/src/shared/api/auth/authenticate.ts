@@ -4,7 +4,7 @@ import { withValidation } from '@shared/api/common';
 import { updateAuthState } from './refresh';
 import { AuthResponseSchema } from './schema';
 
-export const authorize = async (username: string, password: string) => {
+export const authenticate = async (username: string, password: string) => {
   const auth = withValidation(
     AuthResponseSchema,
     async (username: string, password: string) => {

@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logoutUser = useAuthStore((state) => state.logout);
 
   const login = async (username: string, password: string) => {
-    await api.auth.authorize(username, password);
+    await api.auth.authenticate(username, password);
     const currentUser = await api.users.getMe();
 
     if (currentUser.error) {

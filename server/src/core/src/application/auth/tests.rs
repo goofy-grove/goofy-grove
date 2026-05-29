@@ -108,65 +108,65 @@ fn sample_user() -> User {
 }
 
 #[tokio::test]
-async fn authorize_returns_user_for_valid_credentials() {
-    let service = UserAuthorizationService::new(
+async fn authenticate_returns_user_for_valid_credentials() {
+    let service = UserAuthenticationService::new(
         LoadUserOk {
             user: sample_user(),
         },
         VerifyOk,
     );
-    let command = AuthorizationCommand {
+    let command = AuthenticationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("plain".to_string()).unwrap(),
     };
 
-    assert!(service.authorize(command).await.is_ok());
+    assert!(service.authenticate(command).await.is_ok());
 }
 
 #[tokio::test]
-async fn authorize_returns_not_found_when_user_missing() {
-    let service = UserAuthorizationService::new(LoadUserNotFound, VerifyOk);
-    let command = AuthorizationCommand {
+async fn authenticate_returns_not_found_when_user_missing() {
+    let service = UserAuthenticationService::new(LoadUserNotFound, VerifyOk);
+    let command = AuthenticationCommand {
         name: Username::try_new("ghost".to_string()).unwrap(),
         secret: Secret::try_new("plain".to_string()).unwrap(),
     };
 
     assert!(matches!(
-        service.authorize(command).await,
-        Err(AuthorizationError::UserNotFound)
+        service.authenticate(command).await,
+        Err(AuthenticationError::UserNotFound)
     ));
 }
 
 #[tokio::test]
-async fn authorize_maps_load_user_internal_error_to_user_not_found() {
-    let service = UserAuthorizationService::new(LoadUserInternalErr, VerifyOk);
-    let command = AuthorizationCommand {
+async fn authenticate_maps_load_user_internal_error_to_user_not_found() {
+    let service = UserAuthenticationService::new(LoadUserInternalErr, VerifyOk);
+    let command = AuthenticationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("plain".to_string()).unwrap(),
     };
 
     assert!(matches!(
-        service.authorize(command).await,
-        Err(AuthorizationError::UserNotFound)
+        service.authenticate(command).await,
+        Err(AuthenticationError::UserNotFound)
     ));
 }
 
 #[tokio::test]
-async fn authorize_returns_invalid_credentials_when_password_mismatch() {
-    let service = UserAuthorizationService::new(
+async fn authenticate_returns_invalid_credentials_when_password_mismatch() {
+    let service = UserAuthenticationService::new(
         LoadUserOk {
             user: sample_user(),
         },
         VerifyFail,
     );
-    let command = AuthorizationCommand {
+    let command = AuthenticationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("wrong".to_string()).unwrap(),
     };
 
     assert!(matches!(
-        service.authorize(command).await,
-        Err(AuthorizationError::InvalidCredentials)
+        service.authenticate(command).await,
+        Err(AuthenticationError::InvalidCredentials)
     ));
 }
 

@@ -214,14 +214,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthorizationRequest'
+              $ref: '#/components/schemas/AuthenticationRequest'
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthorizationResponse'
+                $ref: '#/components/schemas/AuthenticationResponse'
 
         401:
           $ref: '#/components/responses/UnauthorizedError'
@@ -240,7 +240,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthorizationResponse'
+                $ref: '#/components/schemas/AuthenticationResponse'
 
         401:
           $ref: '#/components/responses/UnauthorizedError'
@@ -354,7 +354,7 @@ components:
         description:
           type: string
           description: Character Description
-    AuthorizationRequest:
+    AuthenticationRequest:
       type: object
       required: [username, password]
       properties:
@@ -391,7 +391,7 @@ components:
               example: ['Failed to authenticate user']
             code:
               $ref: '#/components/schemas/ErrorCodes'
-    AuthorizationResponse:
+    AuthenticationResponse:
       type: object
       properties:
         error:

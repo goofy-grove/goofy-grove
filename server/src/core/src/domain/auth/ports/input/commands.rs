@@ -1,7 +1,7 @@
 use crate::domain::prelude::*;
 
 #[derive(Debug, Clone)]
-pub struct AuthorizationCommand {
+pub struct AuthenticationCommand {
     pub name: Username,
     pub secret: Secret,
 }
