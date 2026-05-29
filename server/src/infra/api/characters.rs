@@ -9,7 +9,8 @@ use axum::{
 use gg_core::{
     application::character::{
         CharacterCreateService, CharacterDeleteService, CharacterUpdateService,
-        GetCharactersService,
+        CreateCharacterPrerequisites, DeleteCharacterPrerequisites, GetCharactersService,
+        UpdateCharacterPrerequisites,
     },
     domain::prelude::*,
 };
@@ -243,21 +244,21 @@ pub fn create_character_router(
         get_characters_query: GetCharactersService::new(CharacterRepository::new(
             connection.clone(),
         )),
-        create_character_use_case: CharacterCreateService::new(
-            CharacterRepository::new(connection.clone()),
-            UuidGenerator,
-            event_bus.clone(),
-        ),
-        update_character_use_case: CharacterUpdateService::new(
-            CharacterRepository::new(connection.clone()),
-            CharacterRepository::new(connection.clone()),
-            event_bus.clone(),
-        ),
-        delete_character_use_case: CharacterDeleteService::new(
-            CharacterRepository::new(connection.clone()),
-            CharacterRepository::new(connection.clone()),
-            event_bus.clone(),
-        ),
+        create_character_use_case: CharacterCreateService::new(CreateCharacterPrerequisites {
+            save_character_port: CharacterRepository::new(connection.clone()),
+            uid_generator: UuidGenerator,
+            event_publisher: event_bus.clone(),
+        }),
+        update_character_use_case: CharacterUpdateService::new(UpdateCharacterPrerequisites {
+            load_character_port: CharacterRepository::new(connection.clone()),
+            save_character_port: CharacterRepository::new(connection.clone()),
+            event_publisher: event_bus.clone(),
+        }),
+        delete_character_use_case: CharacterDeleteService::new(DeleteCharacterPrerequisites {
+            load_character_port: CharacterRepository::new(connection.clone()),
+            delete_character_port: CharacterRepository::new(connection.clone()),
+            event_publisher: event_bus.clone(),
+        }),
     };
 
     Router::new()

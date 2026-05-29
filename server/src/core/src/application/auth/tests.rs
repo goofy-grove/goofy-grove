@@ -172,7 +172,11 @@ async fn authenticate_returns_invalid_credentials_when_password_mismatch() {
 
 #[tokio::test]
 async fn register_creates_user_on_success() {
-    let service = RegistrationService::new(SaveUserOk, HashOk, FixedId);
+    let service = RegistrationService::new(RegistrationPrerequisites {
+        save_user_port: SaveUserOk,
+        hash_password_port: HashOk,
+        id_generator: FixedId,
+    });
     let command = RegistrationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("secret".to_string()).unwrap(),
@@ -183,7 +187,11 @@ async fn register_creates_user_on_success() {
 
 #[tokio::test]
 async fn register_maps_user_exists_error() {
-    let service = RegistrationService::new(SaveUserExists, HashOk, FixedId);
+    let service = RegistrationService::new(RegistrationPrerequisites {
+        save_user_port: SaveUserExists,
+        hash_password_port: HashOk,
+        id_generator: FixedId,
+    });
     let command = RegistrationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("secret".to_string()).unwrap(),
@@ -197,7 +205,11 @@ async fn register_maps_user_exists_error() {
 
 #[tokio::test]
 async fn register_maps_internal_save_error() {
-    let service = RegistrationService::new(SaveUserInternalErr, HashOk, FixedId);
+    let service = RegistrationService::new(RegistrationPrerequisites {
+        save_user_port: SaveUserInternalErr,
+        hash_password_port: HashOk,
+        id_generator: FixedId,
+    });
     let command = RegistrationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("secret".to_string()).unwrap(),
@@ -211,7 +223,11 @@ async fn register_maps_internal_save_error() {
 
 #[tokio::test]
 async fn register_maps_hashing_error() {
-    let service = RegistrationService::new(SaveUserOk, HashErr, FixedId);
+    let service = RegistrationService::new(RegistrationPrerequisites {
+        save_user_port: SaveUserOk,
+        hash_password_port: HashErr,
+        id_generator: FixedId,
+    });
     let command = RegistrationCommand {
         name: Username::try_new("john".to_string()).unwrap(),
         secret: Secret::try_new("secret".to_string()).unwrap(),

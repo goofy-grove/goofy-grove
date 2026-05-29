@@ -4,6 +4,18 @@ use crate::domain::prelude::*;
 mod tests;
 
 #[derive(Debug, Clone)]
+pub struct CreateFilePrerequisites<S, S1, I, R, L, P, D, C> {
+    pub id_generator_port: I,
+    pub save_file_to_storage_port: S,
+    pub save_file_port: S1,
+    pub resolve_filename_port: R,
+    pub load_file_create_access_context_port: L,
+    pub load_scope_policy_port: P,
+    pub delete_file_from_storage_port: D,
+    pub clock: C,
+}
+
+#[derive(Debug, Clone)]
 pub struct CreateFileService<
     S: SaveFileToStoragePort,
     S1: SaveFilePort,
@@ -35,17 +47,19 @@ impl<
     C: Clock,
 > CreateFileService<S, S1, I, R, L, P, D, C>
 {
-    pub fn new(
-        id_generator_port: I,
-        save_file_to_storage_port: S,
-        save_file_port: S1,
-        resolve_filename_port: R,
-        load_file_create_access_context_port: L,
-        load_scope_policy_port: P,
-        delete_file_from_storage_port: D,
-        clock: C,
-    ) -> CreateFileService<S, S1, I, R, L, P, D, C> {
-        CreateFileService {
+    pub fn new(prerequisites: CreateFilePrerequisites<S, S1, I, R, L, P, D, C>) -> Self {
+        let CreateFilePrerequisites {
+            id_generator_port,
+            save_file_to_storage_port,
+            save_file_port,
+            resolve_filename_port,
+            load_file_create_access_context_port,
+            load_scope_policy_port,
+            delete_file_from_storage_port,
+            clock,
+        } = prerequisites;
+
+        Self {
             id_generator_port,
             save_file_to_storage_port,
             save_file_port,
@@ -165,6 +179,14 @@ impl<
 }
 
 #[derive(Debug, Clone)]
+pub struct DeleteFilePrerequisites<D, D1, L, L1> {
+    pub delete_file_port: D1,
+    pub delete_file_from_storage_port: D,
+    pub load_file_port: L,
+    pub load_file_meta_access_context_port: L1,
+}
+
+#[derive(Debug, Clone)]
 pub struct DeleteFileService<
     D: DeleteFileFromStoragePort,
     D1: DeleteFilePort,
@@ -184,19 +206,28 @@ impl<
     L1: LoadFileMetaAccessContextPort,
 > DeleteFileService<D, D1, L, L1>
 {
-    pub fn new(
-        delete_file_port: D1,
-        delete_file_from_storage_port: D,
-        load_file_port: L,
-        load_file_meta_access_context_port: L1,
-    ) -> DeleteFileService<D, D1, L, L1> {
-        DeleteFileService {
+    pub fn new(prerequisites: DeleteFilePrerequisites<D, D1, L, L1>) -> Self {
+        let DeleteFilePrerequisites {
+            delete_file_port,
+            delete_file_from_storage_port,
+            load_file_port,
+            load_file_meta_access_context_port,
+        } = prerequisites;
+
+        Self {
             delete_file_port,
             delete_file_from_storage_port,
             load_file_port,
             load_file_meta_access_context_port,
         }
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct GetFilePrerequisites<L, L1, L2> {
+    pub load_file_from_storage_port: L,
+    pub load_file_port: L1,
+    pub load_file_meta_access_context_port: L2,
 }
 
 #[derive(Debug, Clone)]
@@ -213,12 +244,14 @@ pub struct GetFileService<
 impl<L: LoadFileFromStoragePort, L1: LoadFilePort, L2: LoadFileMetaAccessContextPort>
     GetFileService<L, L1, L2>
 {
-    pub fn new(
-        load_file_from_storage_port: L,
-        load_file_port: L1,
-        load_file_meta_access_context_port: L2,
-    ) -> GetFileService<L, L1, L2> {
-        GetFileService {
+    pub fn new(prerequisites: GetFilePrerequisites<L, L1, L2>) -> Self {
+        let GetFilePrerequisites {
+            load_file_from_storage_port,
+            load_file_port,
+            load_file_meta_access_context_port,
+        } = prerequisites;
+
+        Self {
             load_file_from_storage_port,
             load_file_port,
             load_file_meta_access_context_port,

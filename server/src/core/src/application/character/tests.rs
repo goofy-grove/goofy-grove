@@ -142,11 +142,11 @@ fn sample_command() -> CreateCharacterCommand {
 #[tokio::test]
 async fn create_character_saves_and_publishes_event() {
     let hits = Arc::new(Mutex::new(0));
-    let service = CharacterCreateService::new(
-        SaveCharacterOk,
-        FixedId,
-        RecordingPublisher { hits: hits.clone() },
-    );
+    let service = CharacterCreateService::new(CreateCharacterPrerequisites {
+        save_character_port: SaveCharacterOk,
+        uid_generator: FixedId,
+        event_publisher: RecordingPublisher { hits: hits.clone() },
+    });
 
     assert!(service.create_character(sample_command()).await.is_ok());
     assert_eq!(*hits.lock().unwrap(), 1);
@@ -155,8 +155,11 @@ async fn create_character_saves_and_publishes_event() {
 #[tokio::test]
 async fn create_character_maps_storage_error() {
     let hits = Arc::new(Mutex::new(0));
-    let service =
-        CharacterCreateService::new(SaveCharacterErr, FixedId, RecordingPublisher { hits });
+    let service = CharacterCreateService::new(CreateCharacterPrerequisites {
+        save_character_port: SaveCharacterErr,
+        uid_generator: FixedId,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     assert!(matches!(
         service.create_character(sample_command()).await,
@@ -167,8 +170,11 @@ async fn create_character_maps_storage_error() {
 #[tokio::test]
 async fn create_character_maps_validation_error_for_invalid_generated_id() {
     let hits = Arc::new(Mutex::new(0));
-    let service =
-        CharacterCreateService::new(SaveCharacterOk, InvalidId, RecordingPublisher { hits });
+    let service = CharacterCreateService::new(CreateCharacterPrerequisites {
+        save_character_port: SaveCharacterOk,
+        uid_generator: InvalidId,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     assert!(matches!(
         service.create_character(sample_command()).await,
@@ -216,11 +222,11 @@ async fn update_character_updates_existing_and_publishes_event() {
         name: CharacterName::try_new("Knight".to_string()).unwrap(),
         description: CharacterDescription::new("brave".to_string()),
     };
-    let service = CharacterUpdateService::new(
-        LoadCharacterOk { character },
-        SaveCharacterOk,
-        RecordingPublisher { hits: hits.clone() },
-    );
+    let service = CharacterUpdateService::new(UpdateCharacterPrerequisites {
+        load_character_port: LoadCharacterOk { character },
+        save_character_port: SaveCharacterOk,
+        event_publisher: RecordingPublisher { hits: hits.clone() },
+    });
 
     let result = service
         .update_character(
@@ -242,11 +248,11 @@ async fn update_character_updates_existing_and_publishes_event() {
 #[tokio::test]
 async fn update_character_returns_not_found_when_load_fails() {
     let hits = Arc::new(Mutex::new(0));
-    let service = CharacterUpdateService::new(
-        LoadCharacterNotFound,
-        SaveCharacterOk,
-        RecordingPublisher { hits },
-    );
+    let service = CharacterUpdateService::new(UpdateCharacterPrerequisites {
+        load_character_port: LoadCharacterNotFound,
+        save_character_port: SaveCharacterOk,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .update_character(
@@ -272,11 +278,11 @@ async fn delete_character_deletes_and_publishes_event() {
         name: CharacterName::try_new("Knight".to_string()).unwrap(),
         description: CharacterDescription::new("brave".to_string()),
     };
-    let service = CharacterDeleteService::new(
-        LoadCharacterOk { character },
-        DeleteCharacterOk,
-        RecordingPublisher { hits: hits.clone() },
-    );
+    let service = CharacterDeleteService::new(DeleteCharacterPrerequisites {
+        load_character_port: LoadCharacterOk { character },
+        delete_character_port: DeleteCharacterOk,
+        event_publisher: RecordingPublisher { hits: hits.clone() },
+    });
 
     let result = service
         .delete_character(
@@ -295,11 +301,11 @@ async fn delete_character_deletes_and_publishes_event() {
 #[tokio::test]
 async fn delete_character_returns_not_found_when_load_fails() {
     let hits = Arc::new(Mutex::new(0));
-    let service = CharacterDeleteService::new(
-        LoadCharacterNotFound,
-        DeleteCharacterOk,
-        RecordingPublisher { hits },
-    );
+    let service = CharacterDeleteService::new(DeleteCharacterPrerequisites {
+        load_character_port: LoadCharacterNotFound,
+        delete_character_port: DeleteCharacterOk,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .delete_character(
@@ -323,11 +329,11 @@ async fn delete_character_maps_delete_errors() {
         name: CharacterName::try_new("Knight".to_string()).unwrap(),
         description: CharacterDescription::new("brave".to_string()),
     };
-    let service = CharacterDeleteService::new(
-        LoadCharacterOk { character },
-        DeleteCharacterErr,
-        RecordingPublisher { hits },
-    );
+    let service = CharacterDeleteService::new(DeleteCharacterPrerequisites {
+        load_character_port: LoadCharacterOk { character },
+        delete_character_port: DeleteCharacterErr,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .delete_character(

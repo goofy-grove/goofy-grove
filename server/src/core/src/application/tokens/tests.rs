@@ -106,14 +106,24 @@ fn create_command() -> CreateDeviceCommand {
 
 #[tokio::test]
 async fn create_device_successfully_persists_token() {
-    let service = CreateDeviceService::new(SaveDeviceOk, HashTokenOk, FixedId, FixedClock);
+    let service = CreateDeviceService::new(CreateDevicePrerequisites {
+        create_device_port: SaveDeviceOk,
+        token_hasher_port: HashTokenOk,
+        id_generator: FixedId,
+        clock: FixedClock,
+    });
 
     assert!(service.create_device(create_command()).await.is_ok());
 }
 
 #[tokio::test]
 async fn create_device_maps_duplicate_error() {
-    let service = CreateDeviceService::new(SaveDeviceExists, HashTokenOk, FixedId, FixedClock);
+    let service = CreateDeviceService::new(CreateDevicePrerequisites {
+        create_device_port: SaveDeviceExists,
+        token_hasher_port: HashTokenOk,
+        id_generator: FixedId,
+        clock: FixedClock,
+    });
 
     assert!(matches!(
         service.create_device(create_command()).await,
@@ -123,7 +133,12 @@ async fn create_device_maps_duplicate_error() {
 
 #[tokio::test]
 async fn create_device_maps_internal_storage_error() {
-    let service = CreateDeviceService::new(SaveDeviceInternalErr, HashTokenOk, FixedId, FixedClock);
+    let service = CreateDeviceService::new(CreateDevicePrerequisites {
+        create_device_port: SaveDeviceInternalErr,
+        token_hasher_port: HashTokenOk,
+        id_generator: FixedId,
+        clock: FixedClock,
+    });
 
     assert!(matches!(
         service.create_device(create_command()).await,
@@ -133,7 +148,12 @@ async fn create_device_maps_internal_storage_error() {
 
 #[tokio::test]
 async fn create_device_maps_hashing_error() {
-    let service = CreateDeviceService::new(SaveDeviceOk, HashTokenErr, FixedId, FixedClock);
+    let service = CreateDeviceService::new(CreateDevicePrerequisites {
+        create_device_port: SaveDeviceOk,
+        token_hasher_port: HashTokenErr,
+        id_generator: FixedId,
+        clock: FixedClock,
+    });
 
     assert!(matches!(
         service.create_device(create_command()).await,

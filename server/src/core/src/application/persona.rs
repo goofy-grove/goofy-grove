@@ -4,6 +4,13 @@ use crate::domain::prelude::*;
 mod tests;
 
 #[derive(Debug, Clone)]
+pub struct CreatePersonaPrerequisites<S, U, E> {
+    pub save_persona_port: S,
+    pub uid_generator: U,
+    pub event_publisher: E,
+}
+
+#[derive(Debug, Clone)]
 pub struct PersonaCreateService<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> {
     save_persona_port: S,
     uid_generator: U,
@@ -13,6 +20,20 @@ pub struct PersonaCreateService<S: SavePersonaPort, U: IdGenerator, E: EventPubl
 #[derive(Debug, Clone)]
 pub struct GetPersonasService<L: LoadPersonasPort> {
     load_personas_port: L,
+}
+
+#[derive(Debug, Clone)]
+pub struct UpdatePersonaPrerequisites<L, S, E> {
+    pub load_persona_port: L,
+    pub save_persona_port: S,
+    pub event_publisher: E,
+}
+
+#[derive(Debug, Clone)]
+pub struct DeletePersonaPrerequisites<L, D, E> {
+    pub load_persona_port: L,
+    pub delete_persona_port: D,
+    pub event_publisher: E,
 }
 
 #[derive(Debug, Clone)]
@@ -30,7 +51,13 @@ pub struct PersonaDeleteService<L: LoadPersonaPort, D: DeletePersonaPort, E: Eve
 }
 
 impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> PersonaCreateService<S, U, E> {
-    pub fn new(save_persona_port: S, uid_generator: U, event_publisher: E) -> Self {
+    pub fn new(prerequisites: CreatePersonaPrerequisites<S, U, E>) -> Self {
+        let CreatePersonaPrerequisites {
+            save_persona_port,
+            uid_generator,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             save_persona_port,
             uid_generator,
@@ -84,7 +111,13 @@ impl<L: LoadPersonasPort> GetPersonasService<L> {
 }
 
 impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> PersonaUpdateService<L, S, E> {
-    pub fn new(load_persona_port: L, save_persona_port: S, event_publisher: E) -> Self {
+    pub fn new(prerequisites: UpdatePersonaPrerequisites<L, S, E>) -> Self {
+        let UpdatePersonaPrerequisites {
+            load_persona_port,
+            save_persona_port,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             load_persona_port,
             save_persona_port,
@@ -94,7 +127,13 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> PersonaUpdateSer
 }
 
 impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> PersonaDeleteService<L, D, E> {
-    pub fn new(load_persona_port: L, delete_persona_port: D, event_publisher: E) -> Self {
+    pub fn new(prerequisites: DeletePersonaPrerequisites<L, D, E>) -> Self {
+        let DeletePersonaPrerequisites {
+            load_persona_port,
+            delete_persona_port,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             load_persona_port,
             delete_persona_port,

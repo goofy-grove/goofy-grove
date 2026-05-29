@@ -8,7 +8,9 @@ use axum::{
 };
 use gg_core::{
     application::persona::{
-        GetPersonasService, PersonaCreateService, PersonaDeleteService, PersonaUpdateService,
+        CreatePersonaPrerequisites, DeletePersonaPrerequisites, GetPersonasService,
+        PersonaCreateService, PersonaDeleteService, PersonaUpdateService,
+        UpdatePersonaPrerequisites,
     },
     domain::prelude::*,
 };
@@ -235,21 +237,21 @@ pub fn create_persona_router(
 ) -> Router {
     let personas_state = PersonaState {
         get_personas_query: GetPersonasService::new(PersonaRepository::new(connection.clone())),
-        create_persona_use_case: PersonaCreateService::new(
-            PersonaRepository::new(connection.clone()),
-            UuidGenerator,
-            event_bus.clone(),
-        ),
-        update_persona_use_case: PersonaUpdateService::new(
-            PersonaRepository::new(connection.clone()),
-            PersonaRepository::new(connection.clone()),
-            event_bus.clone(),
-        ),
-        delete_persona_use_case: PersonaDeleteService::new(
-            PersonaRepository::new(connection.clone()),
-            PersonaRepository::new(connection.clone()),
-            event_bus.clone(),
-        ),
+        create_persona_use_case: PersonaCreateService::new(CreatePersonaPrerequisites {
+            save_persona_port: PersonaRepository::new(connection.clone()),
+            uid_generator: UuidGenerator,
+            event_publisher: event_bus.clone(),
+        }),
+        update_persona_use_case: PersonaUpdateService::new(UpdatePersonaPrerequisites {
+            load_persona_port: PersonaRepository::new(connection.clone()),
+            save_persona_port: PersonaRepository::new(connection.clone()),
+            event_publisher: event_bus.clone(),
+        }),
+        delete_persona_use_case: PersonaDeleteService::new(DeletePersonaPrerequisites {
+            load_persona_port: PersonaRepository::new(connection.clone()),
+            delete_persona_port: PersonaRepository::new(connection.clone()),
+            event_publisher: event_bus.clone(),
+        }),
     };
 
     Router::new()

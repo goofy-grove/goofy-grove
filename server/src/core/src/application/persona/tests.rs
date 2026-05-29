@@ -136,11 +136,11 @@ fn sample_command() -> CreatePersonaCommand {
 #[tokio::test]
 async fn create_persona_saves_and_publishes_event() {
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaCreateService::new(
-        SavePersonaOk,
-        FixedId,
-        RecordingPublisher { hits: hits.clone() },
-    );
+    let service = PersonaCreateService::new(CreatePersonaPrerequisites {
+        save_persona_port: SavePersonaOk,
+        uid_generator: FixedId,
+        event_publisher: RecordingPublisher { hits: hits.clone() },
+    });
 
     assert!(service.create_persona(sample_command()).await.is_ok());
     assert_eq!(*hits.lock().unwrap(), 1);
@@ -149,7 +149,11 @@ async fn create_persona_saves_and_publishes_event() {
 #[tokio::test]
 async fn create_persona_maps_storage_error() {
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaCreateService::new(SavePersonaErr, FixedId, RecordingPublisher { hits });
+    let service = PersonaCreateService::new(CreatePersonaPrerequisites {
+        save_persona_port: SavePersonaErr,
+        uid_generator: FixedId,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     assert!(matches!(
         service.create_persona(sample_command()).await,
@@ -160,7 +164,11 @@ async fn create_persona_maps_storage_error() {
 #[tokio::test]
 async fn create_persona_maps_validation_error_for_invalid_generated_id() {
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaCreateService::new(SavePersonaOk, InvalidId, RecordingPublisher { hits });
+    let service = PersonaCreateService::new(CreatePersonaPrerequisites {
+        save_persona_port: SavePersonaOk,
+        uid_generator: InvalidId,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     assert!(matches!(
         service.create_persona(sample_command()).await,
@@ -208,11 +216,11 @@ async fn delete_persona_deletes_and_publishes_event() {
         name: PersonaName::try_new("Guide".to_string()).unwrap(),
         description: PersonaDescription::new("friendly".to_string()),
     };
-    let service = PersonaDeleteService::new(
-        LoadPersonaOk { persona },
-        DeletePersonaOk,
-        RecordingPublisher { hits: hits.clone() },
-    );
+    let service = PersonaDeleteService::new(DeletePersonaPrerequisites {
+        load_persona_port: LoadPersonaOk { persona },
+        delete_persona_port: DeletePersonaOk,
+        event_publisher: RecordingPublisher { hits: hits.clone() },
+    });
 
     let result = service
         .delete_persona(
@@ -231,11 +239,11 @@ async fn delete_persona_deletes_and_publishes_event() {
 #[tokio::test]
 async fn delete_persona_returns_not_found_when_load_fails() {
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaDeleteService::new(
-        LoadPersonaNotFound,
-        DeletePersonaOk,
-        RecordingPublisher { hits },
-    );
+    let service = PersonaDeleteService::new(DeletePersonaPrerequisites {
+        load_persona_port: LoadPersonaNotFound,
+        delete_persona_port: DeletePersonaOk,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .delete_persona(
@@ -259,11 +267,11 @@ async fn delete_persona_maps_delete_errors() {
         name: PersonaName::try_new("Guide".to_string()).unwrap(),
         description: PersonaDescription::new("friendly".to_string()),
     };
-    let service = PersonaDeleteService::new(
-        LoadPersonaOk { persona },
-        DeletePersonaErr,
-        RecordingPublisher { hits },
-    );
+    let service = PersonaDeleteService::new(DeletePersonaPrerequisites {
+        load_persona_port: LoadPersonaOk { persona },
+        delete_persona_port: DeletePersonaErr,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .delete_persona(
@@ -287,11 +295,11 @@ async fn update_persona_returns_access_denied_when_actor_is_not_creator() {
         description: PersonaDescription::new("friendly".to_string()),
     };
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaUpdateService::new(
-        LoadPersonaOk { persona },
-        SavePersonaOk,
-        RecordingPublisher { hits },
-    );
+    let service = PersonaUpdateService::new(UpdatePersonaPrerequisites {
+        load_persona_port: LoadPersonaOk { persona },
+        save_persona_port: SavePersonaOk,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .update_persona(
@@ -317,11 +325,11 @@ async fn delete_persona_returns_access_denied_when_actor_is_not_creator() {
         description: PersonaDescription::new("friendly".to_string()),
     };
     let hits = Arc::new(Mutex::new(0));
-    let service = PersonaDeleteService::new(
-        LoadPersonaOk { persona },
-        DeletePersonaOk,
-        RecordingPublisher { hits },
-    );
+    let service = PersonaDeleteService::new(DeletePersonaPrerequisites {
+        load_persona_port: LoadPersonaOk { persona },
+        delete_persona_port: DeletePersonaOk,
+        event_publisher: RecordingPublisher { hits },
+    });
 
     let result = service
         .delete_persona(

@@ -241,18 +241,18 @@ impl DeleteFileFromStoragePort for DeleteFromInMemoryBlobStoreFails {
 
 #[tokio::test]
 async fn create_file_maps_access_denied() {
-    let service = CreateFileService::new(
-        FixedFileId("f-access"),
-        SaveStorageOk,
-        SaveFileReturnsMetaId,
-        ResolveFilenameEcho,
-        LoadCreateContextDenyPersonaOwnership,
-        LoadPolicyFixed {
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-access"),
+        save_file_to_storage_port: SaveStorageOk,
+        save_file_port: SaveFileReturnsMetaId,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextDenyPersonaOwnership,
+        load_scope_policy_port: LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
-        DeleteFromStoragePanicIfCalled,
-        FixedClock,
-    );
+        delete_file_from_storage_port: DeleteFromStoragePanicIfCalled,
+        clock: FixedClock,
+    });
 
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
@@ -267,16 +267,16 @@ async fn create_file_maps_access_denied() {
 
 #[tokio::test]
 async fn create_file_maps_policy_for_scope_missing() {
-    let service = CreateFileService::new(
-        FixedFileId("f-nopolicy"),
-        SaveStorageOk,
-        SaveFileReturnsMetaId,
-        ResolveFilenameEcho,
-        LoadCreateContextAllow,
-        LoadPolicyMissing,
-        DeleteFromStoragePanicIfCalled,
-        FixedClock,
-    );
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-nopolicy"),
+        save_file_to_storage_port: SaveStorageOk,
+        save_file_port: SaveFileReturnsMetaId,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextAllow,
+        load_scope_policy_port: LoadPolicyMissing,
+        delete_file_from_storage_port: DeleteFromStoragePanicIfCalled,
+        clock: FixedClock,
+    });
 
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
@@ -298,18 +298,18 @@ async fn create_file_policy_violation_on_content_type() {
         content: FileContent::new(vec![1]),
     };
 
-    let service = CreateFileService::new(
-        FixedFileId("f-badmime"),
-        SaveStorageOk,
-        SaveFileReturnsMetaId,
-        ResolveFilenameEcho,
-        LoadCreateContextAllow,
-        LoadPolicyFixed {
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-badmime"),
+        save_file_to_storage_port: SaveStorageOk,
+        save_file_port: SaveFileReturnsMetaId,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextAllow,
+        load_scope_policy_port: LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
-        DeleteFromStoragePanicIfCalled,
-        FixedClock,
-    );
+        delete_file_from_storage_port: DeleteFromStoragePanicIfCalled,
+        clock: FixedClock,
+    });
 
     assert!(matches!(
         service.create_file(cmd, user_id("u1")).await,
@@ -319,18 +319,18 @@ async fn create_file_policy_violation_on_content_type() {
 
 #[tokio::test]
 async fn create_file_success() {
-    let service = CreateFileService::new(
-        FixedFileId("f-good"),
-        SaveStorageOk,
-        SaveFileAssertCreatedMeta,
-        ResolveFilenameEcho,
-        LoadCreateContextAllow,
-        LoadPolicyFixed {
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-good"),
+        save_file_to_storage_port: SaveStorageOk,
+        save_file_port: SaveFileAssertCreatedMeta,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextAllow,
+        load_scope_policy_port: LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
-        DeleteFromStoragePanicIfCalled,
-        FixedClock,
-    );
+        delete_file_from_storage_port: DeleteFromStoragePanicIfCalled,
+        clock: FixedClock,
+    });
 
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
@@ -345,18 +345,18 @@ async fn create_file_success() {
 #[tokio::test]
 async fn create_file_compensation_calls_delete_after_db_fail() {
     let recorder = RecordingDeleteStorage::default();
-    let service = CreateFileService::new(
-        FixedFileId("f-db-fail"),
-        SaveStorageOk,
-        SaveFileAlwaysErr,
-        ResolveFilenameEcho,
-        LoadCreateContextAllow,
-        LoadPolicyFixed {
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-db-fail"),
+        save_file_to_storage_port: SaveStorageOk,
+        save_file_port: SaveFileAlwaysErr,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextAllow,
+        load_scope_policy_port: LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
-        recorder.clone(),
-        FixedClock,
-    );
+        delete_file_from_storage_port: recorder.clone(),
+        clock: FixedClock,
+    });
 
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
@@ -378,22 +378,22 @@ async fn create_file_compensation_delete_fails_leaves_blob_in_storage() {
     let store = InMemoryBlobStore::default();
     let file_id = FileId::try_new("f-orphan".to_string()).unwrap();
 
-    let service = CreateFileService::new(
-        FixedFileId("f-orphan"),
-        SaveToInMemoryBlobStore {
+    let service = CreateFileService::new(CreateFilePrerequisites {
+        id_generator_port: FixedFileId("f-orphan"),
+        save_file_to_storage_port: SaveToInMemoryBlobStore {
             store: store.clone(),
         },
-        SaveFileAlwaysErr,
-        ResolveFilenameEcho,
-        LoadCreateContextAllow,
-        LoadPolicyFixed {
+        save_file_port: SaveFileAlwaysErr,
+        resolve_filename_port: ResolveFilenameEcho,
+        load_file_create_access_context_port: LoadCreateContextAllow,
+        load_scope_policy_port: LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
-        DeleteFromInMemoryBlobStoreFails {
+        delete_file_from_storage_port: DeleteFromInMemoryBlobStoreFails {
             store: store.clone(),
         },
-        FixedClock,
-    );
+        clock: FixedClock,
+    });
 
     let uid = user_id("u1");
     let scope = persona_scope(uid.clone(), persona_id("p1"));
@@ -494,12 +494,12 @@ async fn delete_file_ok() {
         fixture_meta("del-1", uid.clone(), scope.clone()),
     );
 
-    let service = DeleteFileService::new(
-        DeleteFileFromDb { db: db.clone() },
-        DeleteFromStorageOk,
-        LoadFileFromMap { db: db.clone() },
-        LoadMetaContextAllow,
-    );
+    let service = DeleteFileService::new(DeleteFilePrerequisites {
+        delete_file_port: DeleteFileFromDb { db: db.clone() },
+        delete_file_from_storage_port: DeleteFromStorageOk,
+        load_file_port: LoadFileFromMap { db: db.clone() },
+        load_file_meta_access_context_port: LoadMetaContextAllow,
+    });
 
     service
         .delete_file(DeleteFileCommand { id: fid.clone() }, uid.clone())
@@ -519,12 +519,12 @@ async fn delete_file_access_denied() {
         .unwrap()
         .insert(fid.clone(), fixture_meta("del-den", uid.clone(), scope));
 
-    let service = DeleteFileService::new(
-        DeleteFileFromDb { db: db.clone() },
-        DeleteFromStorageOk,
-        LoadFileFromMap { db },
-        LoadMetaContextAllow,
-    );
+    let service = DeleteFileService::new(DeleteFilePrerequisites {
+        delete_file_port: DeleteFileFromDb { db: db.clone() },
+        delete_file_from_storage_port: DeleteFromStorageOk,
+        load_file_port: LoadFileFromMap { db },
+        load_file_meta_access_context_port: LoadMetaContextAllow,
+    });
 
     assert!(matches!(
         service
@@ -539,12 +539,12 @@ async fn delete_file_not_found_meta() {
     let db: MetaDb = Arc::new(Mutex::new(HashMap::new()));
     let fid = FileId::try_new("missing".to_string()).unwrap();
 
-    let service = DeleteFileService::new(
-        DeleteFileFromDb { db: db.clone() },
-        DeleteFromStorageOk,
-        LoadFileFromMap { db },
-        LoadMetaContextAllow,
-    );
+    let service = DeleteFileService::new(DeleteFilePrerequisites {
+        delete_file_port: DeleteFileFromDb { db: db.clone() },
+        delete_file_from_storage_port: DeleteFromStorageOk,
+        load_file_port: LoadFileFromMap { db },
+        load_file_meta_access_context_port: LoadMetaContextAllow,
+    });
 
     assert!(matches!(
         service
@@ -588,11 +588,11 @@ async fn get_file_returns_bytes() {
         .unwrap()
         .insert(fid.clone(), vec![10u8, 20, 30]);
 
-    let service = GetFileService::new(
-        LoadStorageFromMap { bytes: bytes_map },
-        LoadFileFromMap { db },
-        LoadMetaContextAllow,
-    );
+    let service = GetFileService::new(GetFilePrerequisites {
+        load_file_from_storage_port: LoadStorageFromMap { bytes: bytes_map },
+        load_file_port: LoadFileFromMap { db },
+        load_file_meta_access_context_port: LoadMetaContextAllow,
+    });
 
     let content = service.get_file(fid, uid.clone()).await.unwrap();
     assert_eq!(content.inner().as_slice(), &[10, 20, 30]);
@@ -611,11 +611,11 @@ async fn get_file_access_denied_after_meta_load() {
         .insert(fid.clone(), fixture_meta("g-den", uid, scope.clone()));
     bytes_map.lock().unwrap().insert(fid.clone(), vec![7]);
 
-    let service = GetFileService::new(
-        LoadStorageFromMap { bytes: bytes_map },
-        LoadFileFromMap { db },
-        LoadMetaContextAllow,
-    );
+    let service = GetFileService::new(GetFilePrerequisites {
+        load_file_from_storage_port: LoadStorageFromMap { bytes: bytes_map },
+        load_file_port: LoadFileFromMap { db },
+        load_file_meta_access_context_port: LoadMetaContextAllow,
+    });
 
     assert!(matches!(
         service.get_file(fid, user_id("intruder")).await,

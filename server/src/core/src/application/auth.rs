@@ -46,6 +46,13 @@ impl<L: LoadUserByNamePort, C: PasswordVerifierPort> AuthenticationUseCase
 }
 
 #[derive(Debug, Clone)]
+pub struct RegistrationPrerequisites<S, H, U> {
+    pub save_user_port: S,
+    pub hash_password_port: H,
+    pub id_generator: U,
+}
+
+#[derive(Debug, Clone)]
 pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> {
     save_user_port: S,
     hash_password_port: H,
@@ -53,7 +60,13 @@ pub struct RegistrationService<S: SaveUserPort, H: PasswordHasherPort, U: IdGene
 }
 
 impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationService<S, H, U> {
-    pub fn new(save_user_port: S, hash_password_port: H, id_generator: U) -> Self {
+    pub fn new(prerequisites: RegistrationPrerequisites<S, H, U>) -> Self {
+        let RegistrationPrerequisites {
+            save_user_port,
+            hash_password_port,
+            id_generator,
+        } = prerequisites;
+
         Self {
             save_user_port,
             hash_password_port,

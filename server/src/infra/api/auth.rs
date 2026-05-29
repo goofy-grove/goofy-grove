@@ -12,7 +12,7 @@ use axum_extra::extract::CookieJar;
 use gg_core::{
     application::{
         auth::UserAuthenticationService,
-        tokens::{CreateDeviceService, InvalidateDeviceService},
+        tokens::{CreateDevicePrerequisites, CreateDeviceService, InvalidateDeviceService},
         user::GetUserByNameService,
     },
     domain::prelude::*,
@@ -338,12 +338,12 @@ pub fn create_auth_router(config: Arc<Config>, connection: DatabaseConnection) -
         ),
         access_token_generator: JwtAccessTokenGenerator::new(config.clone()),
         refresh_token_generator: JwtRefreshTokenGenerator::new(config.clone()),
-        create_device_use_case: CreateDeviceService::new(
-            TokensRepository::new(connection.clone()),
-            ArgonTokenHasher,
-            UuidGenerator,
-            ChronoClock,
-        ),
+        create_device_use_case: CreateDeviceService::new(CreateDevicePrerequisites {
+            create_device_port: TokensRepository::new(connection.clone()),
+            token_hasher_port: ArgonTokenHasher,
+            id_generator: UuidGenerator,
+            clock: ChronoClock,
+        }),
         token_validator_port: JwtRefreshTokenValidator::new(config.clone()),
         invalidate_device_use_case: InvalidateDeviceService::new(
             TokensRepository::new(connection.clone()),

@@ -1,7 +1,10 @@
 pub mod entities;
 mod repositories;
 
-use gg_core::{application::auth::RegistrationService, domain::prelude::*};
+use gg_core::{
+    application::auth::{RegistrationPrerequisites, RegistrationService},
+    domain::prelude::*,
+};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use tracing::info;
@@ -38,8 +41,11 @@ pub async fn create_master_user(connection: DatabaseConnection) {
     if let Err(LoadUserByNamePortError::NotFound) =
         user_repository.load_user_by_name(&admin_username).await
     {
-        let registration_service =
-            RegistrationService::new(user_repository, ArgonPasswordSystem, UuidGenerator);
+        let registration_service = RegistrationService::new(RegistrationPrerequisites {
+            save_user_port: user_repository,
+            hash_password_port: ArgonPasswordSystem,
+            id_generator: UuidGenerator,
+        });
 
         registration_service
             .register(RegistrationCommand {

@@ -44,6 +44,14 @@ impl<T: InvalidateDevicePort, H: TokenHasherPort> InvalidateDeviceUseCase
 }
 
 #[derive(Debug, Clone)]
+pub struct CreateDevicePrerequisites<S, G, C, H> {
+    pub create_device_port: S,
+    pub token_hasher_port: H,
+    pub id_generator: G,
+    pub clock: C,
+}
+
+#[derive(Debug, Clone)]
 pub struct CreateDeviceService<S: SaveDevicePort, G: IdGenerator, C: Clock, H: TokenHasherPort> {
     create_device_port: S,
     token_hasher_port: H,
@@ -54,7 +62,14 @@ pub struct CreateDeviceService<S: SaveDevicePort, G: IdGenerator, C: Clock, H: T
 impl<S: SaveDevicePort, G: IdGenerator, C: Clock, H: TokenHasherPort>
     CreateDeviceService<S, G, C, H>
 {
-    pub fn new(create_device_port: S, token_hasher_port: H, id_generator: G, clock: C) -> Self {
+    pub fn new(prerequisites: CreateDevicePrerequisites<S, G, C, H>) -> Self {
+        let CreateDevicePrerequisites {
+            create_device_port,
+            token_hasher_port,
+            id_generator,
+            clock,
+        } = prerequisites;
+
         Self {
             create_device_port,
             token_hasher_port,

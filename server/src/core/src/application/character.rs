@@ -4,6 +4,13 @@ use crate::domain::prelude::*;
 mod tests;
 
 #[derive(Debug, Clone)]
+pub struct CreateCharacterPrerequisites<S, U, E> {
+    pub save_character_port: S,
+    pub uid_generator: U,
+    pub event_publisher: E,
+}
+
+#[derive(Debug, Clone)]
 pub struct CharacterCreateService<S: SaveCharacterPort, U: IdGenerator, E: EventPublisher> {
     save_character_port: S,
     uid_generator: U,
@@ -13,6 +20,20 @@ pub struct CharacterCreateService<S: SaveCharacterPort, U: IdGenerator, E: Event
 #[derive(Debug, Clone)]
 pub struct GetCharactersService<L: LoadCharactersPort> {
     load_characters_port: L,
+}
+
+#[derive(Debug, Clone)]
+pub struct UpdateCharacterPrerequisites<L, S, E> {
+    pub load_character_port: L,
+    pub save_character_port: S,
+    pub event_publisher: E,
+}
+
+#[derive(Debug, Clone)]
+pub struct DeleteCharacterPrerequisites<L, D, E> {
+    pub load_character_port: L,
+    pub delete_character_port: D,
+    pub event_publisher: E,
 }
 
 #[derive(Debug, Clone)]
@@ -30,7 +51,13 @@ pub struct CharacterDeleteService<L: LoadCharacterPort, D: DeleteCharacterPort, 
 }
 
 impl<S: SaveCharacterPort, U: IdGenerator, E: EventPublisher> CharacterCreateService<S, U, E> {
-    pub fn new(save_character_port: S, uid_generator: U, event_publisher: E) -> Self {
+    pub fn new(prerequisites: CreateCharacterPrerequisites<S, U, E>) -> Self {
+        let CreateCharacterPrerequisites {
+            save_character_port,
+            uid_generator,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             save_character_port,
             uid_generator,
@@ -88,7 +115,13 @@ impl<L: LoadCharactersPort> GetCharactersService<L> {
 impl<L: LoadCharacterPort, S: SaveCharacterPort, E: EventPublisher>
     CharacterUpdateService<L, S, E>
 {
-    pub fn new(load_character_port: L, save_character_port: S, event_publisher: E) -> Self {
+    pub fn new(prerequisites: UpdateCharacterPrerequisites<L, S, E>) -> Self {
+        let UpdateCharacterPrerequisites {
+            load_character_port,
+            save_character_port,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             load_character_port,
             save_character_port,
@@ -100,7 +133,13 @@ impl<L: LoadCharacterPort, S: SaveCharacterPort, E: EventPublisher>
 impl<L: LoadCharacterPort, D: DeleteCharacterPort, E: EventPublisher>
     CharacterDeleteService<L, D, E>
 {
-    pub fn new(load_character_port: L, delete_character_port: D, event_publisher: E) -> Self {
+    pub fn new(prerequisites: DeleteCharacterPrerequisites<L, D, E>) -> Self {
+        let DeleteCharacterPrerequisites {
+            load_character_port,
+            delete_character_port,
+            event_publisher,
+        } = prerequisites;
+
         Self {
             load_character_port,
             delete_character_port,
