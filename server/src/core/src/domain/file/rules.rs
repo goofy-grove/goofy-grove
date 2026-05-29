@@ -6,6 +6,8 @@ mod file_original_name;
 mod file_scope;
 mod file_size;
 mod filename;
+mod uploaded_at;
+mod file_status;
 
 pub use assert_file_matches_policy::*;
 pub use file_content::*;
@@ -15,3 +17,5 @@ pub use file_original_name::*;
 pub use file_scope::*;
 pub use file_size::*;
 pub use filename::*;
+pub use uploaded_at::*;
+pub use file_status::*;

@@ -6,6 +6,8 @@ pub struct FileMeta {
     pub filename: Filename,
     pub uploaded_by: UserId,
     pub scope: FileScope,
+    pub uploaded_at: UploadedAt,
+    pub status: FileStatus,
     pub original_name: FileOriginalName,
     pub content_type: FileContentType,
     pub size: FileSize,

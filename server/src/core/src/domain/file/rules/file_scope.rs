@@ -1,6 +1,6 @@
 use crate::domain::prelude::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum FileScope {
     PersonaAvatar {
         user_id: UserId,

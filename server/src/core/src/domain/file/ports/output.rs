@@ -164,3 +164,19 @@ pub trait EnsureFileDeletePort {
         user_id: &UserId,
     ) -> impl Future<Output = Result<(), EnsureFileDeletePortError>>;
 }
+
+#[derive(Debug, Clone, Error)]
+pub enum ActivateFilePortError {
+    #[error("Internal error: {0}")]
+    InternalError(String),
+
+    #[error("File not found")]
+    FileNotFound,
+}
+
+pub trait ActivateFilePort {
+    fn activate_file(
+        &self,
+        meta: &FileMeta,
+    ) -> impl Future<Output = Result<(), ActivateFilePortError>>;
+}

@@ -20,6 +20,17 @@ fn persona_scope(uid: UserId, pid: PersonaId) -> FileScope {
     }
 }
 
+const FIXED_TIMESTAMP: i64 = 42;
+
+#[derive(Clone)]
+struct FixedClock;
+
+impl Clock for FixedClock {
+    fn timestamp(&self) -> i64 {
+        FIXED_TIMESTAMP
+    }
+}
+
 fn sample_policy_png_max_1kb() -> FilePolicy {
     FilePolicy {
         max_size: FileSize::try_new(1024).unwrap(),
@@ -55,6 +66,20 @@ struct SaveFileReturnsMetaId;
 
 impl SaveFilePort for SaveFileReturnsMetaId {
     async fn save_file(&self, meta: FileMeta) -> Result<FileId, SaveFilePortError> {
+        Ok(meta.id)
+    }
+}
+
+#[derive(Clone)]
+struct SaveFileAssertCreatedMeta;
+
+impl SaveFilePort for SaveFileAssertCreatedMeta {
+    async fn save_file(&self, meta: FileMeta) -> Result<FileId, SaveFilePortError> {
+        assert_eq!(meta.status, FileStatus::Created);
+        assert_eq!(
+            meta.uploaded_at,
+            UploadedAt::try_new(FIXED_TIMESTAMP).unwrap()
+        );
         Ok(meta.id)
     }
 }
@@ -222,6 +247,7 @@ async fn create_file_maps_access_denied() {
             policy: sample_policy_png_max_1kb(),
         },
         DeleteFromStoragePanicIfCalled,
+        FixedClock,
     );
 
     let uid = user_id("u1");
@@ -245,6 +271,7 @@ async fn create_file_maps_policy_for_scope_missing() {
         EnsureCreateOk,
         LoadPolicyMissing,
         DeleteFromStoragePanicIfCalled,
+        FixedClock,
     );
 
     let uid = user_id("u1");
@@ -277,6 +304,7 @@ async fn create_file_policy_violation_on_content_type() {
             policy: sample_policy_png_max_1kb(),
         },
         DeleteFromStoragePanicIfCalled,
+        FixedClock,
     );
 
     assert!(matches!(
@@ -290,13 +318,14 @@ async fn create_file_success() {
     let service = CreateFileService::new(
         FixedFileId("f-good"),
         SaveStorageOk,
-        SaveFileReturnsMetaId,
+        SaveFileAssertCreatedMeta,
         ResolveFilenameEcho,
         EnsureCreateOk,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
         DeleteFromStoragePanicIfCalled,
+        FixedClock,
     );
 
     let uid = user_id("u1");
@@ -322,6 +351,7 @@ async fn create_file_compensation_calls_delete_after_db_fail() {
             policy: sample_policy_png_max_1kb(),
         },
         recorder.clone(),
+        FixedClock,
     );
 
     let uid = user_id("u1");
@@ -358,6 +388,7 @@ async fn create_file_compensation_delete_fails_leaves_blob_in_storage() {
         DeleteFromInMemoryBlobStoreFails {
             store: store.clone(),
         },
+        FixedClock,
     );
 
     let uid = user_id("u1");
@@ -454,6 +485,8 @@ fn fixture_meta(fid: &'static str, uid: UserId, scope: FileScope) -> FileMeta {
         original_name: FileOriginalName::try_new("o.png".to_string()).unwrap(),
         content_type: FileContentType::try_new("image/png".to_string()).unwrap(),
         size: FileSize::try_new(1).unwrap(),
+        status: FileStatus::Activated,
+        uploaded_at: UploadedAt::try_new(FIXED_TIMESTAMP).unwrap(),
     }
 }
 

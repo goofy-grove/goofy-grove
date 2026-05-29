@@ -9,6 +9,6 @@ fn file_size_accepts_positive() {
 fn file_size_rejects_zero() {
     assert_eq!(
         FileSize::try_new(0).unwrap_err(),
-        FileSizeValidationError::NotPositive
+        FileSizeValidationError::ZeroSize
     );
 }

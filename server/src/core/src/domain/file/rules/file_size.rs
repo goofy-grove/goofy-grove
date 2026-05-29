@@ -7,8 +7,8 @@ mod tests;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Error)]
 pub enum FileSizeValidationError {
-    #[error("file_size_not_positive")]
-    NotPositive,
+    #[error("file_size_zero")]
+    ZeroSize,
 }
 
 impl_new_type!(
@@ -16,8 +16,8 @@ impl_new_type!(
     pub struct FileSize(usize);
     error: FileSizeValidationError;
     validate: |size: &usize| {
-        if *size != 0 {
-            Err(FileSizeValidationError::NotPositive)
+        if *size == 0 {
+            Err(FileSizeValidationError::ZeroSize)
         } else {
             Ok(())
         }

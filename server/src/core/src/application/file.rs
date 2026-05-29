@@ -12,6 +12,7 @@ pub struct CreateFileService<
     E: EnsureFileCreatePort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
+    C: Clock,
 > {
     id_generator_port: I,
     save_file_to_storage_port: S,
@@ -20,6 +21,7 @@ pub struct CreateFileService<
     ensure_file_create_port: E,
     load_scope_policy_port: P,
     delete_file_from_storage_port: D,
+    clock: C,
 }
 
 impl<
@@ -30,7 +32,8 @@ impl<
     E: EnsureFileCreatePort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
-> CreateFileService<S, S1, I, R, E, P, D>
+    C: Clock
+> CreateFileService<S, S1, I, R, E, P, D, C>
 {
     pub fn new(
         id_generator_port: I,
@@ -40,7 +43,8 @@ impl<
         ensure_file_create_port: E,
         load_scope_policy_port: P,
         delete_file_from_storage_port: D,
-    ) -> CreateFileService<S, S1, I, R, E, P, D> {
+        clock: C,
+    ) -> CreateFileService<S, S1, I, R, E, P, D, C> {
         CreateFileService {
             id_generator_port,
             save_file_to_storage_port,
@@ -49,6 +53,7 @@ impl<
             ensure_file_create_port,
             load_scope_policy_port,
             delete_file_from_storage_port,
+            clock,
         }
     }
 }
@@ -61,7 +66,8 @@ impl<
     E: EnsureFileCreatePort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
-> CreateFileUseCase for CreateFileService<S, S1, I, R, E, P, D>
+    C: Clock,
+> CreateFileUseCase for CreateFileService<S, S1, I, R, E, P, D, C>
 {
     async fn create_file(
         &self,
@@ -123,6 +129,9 @@ impl<
             original_name,
             content_type,
             size,
+            status: FileStatus::Created,
+            uploaded_at: UploadedAt::try_new(self.clock.timestamp())
+                .map_err(|err| CreateFileError::ValidationError(format!("{err}")))?,
         };
 
         self.save_file_to_storage_port
