@@ -117,28 +117,32 @@ impl ResolveFilenamePort for ResolveFilenameEcho {
 }
 
 #[derive(Clone)]
-struct EnsureCreateOk;
+struct LoadCreateContextAllow;
 
-impl EnsureFileCreatePort for EnsureCreateOk {
-    async fn ensure_file_create(
+impl LoadFileCreateAccessContextPort for LoadCreateContextAllow {
+    async fn load_create_context(
         &self,
         _scope: &FileScope,
         _user_id: &UserId,
-    ) -> Result<(), EnsureFileCreatePortError> {
-        Ok(())
+    ) -> Result<FileCreateAccessContext, LoadFileCreateAccessContextPortError> {
+        Ok(FileCreateAccessContext {
+            persona_owned_by_actor: true,
+        })
     }
 }
 
 #[derive(Clone)]
-struct EnsureCreateDenied;
+struct LoadCreateContextDenyPersonaOwnership;
 
-impl EnsureFileCreatePort for EnsureCreateDenied {
-    async fn ensure_file_create(
+impl LoadFileCreateAccessContextPort for LoadCreateContextDenyPersonaOwnership {
+    async fn load_create_context(
         &self,
         _scope: &FileScope,
         _user_id: &UserId,
-    ) -> Result<(), EnsureFileCreatePortError> {
-        Err(EnsureFileCreatePortError::AccessDenied)
+    ) -> Result<FileCreateAccessContext, LoadFileCreateAccessContextPortError> {
+        Ok(FileCreateAccessContext {
+            persona_owned_by_actor: false,
+        })
     }
 }
 
@@ -242,7 +246,7 @@ async fn create_file_maps_access_denied() {
         SaveStorageOk,
         SaveFileReturnsMetaId,
         ResolveFilenameEcho,
-        EnsureCreateDenied,
+        LoadCreateContextDenyPersonaOwnership,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
@@ -268,7 +272,7 @@ async fn create_file_maps_policy_for_scope_missing() {
         SaveStorageOk,
         SaveFileReturnsMetaId,
         ResolveFilenameEcho,
-        EnsureCreateOk,
+        LoadCreateContextAllow,
         LoadPolicyMissing,
         DeleteFromStoragePanicIfCalled,
         FixedClock,
@@ -299,7 +303,7 @@ async fn create_file_policy_violation_on_content_type() {
         SaveStorageOk,
         SaveFileReturnsMetaId,
         ResolveFilenameEcho,
-        EnsureCreateOk,
+        LoadCreateContextAllow,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
@@ -320,7 +324,7 @@ async fn create_file_success() {
         SaveStorageOk,
         SaveFileAssertCreatedMeta,
         ResolveFilenameEcho,
-        EnsureCreateOk,
+        LoadCreateContextAllow,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
@@ -346,7 +350,7 @@ async fn create_file_compensation_calls_delete_after_db_fail() {
         SaveStorageOk,
         SaveFileAlwaysErr,
         ResolveFilenameEcho,
-        EnsureCreateOk,
+        LoadCreateContextAllow,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
@@ -381,7 +385,7 @@ async fn create_file_compensation_delete_fails_leaves_blob_in_storage() {
         },
         SaveFileAlwaysErr,
         ResolveFilenameEcho,
-        EnsureCreateOk,
+        LoadCreateContextAllow,
         LoadPolicyFixed {
             policy: sample_policy_png_max_1kb(),
         },
@@ -450,28 +454,17 @@ impl DeleteFileFromStoragePort for DeleteFromStorageOk {
 }
 
 #[derive(Clone)]
-struct EnsureDeleteOk;
+struct LoadMetaContextAllow;
 
-impl EnsureFileDeletePort for EnsureDeleteOk {
-    async fn ensure_file_delete(
+impl LoadFileMetaAccessContextPort for LoadMetaContextAllow {
+    async fn load_meta_access_context(
         &self,
         _meta: &FileMeta,
         _user_id: &UserId,
-    ) -> Result<(), EnsureFileDeletePortError> {
-        Ok(())
-    }
-}
-
-#[derive(Clone)]
-struct EnsureDeleteDenied;
-
-impl EnsureFileDeletePort for EnsureDeleteDenied {
-    async fn ensure_file_delete(
-        &self,
-        _meta: &FileMeta,
-        _user_id: &UserId,
-    ) -> Result<(), EnsureFileDeletePortError> {
-        Err(EnsureFileDeletePortError::AccessDenied)
+    ) -> Result<FileMetaAccessContext, LoadFileMetaAccessContextPortError> {
+        Ok(FileMetaAccessContext {
+            persona_owned_by_actor: true,
+        })
     }
 }
 
@@ -505,7 +498,7 @@ async fn delete_file_ok() {
         DeleteFileFromDb { db: db.clone() },
         DeleteFromStorageOk,
         LoadFileFromMap { db: db.clone() },
-        EnsureDeleteOk,
+        LoadMetaContextAllow,
     );
 
     service
@@ -530,7 +523,7 @@ async fn delete_file_access_denied() {
         DeleteFileFromDb { db: db.clone() },
         DeleteFromStorageOk,
         LoadFileFromMap { db },
-        EnsureDeleteDenied,
+        LoadMetaContextAllow,
     );
 
     assert!(matches!(
@@ -550,7 +543,7 @@ async fn delete_file_not_found_meta() {
         DeleteFileFromDb { db: db.clone() },
         DeleteFromStorageOk,
         LoadFileFromMap { db },
-        EnsureDeleteOk,
+        LoadMetaContextAllow,
     );
 
     assert!(matches!(
@@ -580,32 +573,6 @@ impl LoadFileFromStoragePort for LoadStorageFromMap {
     }
 }
 
-#[derive(Clone)]
-struct EnsureReadOk;
-
-impl EnsureFileReadPort for EnsureReadOk {
-    async fn ensure_file_read(
-        &self,
-        _meta: &FileMeta,
-        _user_id: &UserId,
-    ) -> Result<(), EnsureFileReadPortError> {
-        Ok(())
-    }
-}
-
-#[derive(Clone)]
-struct EnsureReadDenied;
-
-impl EnsureFileReadPort for EnsureReadDenied {
-    async fn ensure_file_read(
-        &self,
-        _meta: &FileMeta,
-        _user_id: &UserId,
-    ) -> Result<(), EnsureFileReadPortError> {
-        Err(EnsureFileReadPortError::AccessDenied)
-    }
-}
-
 #[tokio::test]
 async fn get_file_returns_bytes() {
     let db: MetaDb = Arc::new(Mutex::new(HashMap::new()));
@@ -624,7 +591,7 @@ async fn get_file_returns_bytes() {
     let service = GetFileService::new(
         LoadStorageFromMap { bytes: bytes_map },
         LoadFileFromMap { db },
-        EnsureReadOk,
+        LoadMetaContextAllow,
     );
 
     let content = service.get_file(fid, uid.clone()).await.unwrap();
@@ -647,7 +614,7 @@ async fn get_file_access_denied_after_meta_load() {
     let service = GetFileService::new(
         LoadStorageFromMap { bytes: bytes_map },
         LoadFileFromMap { db },
-        EnsureReadDenied,
+        LoadMetaContextAllow,
     );
 
     assert!(matches!(

@@ -20,6 +20,6 @@ impl_new_type!(
             Err(UploadedAtValidationError::NonPositive)
         } else {
             Ok(())
-        }   
+        }
     };
 );

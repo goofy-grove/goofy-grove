@@ -138,6 +138,8 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
                 }
             })?;
 
+        can_update_persona(&user_id, &persona).map_err(|_| UpdatePersonaError::AccessDenied)?;
+
         let Persona {
             uid,
             creator_id,
@@ -192,6 +194,8 @@ impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaU
                     DeletePersonaError::InternalError(message)
                 }
             })?;
+
+        can_delete_persona(&user_id, &persona).map_err(|_| DeletePersonaError::AccessDenied)?;
 
         self.delete_persona_port
             .delete_persona(&id, &user_id)

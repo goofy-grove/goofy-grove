@@ -277,3 +277,61 @@ async fn delete_persona_maps_delete_errors() {
 
     assert!(matches!(result, Err(DeletePersonaError::InternalError(_))));
 }
+
+#[tokio::test]
+async fn update_persona_returns_access_denied_when_actor_is_not_creator() {
+    let persona = Persona {
+        uid: PersonaId::try_new("persona-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("owner".to_string()).unwrap(),
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+    };
+    let hits = Arc::new(Mutex::new(0));
+    let service = PersonaUpdateService::new(
+        LoadPersonaOk { persona },
+        SavePersonaOk,
+        RecordingPublisher { hits },
+    );
+
+    let result = service
+        .update_persona(
+            UpdatePersonaCommand {
+                id: PersonaId::try_new("persona-1".to_string()).unwrap(),
+                name: None,
+                description: None,
+                exclude_participants: vec![],
+            },
+            UserId::try_new("intruder".to_string()).unwrap(),
+        )
+        .await;
+
+    assert!(matches!(result, Err(UpdatePersonaError::AccessDenied)));
+}
+
+#[tokio::test]
+async fn delete_persona_returns_access_denied_when_actor_is_not_creator() {
+    let persona = Persona {
+        uid: PersonaId::try_new("persona-1".to_string()).unwrap(),
+        creator_id: UserId::try_new("owner".to_string()).unwrap(),
+        name: PersonaName::try_new("Guide".to_string()).unwrap(),
+        description: PersonaDescription::new("friendly".to_string()),
+    };
+    let hits = Arc::new(Mutex::new(0));
+    let service = PersonaDeleteService::new(
+        LoadPersonaOk { persona },
+        DeletePersonaOk,
+        RecordingPublisher { hits },
+    );
+
+    let result = service
+        .delete_persona(
+            DeletePersonaCommand {
+                id: PersonaId::try_new("persona-1".to_string()).unwrap(),
+                exclude_participants: vec![],
+            },
+            UserId::try_new("intruder".to_string()).unwrap(),
+        )
+        .await;
+
+    assert!(matches!(result, Err(DeletePersonaError::AccessDenied)));
+}

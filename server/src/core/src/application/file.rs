@@ -9,7 +9,7 @@ pub struct CreateFileService<
     S1: SaveFilePort,
     I: IdGenerator,
     R: ResolveFilenamePort,
-    E: EnsureFileCreatePort,
+    L: LoadFileCreateAccessContextPort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
     C: Clock,
@@ -18,7 +18,7 @@ pub struct CreateFileService<
     save_file_to_storage_port: S,
     save_file_port: S1,
     resolve_filename_port: R,
-    ensure_file_create_port: E,
+    load_file_create_access_context_port: L,
     load_scope_policy_port: P,
     delete_file_from_storage_port: D,
     clock: C,
@@ -29,28 +29,28 @@ impl<
     S1: SaveFilePort,
     I: IdGenerator,
     R: ResolveFilenamePort,
-    E: EnsureFileCreatePort,
+    L: LoadFileCreateAccessContextPort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
-    C: Clock
-> CreateFileService<S, S1, I, R, E, P, D, C>
+    C: Clock,
+> CreateFileService<S, S1, I, R, L, P, D, C>
 {
     pub fn new(
         id_generator_port: I,
         save_file_to_storage_port: S,
         save_file_port: S1,
         resolve_filename_port: R,
-        ensure_file_create_port: E,
+        load_file_create_access_context_port: L,
         load_scope_policy_port: P,
         delete_file_from_storage_port: D,
         clock: C,
-    ) -> CreateFileService<S, S1, I, R, E, P, D, C> {
+    ) -> CreateFileService<S, S1, I, R, L, P, D, C> {
         CreateFileService {
             id_generator_port,
             save_file_to_storage_port,
             save_file_port,
             resolve_filename_port,
-            ensure_file_create_port,
+            load_file_create_access_context_port,
             load_scope_policy_port,
             delete_file_from_storage_port,
             clock,
@@ -63,11 +63,11 @@ impl<
     S1: SaveFilePort,
     I: IdGenerator,
     R: ResolveFilenamePort,
-    E: EnsureFileCreatePort,
+    L: LoadFileCreateAccessContextPort,
     P: LoadScopePolicyPort,
     D: DeleteFileFromStoragePort,
     C: Clock,
-> CreateFileUseCase for CreateFileService<S, S1, I, R, E, P, D, C>
+> CreateFileUseCase for CreateFileService<S, S1, I, R, L, P, D, C>
 {
     async fn create_file(
         &self,
@@ -83,15 +83,18 @@ impl<
         let size = FileSize::try_new(content.inner().len())
             .map_err(|err| CreateFileError::ValidationError(err.to_string()))?;
 
-        self.ensure_file_create_port
-            .ensure_file_create(&scope, &user_id)
+        let access_ctx = self
+            .load_file_create_access_context_port
+            .load_create_context(&scope, &user_id)
             .await
             .map_err(|err| match err {
-                EnsureFileCreatePortError::InternalError(err) => {
+                LoadFileCreateAccessContextPortError::InternalError(err) => {
                     CreateFileError::InternalError(format!("{:?}", err))
                 }
-                EnsureFileCreatePortError::AccessDenied => CreateFileError::AccessDenied,
             })?;
+
+        can_create_file(&user_id, &scope, &access_ctx)
+            .map_err(|_| CreateFileError::AccessDenied)?;
 
         self.load_scope_policy_port
             .load_scope_policy(&scope)
@@ -166,55 +169,65 @@ pub struct DeleteFileService<
     D: DeleteFileFromStoragePort,
     D1: DeleteFilePort,
     L: LoadFilePort,
-    E: EnsureFileDeletePort,
+    L1: LoadFileMetaAccessContextPort,
 > {
     delete_file_port: D1,
     delete_file_from_storage_port: D,
     load_file_port: L,
-    ensure_file_delete_port: E,
+    load_file_meta_access_context_port: L1,
 }
 
-impl<D: DeleteFileFromStoragePort, D1: DeleteFilePort, L: LoadFilePort, E: EnsureFileDeletePort>
-    DeleteFileService<D, D1, L, E>
+impl<
+    D: DeleteFileFromStoragePort,
+    D1: DeleteFilePort,
+    L: LoadFilePort,
+    L1: LoadFileMetaAccessContextPort,
+> DeleteFileService<D, D1, L, L1>
 {
     pub fn new(
         delete_file_port: D1,
         delete_file_from_storage_port: D,
         load_file_port: L,
-        ensure_file_delete_port: E,
-    ) -> DeleteFileService<D, D1, L, E> {
+        load_file_meta_access_context_port: L1,
+    ) -> DeleteFileService<D, D1, L, L1> {
         DeleteFileService {
             delete_file_port,
             delete_file_from_storage_port,
             load_file_port,
-            ensure_file_delete_port,
+            load_file_meta_access_context_port,
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct GetFileService<L: LoadFileFromStoragePort, L1: LoadFilePort, E: EnsureFileReadPort> {
+pub struct GetFileService<
+    L: LoadFileFromStoragePort,
+    L1: LoadFilePort,
+    L2: LoadFileMetaAccessContextPort,
+> {
     load_file_from_storage_port: L,
     load_file_port: L1,
-    ensure_file_read_port: E,
+    load_file_meta_access_context_port: L2,
 }
 
-impl<L: LoadFileFromStoragePort, L1: LoadFilePort, E: EnsureFileReadPort> GetFileService<L, L1, E> {
+impl<L: LoadFileFromStoragePort, L1: LoadFilePort, L2: LoadFileMetaAccessContextPort>
+    GetFileService<L, L1, L2>
+{
     pub fn new(
         load_file_from_storage_port: L,
         load_file_port: L1,
-        ensure_file_read_port: E,
-    ) -> GetFileService<L, L1, E> {
+        load_file_meta_access_context_port: L2,
+    ) -> GetFileService<L, L1, L2> {
         GetFileService {
             load_file_from_storage_port,
             load_file_port,
-            ensure_file_read_port,
+            load_file_meta_access_context_port,
         }
     }
 }
 
-impl<L: LoadFileFromStoragePort, L1: LoadFilePort, E: EnsureFileReadPort> GetFileQuery
-    for GetFileService<L, L1, E>
+impl<L: LoadFileFromStoragePort, L1: LoadFilePort, L2: LoadFileMetaAccessContextPort> GetFileQuery
+    for GetFileService<L, L1, L2>
 {
     async fn get_file(
         &self,
@@ -232,15 +245,18 @@ impl<L: LoadFileFromStoragePort, L1: LoadFilePort, E: EnsureFileReadPort> GetFil
                 }
             })?;
 
-        self.ensure_file_read_port
-            .ensure_file_read(&file_meta, &user_id)
+        let access_ctx = self
+            .load_file_meta_access_context_port
+            .load_meta_access_context(&file_meta, &user_id)
             .await
             .map_err(|err| match err {
-                EnsureFileReadPortError::InternalError(err) => {
+                LoadFileMetaAccessContextPortError::InternalError(err) => {
                     GetFileQueryError::InternalError(format!("{:?}", err))
                 }
-                EnsureFileReadPortError::AccessDenied => GetFileQueryError::AccessDenied,
             })?;
+
+        can_read_file(&user_id, &file_meta, &access_ctx)
+            .map_err(|_| GetFileQueryError::AccessDenied)?;
 
         self.load_file_from_storage_port
             .load_file_from_storage(&file_meta)
@@ -249,8 +265,12 @@ impl<L: LoadFileFromStoragePort, L1: LoadFilePort, E: EnsureFileReadPort> GetFil
     }
 }
 
-impl<D: DeleteFileFromStoragePort, D1: DeleteFilePort, L: LoadFilePort, E: EnsureFileDeletePort>
-    DeleteFileUseCase for DeleteFileService<D, D1, L, E>
+impl<
+    D: DeleteFileFromStoragePort,
+    D1: DeleteFilePort,
+    L: LoadFilePort,
+    L1: LoadFileMetaAccessContextPort,
+> DeleteFileUseCase for DeleteFileService<D, D1, L, L1>
 {
     async fn delete_file(
         &self,
@@ -270,15 +290,17 @@ impl<D: DeleteFileFromStoragePort, D1: DeleteFilePort, L: LoadFilePort, E: Ensur
                 }
             })?;
 
-        self.ensure_file_delete_port
-            .ensure_file_delete(&file, &user_id)
+        let access_ctx = self
+            .load_file_meta_access_context_port
+            .load_meta_access_context(&file, &user_id)
             .await
             .map_err(|err| match err {
-                EnsureFileDeletePortError::InternalError(err) => {
+                LoadFileMetaAccessContextPortError::InternalError(err) => {
                     DeleteFileError::InternalError(format!("{:?}", err))
                 }
-                EnsureFileDeletePortError::AccessDenied => DeleteFileError::AccessDenied,
             })?;
+
+        can_delete_file(&user_id, &file, &access_ctx).map_err(|_| DeleteFileError::AccessDenied)?;
 
         self.delete_file_from_storage_port
             .delete_file_from_storage(&file)

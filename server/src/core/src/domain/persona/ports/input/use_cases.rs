@@ -23,6 +23,9 @@ pub enum UpdatePersonaError {
     #[error("Not found")]
     NotFound,
 
+    #[error("Access denied")]
+    AccessDenied,
+
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -42,6 +45,9 @@ pub trait UpdatePersonaUseCase {
 pub enum DeletePersonaError {
     #[error("Not found")]
     NotFound,
+
+    #[error("Access denied")]
+    AccessDenied,
 
     #[error("Internal error: {0}")]
     InternalError(String),

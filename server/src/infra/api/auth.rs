@@ -223,7 +223,10 @@ async fn authenticate_user(
         secret,
     };
 
-    let auth_result = auth_state.authentication_use_case.authenticate(command).await;
+    let auth_result = auth_state
+        .authentication_use_case
+        .authenticate(command)
+        .await;
 
     if auth_result.is_err() {
         return response::auth_error(&["Failed to authenticate user"]);

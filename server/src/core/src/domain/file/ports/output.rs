@@ -115,54 +115,31 @@ pub trait ResolveFilenamePort {
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum EnsureFileReadPortError {
+pub enum LoadFileCreateAccessContextPortError {
     #[error("Internal error: {0}")]
     InternalError(String),
-
-    #[error("Access denied")]
-    AccessDenied,
 }
 
-pub trait EnsureFileReadPort {
-    fn ensure_file_read(
-        &self,
-        meta: &FileMeta,
-        user_id: &UserId,
-    ) -> impl Future<Output = Result<(), EnsureFileReadPortError>>;
-}
-
-#[derive(Debug, Clone, Error)]
-pub enum EnsureFileCreatePortError {
-    #[error("Internal error: {0}")]
-    InternalError(String),
-
-    #[error("Access denied")]
-    AccessDenied,
-}
-
-pub trait EnsureFileCreatePort {
-    fn ensure_file_create(
+pub trait LoadFileCreateAccessContextPort {
+    fn load_create_context(
         &self,
         scope: &FileScope,
         user_id: &UserId,
-    ) -> impl Future<Output = Result<(), EnsureFileCreatePortError>>;
+    ) -> impl Future<Output = Result<FileCreateAccessContext, LoadFileCreateAccessContextPortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum EnsureFileDeletePortError {
+pub enum LoadFileMetaAccessContextPortError {
     #[error("Internal error: {0}")]
     InternalError(String),
-
-    #[error("Access denied")]
-    AccessDenied,
 }
 
-pub trait EnsureFileDeletePort {
-    fn ensure_file_delete(
+pub trait LoadFileMetaAccessContextPort {
+    fn load_meta_access_context(
         &self,
         meta: &FileMeta,
         user_id: &UserId,
-    ) -> impl Future<Output = Result<(), EnsureFileDeletePortError>>;
+    ) -> impl Future<Output = Result<FileMetaAccessContext, LoadFileMetaAccessContextPortError>>;
 }
 
 #[derive(Debug, Clone, Error)]
