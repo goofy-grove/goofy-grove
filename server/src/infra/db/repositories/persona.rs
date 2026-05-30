@@ -1,4 +1,5 @@
 use crate::infra::db::entities::{personas, prelude::Personas};
+use crate::infra::db::mappers::persona_from_model;
 use gg_core::domain::prelude::*;
 use sea_orm::{
     ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
@@ -23,26 +24,19 @@ impl LoadPersonasPort for PersonaRepository {
             .await
             .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
 
-        let mut result = Vec::with_capacity(personas.len());
-
-        for persona in personas {
-            let persona_id = PersonaId::try_new(persona.uid)
-                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-            let creator_id = UserId::try_new(persona.creator_id)
-                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-            let persona_name = PersonaName::try_new(persona.name)
-                .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-            let description = PersonaDescription::new(persona.description);
-
-            result.push(Persona {
-                uid: persona_id,
-                creator_id,
-                name: persona_name,
-                description,
-            });
-        }
-
-        Ok(result)
+        personas
+            .into_iter()
+            .map(|persona| {
+                persona_from_model(
+                    persona.uid,
+                    persona.creator_id,
+                    persona.name,
+                    persona.description,
+                    persona.avatar_uid,
+                )
+                .map_err(LoadPersonasPortError::InternalError)
+            })
+            .collect()
     }
 }
 
@@ -60,20 +54,14 @@ impl LoadPersonaPort for PersonaRepository {
             .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?
             .ok_or(LoadPersonasPortError::NotFound)?;
 
-        let persona_id = PersonaId::try_new(persona.uid)
-            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-        let creator_id = UserId::try_new(persona.creator_id)
-            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-        let persona_name = PersonaName::try_new(persona.name)
-            .map_err(|err| LoadPersonasPortError::InternalError(err.to_string()))?;
-        let description = PersonaDescription::new(persona.description);
-
-        Ok(Persona {
-            uid: persona_id,
-            creator_id,
-            name: persona_name,
-            description,
-        })
+        persona_from_model(
+            persona.uid,
+            persona.creator_id,
+            persona.name,
+            persona.description,
+            persona.avatar_uid,
+        )
+        .map_err(LoadPersonasPortError::InternalError)
     }
 }
 
@@ -84,6 +72,7 @@ impl SavePersonaPort for PersonaRepository {
             creator_id,
             name,
             description,
+            avatar_uid,
         } = persona;
 
         let new_persona = personas::ActiveModel {
@@ -91,6 +80,7 @@ impl SavePersonaPort for PersonaRepository {
             creator_id: Set(creator_id.into_inner()),
             name: Set(name.into_inner()),
             description: Set(description.into_inner()),
+            avatar_uid: Set(avatar_uid.map(|value| value.into_inner())),
         };
         let request = Personas::insert(new_persona)
             .on_conflict(
@@ -99,6 +89,7 @@ impl SavePersonaPort for PersonaRepository {
                         personas::Column::Name,
                         personas::Column::Description,
                         personas::Column::CreatorId,
+                        personas::Column::AvatarUid,
                     ])
                     .to_owned(),
             )
@@ -106,15 +97,14 @@ impl SavePersonaPort for PersonaRepository {
             .await;
 
         match request {
-            Ok(inserted_persona) => Ok(Persona {
-                uid: PersonaId::try_new(inserted_persona.uid)
-                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                creator_id: UserId::try_new(inserted_persona.creator_id)
-                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                name: PersonaName::try_new(inserted_persona.name)
-                    .map_err(|err| SavePersonaPortError::InternalError(err.to_string()))?,
-                description: PersonaDescription::new(inserted_persona.description),
-            }),
+            Ok(inserted_persona) => persona_from_model(
+                inserted_persona.uid,
+                inserted_persona.creator_id,
+                inserted_persona.name,
+                inserted_persona.description,
+                inserted_persona.avatar_uid,
+            )
+            .map_err(SavePersonaPortError::InternalError),
             Err(err) => Err(SavePersonaPortError::InternalError(err.to_string())),
         }
     }

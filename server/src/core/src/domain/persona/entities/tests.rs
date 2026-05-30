@@ -7,6 +7,7 @@ fn persona_entity_exposes_fields() {
         creator_id: UserId::try_new("user-1".to_string()).unwrap(),
         name: PersonaName::try_new("Guide".to_string()).unwrap(),
         description: PersonaDescription::new("friendly".to_string()),
+        avatar_uid: None,
     };
 
     assert_eq!(persona.uid.inner(), "persona-1");

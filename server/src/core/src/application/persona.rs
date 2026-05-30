@@ -1,20 +1,36 @@
+use crate::application::avatar::{
+    AvatarBindingError, apply_avatar_uid_patch, orphan_avatar_if_present,
+};
 use crate::domain::prelude::*;
 
 #[cfg(test)]
 mod tests;
 
 #[derive(Debug, Clone)]
-pub struct CreatePersonaPrerequisites<S, U, E> {
+pub struct CreatePersonaPrerequisites<S, U, E, LF, A, O> {
     pub save_persona_port: S,
     pub uid_generator: U,
     pub event_publisher: E,
+    pub load_file_port: LF,
+    pub activate_file_port: A,
+    pub orphan_file_port: O,
 }
 
 #[derive(Debug, Clone)]
-pub struct PersonaCreateService<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> {
+pub struct PersonaCreateService<
+    S: SavePersonaPort,
+    U: IdGenerator,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> {
     save_persona_port: S,
     uid_generator: U,
     event_publisher: E,
+    load_file_port: LF,
+    activate_file_port: A,
+    orphan_file_port: O,
 }
 
 #[derive(Debug, Clone)]
@@ -23,51 +39,94 @@ pub struct GetPersonasService<L: LoadPersonasPort> {
 }
 
 #[derive(Debug, Clone)]
-pub struct UpdatePersonaPrerequisites<L, S, E> {
+pub struct UpdatePersonaPrerequisites<L, S, E, LF, A, O> {
     pub load_persona_port: L,
     pub save_persona_port: S,
     pub event_publisher: E,
+    pub load_file_port: LF,
+    pub activate_file_port: A,
+    pub orphan_file_port: O,
 }
 
 #[derive(Debug, Clone)]
-pub struct DeletePersonaPrerequisites<L, D, E> {
+pub struct DeletePersonaPrerequisites<L, D, E, LF, O> {
     pub load_persona_port: L,
     pub delete_persona_port: D,
     pub event_publisher: E,
+    pub load_file_port: LF,
+    pub orphan_file_port: O,
 }
 
 #[derive(Debug, Clone)]
-pub struct PersonaUpdateService<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> {
+pub struct PersonaUpdateService<
+    L: LoadPersonaPort,
+    S: SavePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> {
     load_persona_port: L,
     save_persona_port: S,
     event_publisher: E,
+    load_file_port: LF,
+    activate_file_port: A,
+    orphan_file_port: O,
 }
 
 #[derive(Debug, Clone)]
-pub struct PersonaDeleteService<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> {
+pub struct PersonaDeleteService<
+    L: LoadPersonaPort,
+    D: DeletePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    O: OrphanFilePort,
+> {
     load_persona_port: L,
     delete_persona_port: D,
     event_publisher: E,
+    load_file_port: LF,
+    orphan_file_port: O,
 }
 
-impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> PersonaCreateService<S, U, E> {
-    pub fn new(prerequisites: CreatePersonaPrerequisites<S, U, E>) -> Self {
+impl<
+    S: SavePersonaPort,
+    U: IdGenerator,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> PersonaCreateService<S, U, E, LF, A, O>
+{
+    pub fn new(prerequisites: CreatePersonaPrerequisites<S, U, E, LF, A, O>) -> Self {
         let CreatePersonaPrerequisites {
             save_persona_port,
             uid_generator,
             event_publisher,
+            load_file_port,
+            activate_file_port,
+            orphan_file_port,
         } = prerequisites;
 
         Self {
             save_persona_port,
             uid_generator,
             event_publisher,
+            load_file_port,
+            activate_file_port,
+            orphan_file_port,
         }
     }
 }
 
-impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
-    for PersonaCreateService<S, U, E>
+impl<
+    S: SavePersonaPort,
+    U: IdGenerator,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> CreatePersonaUseCase for PersonaCreateService<S, U, E, LF, A, O>
 {
     async fn create_persona(
         &self,
@@ -77,15 +136,47 @@ impl<S: SavePersonaPort, U: IdGenerator, E: EventPublisher> CreatePersonaUseCase
             name,
             creator_id,
             description,
+            avatar_uid,
             exclude_participants,
         } = command;
 
+        let uid = PersonaId::try_new(self.uid_generator.generate())
+            .map_err(|err| CreatePersonaError::ValidationError(format!("{err}")))?;
+
+        let avatar_uid = if let Some(file_id) = avatar_uid {
+            let scope = FileScope::PersonaAvatar {
+                user_id: creator_id.clone(),
+                persona_id: uid.clone(),
+            };
+
+            apply_avatar_uid_patch(
+                &self.load_file_port,
+                &self.activate_file_port,
+                &self.orphan_file_port,
+                None,
+                PatchField::Set(file_id),
+                &scope,
+            )
+            .await
+            .map_err(|err| match err {
+                AvatarBindingError::FileNotFound => CreatePersonaError::FileNotFound,
+                AvatarBindingError::ValidationError(message) => {
+                    CreatePersonaError::ValidationError(message)
+                }
+                AvatarBindingError::InternalError(message) => {
+                    CreatePersonaError::InternalError(message)
+                }
+            })?
+        } else {
+            None
+        };
+
         let persona = Persona {
-            uid: PersonaId::try_new(self.uid_generator.generate())
-                .map_err(|err| CreatePersonaError::ValidationError(format!("{err}")))?,
+            uid,
             creator_id,
             name,
             description,
+            avatar_uid,
         };
 
         match self.save_persona_port.save_persona(persona).await {
@@ -110,34 +201,59 @@ impl<L: LoadPersonasPort> GetPersonasService<L> {
     }
 }
 
-impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> PersonaUpdateService<L, S, E> {
-    pub fn new(prerequisites: UpdatePersonaPrerequisites<L, S, E>) -> Self {
+impl<
+    L: LoadPersonaPort,
+    S: SavePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> PersonaUpdateService<L, S, E, LF, A, O>
+{
+    pub fn new(prerequisites: UpdatePersonaPrerequisites<L, S, E, LF, A, O>) -> Self {
         let UpdatePersonaPrerequisites {
             load_persona_port,
             save_persona_port,
             event_publisher,
+            load_file_port,
+            activate_file_port,
+            orphan_file_port,
         } = prerequisites;
 
         Self {
             load_persona_port,
             save_persona_port,
             event_publisher,
+            load_file_port,
+            activate_file_port,
+            orphan_file_port,
         }
     }
 }
 
-impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> PersonaDeleteService<L, D, E> {
-    pub fn new(prerequisites: DeletePersonaPrerequisites<L, D, E>) -> Self {
+impl<
+    L: LoadPersonaPort,
+    D: DeletePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    O: OrphanFilePort,
+> PersonaDeleteService<L, D, E, LF, O>
+{
+    pub fn new(prerequisites: DeletePersonaPrerequisites<L, D, E, LF, O>) -> Self {
         let DeletePersonaPrerequisites {
             load_persona_port,
             delete_persona_port,
             event_publisher,
+            load_file_port,
+            orphan_file_port,
         } = prerequisites;
 
         Self {
             load_persona_port,
             delete_persona_port,
             event_publisher,
+            load_file_port,
+            orphan_file_port,
         }
     }
 }
@@ -151,8 +267,14 @@ impl<L: LoadPersonasPort> GetPersonasQuery for GetPersonasService<L> {
     }
 }
 
-impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUseCase
-    for PersonaUpdateService<L, S, E>
+impl<
+    L: LoadPersonaPort,
+    S: SavePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    A: ActivateFilePort,
+    O: OrphanFilePort,
+> UpdatePersonaUseCase for PersonaUpdateService<L, S, E, LF, A, O>
 {
     async fn update_persona(
         &self,
@@ -163,6 +285,7 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
             id,
             name,
             description,
+            avatar_uid,
             exclude_participants,
         } = command;
 
@@ -184,13 +307,39 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
             creator_id,
             name: existing_name,
             description: existing_description,
+            avatar_uid: current_avatar_uid,
         } = persona;
+
+        let expected_scope = FileScope::PersonaAvatar {
+            user_id: user_id.clone(),
+            persona_id: uid.clone(),
+        };
+
+        let next_avatar_uid = apply_avatar_uid_patch(
+            &self.load_file_port,
+            &self.activate_file_port,
+            &self.orphan_file_port,
+            current_avatar_uid,
+            avatar_uid,
+            &expected_scope,
+        )
+        .await
+        .map_err(|err| match err {
+            AvatarBindingError::FileNotFound => UpdatePersonaError::FileNotFound,
+            AvatarBindingError::ValidationError(message) => {
+                UpdatePersonaError::ValidationError(message)
+            }
+            AvatarBindingError::InternalError(message) => {
+                UpdatePersonaError::InternalError(message)
+            }
+        })?;
 
         let updated_persona = Persona {
             uid,
             creator_id,
             name: name.unwrap_or(existing_name),
             description: description.unwrap_or(existing_description),
+            avatar_uid: next_avatar_uid,
         };
 
         let saved_persona = self
@@ -210,8 +359,13 @@ impl<L: LoadPersonaPort, S: SavePersonaPort, E: EventPublisher> UpdatePersonaUse
     }
 }
 
-impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaUseCase
-    for PersonaDeleteService<L, D, E>
+impl<
+    L: LoadPersonaPort,
+    D: DeletePersonaPort,
+    E: EventPublisher,
+    LF: LoadFilePort,
+    O: OrphanFilePort,
+> DeletePersonaUseCase for PersonaDeleteService<L, D, E, LF, O>
 {
     async fn delete_persona(
         &self,
@@ -235,6 +389,14 @@ impl<L: LoadPersonaPort, D: DeletePersonaPort, E: EventPublisher> DeletePersonaU
             })?;
 
         can_delete_persona(&user_id, &persona).map_err(|_| DeletePersonaError::AccessDenied)?;
+
+        orphan_avatar_if_present(
+            &self.load_file_port,
+            &self.orphan_file_port,
+            persona.avatar_uid.clone(),
+        )
+        .await
+        .map_err(|err| DeletePersonaError::InternalError(err.to_string()))?;
 
         self.delete_persona_port
             .delete_persona(&id, &user_id)

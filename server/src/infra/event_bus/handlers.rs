@@ -23,6 +23,7 @@ impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
             "name": event.persona.name.inner(),
             "description": event.persona.description.inner(),
             "creator_id": creator_id,
+            "avatar_uid": event.persona.avatar_uid.as_ref().map(|value| value.inner()),
         });
         let socket = self.socket.clone();
         let exclude_participants: Vec<String> = event
@@ -66,6 +67,7 @@ impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
             "name": event.persona.name.inner(),
             "description": event.persona.description.inner(),
             "creator_id": creator_id,
+            "avatar_uid": event.persona.avatar_uid.as_ref().map(|value| value.inner()),
         });
         let socket = self.socket.clone();
         let exclude_participants: Vec<String> = event
@@ -246,6 +248,47 @@ impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
                 .within(format!("user:{creator_id}"))
                 .except(exclude_participants)
                 .emit("character:deleted", &json)
+                .await
+                .ok();
+        })
+    }
+}
+
+pub struct UserUpdatedEventHandler {
+    socket: SocketIo,
+}
+
+impl UserUpdatedEventHandler {
+    pub fn new(socket: SocketIo) -> Self {
+        Self { socket }
+    }
+}
+
+impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
+    fn handle(&self, event: &UserUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
+        let user_id = event.user.uid.inner().to_owned();
+        let json = json!({
+            "id": user_id,
+            "username": event.user.name.inner(),
+            "avatar_uid": event.user.avatar_uid.as_ref().map(|value| value.inner().clone()),
+        });
+        let socket = self.socket.clone();
+        let exclude_participants: Vec<String> = event
+            .exclude_participants
+            .clone()
+            .into_iter()
+            .map(|id| id.into_inner())
+            .collect();
+
+        Box::pin(async move {
+            info!(target: "application::event_bus", ?user_id, ?exclude_participants, "Emitting user:updated event");
+
+            socket
+                .of("/v1")
+                .unwrap()
+                .within(format!("user:{user_id}"))
+                .except(exclude_participants)
+                .emit("user:updated", &json)
                 .await
                 .ok();
         })

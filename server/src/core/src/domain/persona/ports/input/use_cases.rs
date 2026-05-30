@@ -9,6 +9,9 @@ pub enum CreatePersonaError {
 
     #[error("Validation error: {0}")]
     ValidationError(String),
+
+    #[error("File not found")]
+    FileNotFound,
 }
 
 pub trait CreatePersonaUseCase {
@@ -31,6 +34,9 @@ pub enum UpdatePersonaError {
 
     #[error("Validation error: {0}")]
     ValidationError(String),
+
+    #[error("File not found")]
+    FileNotFound,
 }
 
 pub trait UpdatePersonaUseCase {

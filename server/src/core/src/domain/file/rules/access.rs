@@ -12,13 +12,15 @@ pub enum FileAccessError {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FileCreateAccessContext {
-    pub persona_owned_by_actor: bool,
+pub enum FileCreateAccessContext {
+    UserAvatar,
+    PersonaAvatar { persona_owned_by_actor: bool },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct FileMetaAccessContext {
-    pub persona_owned_by_actor: bool,
+pub enum FileMetaAccessContext {
+    UserAvatar,
+    PersonaAvatar { persona_owned_by_actor: bool },
 }
 
 fn scope_owner(scope: &FileScope) -> &UserId {
@@ -37,11 +39,16 @@ pub fn can_create_file(
         return Err(FileAccessError::AccessDenied);
     }
 
-    if matches!(scope, FileScope::PersonaAvatar { .. }) && !ctx.persona_owned_by_actor {
-        return Err(FileAccessError::AccessDenied);
+    match (scope, ctx) {
+        (FileScope::UserAvatar { .. }, FileCreateAccessContext::UserAvatar) => Ok(()),
+        (
+            FileScope::PersonaAvatar { .. },
+            FileCreateAccessContext::PersonaAvatar {
+                persona_owned_by_actor: true,
+            },
+        ) => Ok(()),
+        _ => Err(FileAccessError::AccessDenied),
     }
-
-    Ok(())
 }
 
 pub fn can_read_file(
@@ -69,9 +76,14 @@ fn can_access_file_meta(
         return Err(FileAccessError::AccessDenied);
     }
 
-    if matches!(meta.scope, FileScope::PersonaAvatar { .. }) && !ctx.persona_owned_by_actor {
-        return Err(FileAccessError::AccessDenied);
+    match (&meta.scope, ctx) {
+        (FileScope::UserAvatar { .. }, FileMetaAccessContext::UserAvatar) => Ok(()),
+        (
+            FileScope::PersonaAvatar { .. },
+            FileMetaAccessContext::PersonaAvatar {
+                persona_owned_by_actor: true,
+            },
+        ) => Ok(()),
+        _ => Err(FileAccessError::AccessDenied),
     }
-
-    Ok(())
 }

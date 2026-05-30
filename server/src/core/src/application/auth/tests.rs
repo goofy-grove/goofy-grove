@@ -104,6 +104,7 @@ fn sample_user() -> User {
         uid: UserId::try_new("user-id-1".to_string()).unwrap(),
         name: Username::try_new("john".to_string()).unwrap(),
         password: UserPassword::try_new("hashed".to_string()).unwrap(),
+        avatar_uid: None,
     }
 }
 

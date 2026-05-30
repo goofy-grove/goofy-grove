@@ -3,6 +3,7 @@ mod character;
 mod event;
 mod file;
 mod macros;
+mod patch_field;
 mod persona;
 mod ports;
 mod tokens;
@@ -37,4 +38,6 @@ pub mod prelude {
     pub use crate::domain::file::rules::*;
 
     pub use crate::domain::ports::*;
+
+    pub use crate::domain::patch_field::*;
 }

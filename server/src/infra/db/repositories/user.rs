@@ -1,9 +1,10 @@
 use gg_core::domain::prelude::*;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
 };
 
 use crate::infra::db::entities::{prelude::Users, users};
+use crate::infra::db::mappers::user_from_model;
 
 #[derive(Debug, Clone)]
 pub struct UserRepository {
@@ -24,16 +25,25 @@ impl LoadUserByNamePort for UserRepository {
             .await;
 
         match result {
-            Ok(Some(user)) => Ok(User {
-                uid: UserId::try_new(user.uid)
-                    .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-                name: Username::try_new(user.name)
-                    .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-                password: UserPassword::try_new(user.password)
-                    .map_err(|err| LoadUserByNamePortError::InternalError(err.to_string()))?,
-            }),
+            Ok(Some(user)) => user_from_model(user.uid, user.name, user.password, user.avatar_uid)
+                .map_err(LoadUserByNamePortError::InternalError),
             Ok(None) => Err(LoadUserByNamePortError::NotFound),
             Err(err) => Err(LoadUserByNamePortError::InternalError(err.to_string())),
+        }
+    }
+}
+
+impl LoadUserByIdPort for UserRepository {
+    async fn load_user_by_id(&self, user_id: &UserId) -> Result<User, LoadUserByIdPortError> {
+        let result = Users::find_by_id(user_id.inner())
+            .one(&self.connection)
+            .await;
+
+        match result {
+            Ok(Some(user)) => user_from_model(user.uid, user.name, user.password, user.avatar_uid)
+                .map_err(LoadUserByIdPortError::InternalError),
+            Ok(None) => Err(LoadUserByIdPortError::NotFound),
+            Err(err) => Err(LoadUserByIdPortError::InternalError(err.to_string())),
         }
     }
 }
@@ -44,23 +54,36 @@ impl SaveUserPort for UserRepository {
             uid,
             name,
             password,
+            avatar_uid,
         } = user;
 
         let new_user = users::ActiveModel {
             uid: Set(uid.into_inner()),
             name: Set(name.into_inner()),
             password: Set(password.into_inner()),
+            avatar_uid: Set(avatar_uid.map(|value| value.into_inner())),
         };
 
-        match new_user.insert(&self.connection).await {
-            Ok(inserted_user) => Ok(User {
-                uid: UserId::try_new(inserted_user.uid)
-                    .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-                name: Username::try_new(inserted_user.name)
-                    .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-                password: UserPassword::try_new(inserted_user.password)
-                    .map_err(|err| SaveUserPortError::InternalError(err.to_string()))?,
-            }),
+        match Users::insert(new_user)
+            .on_conflict(
+                sea_query::OnConflict::column(users::Column::Uid)
+                    .update_columns([
+                        users::Column::Name,
+                        users::Column::Password,
+                        users::Column::AvatarUid,
+                    ])
+                    .to_owned(),
+            )
+            .exec_with_returning(&self.connection)
+            .await
+        {
+            Ok(inserted_user) => user_from_model(
+                inserted_user.uid,
+                inserted_user.name,
+                inserted_user.password,
+                inserted_user.avatar_uid,
+            )
+            .map_err(SaveUserPortError::InternalError),
             Err(err) => Err(SaveUserPortError::InternalError(err.to_string())),
         }
     }

@@ -291,6 +291,8 @@ impl<L: LoadFileFromStoragePort, L1: LoadFilePort, L2: LoadFileMetaAccessContext
         can_read_file(&user_id, &file_meta, &access_ctx)
             .map_err(|_| GetFileQueryError::AccessDenied)?;
 
+        can_serve_file(&file_meta).map_err(|_| GetFileQueryError::FileNotFound)?;
+
         self.load_file_from_storage_port
             .load_file_from_storage(&file_meta)
             .await

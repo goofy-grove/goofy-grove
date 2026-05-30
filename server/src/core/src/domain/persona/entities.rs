@@ -9,4 +9,5 @@ pub struct Persona {
     pub creator_id: UserId,
     pub name: PersonaName,
     pub description: PersonaDescription,
+    pub avatar_uid: Option<FileId>,
 }

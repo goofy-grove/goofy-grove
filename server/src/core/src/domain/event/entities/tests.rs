@@ -8,6 +8,7 @@ fn persona_created_event_is_constructible() {
             creator_id: UserId::try_new("user-1".to_string()).unwrap(),
             name: PersonaName::try_new("Guide".to_string()).unwrap(),
             description: PersonaDescription::new("friendly".to_string()),
+            avatar_uid: None,
         },
         exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
     };
@@ -25,6 +26,7 @@ fn persona_updated_event_is_constructible() {
             creator_id: UserId::try_new("user-1".to_string()).unwrap(),
             name: PersonaName::try_new("Guide".to_string()).unwrap(),
             description: PersonaDescription::new("updated".to_string()),
+            avatar_uid: None,
         },
         exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
     };
@@ -43,6 +45,7 @@ fn persona_deleted_event_is_constructible() {
             creator_id: UserId::try_new("user-1".to_string()).unwrap(),
             name: PersonaName::try_new("Guide".to_string()).unwrap(),
             description: PersonaDescription::new("deleted".to_string()),
+            avatar_uid: None,
         },
         exclude_participants: vec![ParticipantId::try_new("user-2".to_string()).unwrap()],
     };

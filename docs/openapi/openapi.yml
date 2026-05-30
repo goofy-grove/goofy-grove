@@ -11,6 +11,7 @@ tags:
   - name: Users
   - name: Personas
   - name: Characters
+  - name: Files
 paths:
   /personas:
     get:
@@ -97,6 +98,83 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /personas/{uid}/avatar:
+    post:
+      tags: [Personas]
+      summary: Upload persona avatar
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Persona Unique ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Avatar image file
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /files/{uid}:
+    get:
+      tags: [Files]
+      summary: Download file by uid
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: File Unique ID
+          schema:
+            type: string
+      responses:
+        200:
+          description: File content
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/gif:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         404:
           $ref: '#/components/responses/NotFoundError'
         default:
@@ -203,7 +281,65 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  
+    patch:
+      tags: [Users]
+      summary: Update current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /users/me/avatar:
+    post:
+      tags: [Users]
+      summary: Upload user avatar
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Avatar image file
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
   /auth/login:
     post:
       tags: [Authentication]
@@ -309,6 +445,19 @@ components:
                       code:
                         const: not_found
 
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - properties:
+                  data:
+                    properties:
+                      code:
+                        const: forbidden
+
 
   schemas:
     # Requests
@@ -324,7 +473,7 @@ components:
           description: Persona Description
     PersonaUpdateRequest:
       type: object
-      description: At least one of `name` or `description` must be provided
+      description: At least one of `name`, `description`, or `avatar_uid` must be provided
       minProperties: 1
       properties:
         name:
@@ -333,6 +482,33 @@ components:
         description:
           type: string
           description: Persona Description
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: File uid to bind as avatar, or null to clear
+    UserUpdateRequest:
+      type: object
+      required: [avatar_uid]
+      properties:
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: File uid to bind as avatar, or null to clear
+    FileUploadResponse:
+      type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: object
+          required: [uid]
+          properties:
+            uid:
+              type: string
+              description: Uploaded file uid (status Created until bound via PATCH)
     CharacterCreateRequest:
       type: object
       required: [name, description]
@@ -368,6 +544,7 @@ components:
       type: string
       enum:
         - unauthorized
+        - forbidden
         - internal_error
         - bad_request
         - not_found
@@ -483,6 +660,11 @@ components:
         creator_uid:
           type: string
           description: Creator Unique ID (User UID)
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Current avatar file uid
     Character:
       type: object
       required: [uid, name, description, creator_uid]
@@ -509,4 +691,8 @@ components:
         username:
           type: string
           description: Nickname, login, username
-      
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Current avatar file uid

@@ -19,6 +19,22 @@ pub trait LoadUserByNamePort {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum LoadUserByIdPortError {
+    #[error("Internal error: {0}")]
+    InternalError(String),
+
+    #[error("User not found")]
+    NotFound,
+}
+
+pub trait LoadUserByIdPort {
+    fn load_user_by_id(
+        &self,
+        user_id: &UserId,
+    ) -> impl Future<Output = Result<User, LoadUserByIdPortError>>;
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum SaveUserPortError {
     #[error("Internal error: {0}")]
     InternalError(String),

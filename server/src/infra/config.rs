@@ -1,7 +1,11 @@
 mod db_config;
 mod jwt_config;
+mod policies_config;
+mod storage_config;
 
 pub use db_config::DbConfig;
+pub use policies_config::PoliciesConfig;
+pub use storage_config::StorageConfig;
 
 use serde::Deserialize;
 
@@ -20,6 +24,12 @@ pub struct Config {
 
     #[serde(default)]
     pub jwt: JwtConfig,
+
+    #[serde(default)]
+    pub policies: PoliciesConfig,
+
+    #[serde(default)]
+    pub storage: StorageConfig,
 }
 
 impl Default for Config {
@@ -29,6 +39,8 @@ impl Default for Config {
             port: 3003,
             database: DbConfig::default(),
             jwt: JwtConfig::default(),
+            policies: PoliciesConfig::default(),
+            storage: StorageConfig::default(),
         }
     }
 }

@@ -122,11 +122,14 @@ struct LoadCreateContextAllow;
 impl LoadFileCreateAccessContextPort for LoadCreateContextAllow {
     async fn load_create_context(
         &self,
-        _scope: &FileScope,
+        scope: &FileScope,
         _user_id: &UserId,
     ) -> Result<FileCreateAccessContext, LoadFileCreateAccessContextPortError> {
-        Ok(FileCreateAccessContext {
-            persona_owned_by_actor: true,
+        Ok(match scope {
+            FileScope::UserAvatar { .. } => FileCreateAccessContext::UserAvatar,
+            FileScope::PersonaAvatar { .. } => FileCreateAccessContext::PersonaAvatar {
+                persona_owned_by_actor: true,
+            },
         })
     }
 }
@@ -137,11 +140,14 @@ struct LoadCreateContextDenyPersonaOwnership;
 impl LoadFileCreateAccessContextPort for LoadCreateContextDenyPersonaOwnership {
     async fn load_create_context(
         &self,
-        _scope: &FileScope,
+        scope: &FileScope,
         _user_id: &UserId,
     ) -> Result<FileCreateAccessContext, LoadFileCreateAccessContextPortError> {
-        Ok(FileCreateAccessContext {
-            persona_owned_by_actor: false,
+        Ok(match scope {
+            FileScope::UserAvatar { .. } => FileCreateAccessContext::UserAvatar,
+            FileScope::PersonaAvatar { .. } => FileCreateAccessContext::PersonaAvatar {
+                persona_owned_by_actor: false,
+            },
         })
     }
 }
@@ -459,11 +465,14 @@ struct LoadMetaContextAllow;
 impl LoadFileMetaAccessContextPort for LoadMetaContextAllow {
     async fn load_meta_access_context(
         &self,
-        _meta: &FileMeta,
+        meta: &FileMeta,
         _user_id: &UserId,
     ) -> Result<FileMetaAccessContext, LoadFileMetaAccessContextPortError> {
-        Ok(FileMetaAccessContext {
-            persona_owned_by_actor: true,
+        Ok(match &meta.scope {
+            FileScope::UserAvatar { .. } => FileMetaAccessContext::UserAvatar,
+            FileScope::PersonaAvatar { .. } => FileMetaAccessContext::PersonaAvatar {
+                persona_owned_by_actor: true,
+            },
         })
     }
 }

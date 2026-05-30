@@ -3,3 +3,4 @@ config.yml
 .env
 *.sqlite
 .local
+data

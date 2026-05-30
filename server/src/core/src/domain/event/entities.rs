@@ -46,3 +46,10 @@ pub struct CharacterDeletedEvent {
 }
 
 impl Event for CharacterDeletedEvent {}
+
+pub struct UserUpdatedEvent {
+    pub user: User,
+    pub exclude_participants: Vec<ParticipantId>,
+}
+
+impl Event for UserUpdatedEvent {}

@@ -28,9 +28,7 @@ fn can_create_user_avatar_when_actor_matches_scope_owner() {
     let scope = FileScope::UserAvatar {
         user_id: actor.clone(),
     };
-    let ctx = FileCreateAccessContext {
-        persona_owned_by_actor: true,
-    };
+    let ctx = FileCreateAccessContext::UserAvatar;
 
     assert!(can_create_file(&actor, &scope, &ctx).is_ok());
 }
@@ -40,12 +38,26 @@ fn can_create_user_avatar_denied_when_actor_mismatch() {
     let scope = FileScope::UserAvatar {
         user_id: user("u1"),
     };
-    let ctx = FileCreateAccessContext {
+    let ctx = FileCreateAccessContext::UserAvatar;
+
+    assert_eq!(
+        can_create_file(&user("u2"), &scope, &ctx).unwrap_err(),
+        FileAccessError::AccessDenied
+    );
+}
+
+#[test]
+fn can_create_user_avatar_denied_when_context_mismatch() {
+    let actor = user("u1");
+    let scope = FileScope::UserAvatar {
+        user_id: actor.clone(),
+    };
+    let ctx = FileCreateAccessContext::PersonaAvatar {
         persona_owned_by_actor: true,
     };
 
     assert_eq!(
-        can_create_file(&user("u2"), &scope, &ctx).unwrap_err(),
+        can_create_file(&actor, &scope, &ctx).unwrap_err(),
         FileAccessError::AccessDenied
     );
 }
@@ -62,7 +74,7 @@ fn can_create_persona_avatar_requires_persona_ownership() {
         can_create_file(
             &actor,
             &scope,
-            &FileCreateAccessContext {
+            &FileCreateAccessContext::PersonaAvatar {
                 persona_owned_by_actor: true,
             }
         )
@@ -73,7 +85,7 @@ fn can_create_persona_avatar_requires_persona_ownership() {
         can_create_file(
             &actor,
             &scope,
-            &FileCreateAccessContext {
+            &FileCreateAccessContext::PersonaAvatar {
                 persona_owned_by_actor: false,
             }
         )
@@ -90,14 +102,7 @@ fn can_read_file_denied_for_wrong_actor() {
     let file = meta(scope);
 
     assert_eq!(
-        can_read_file(
-            &user("intruder"),
-            &file,
-            &FileMetaAccessContext {
-                persona_owned_by_actor: true,
-            }
-        )
-        .unwrap_err(),
+        can_read_file(&user("intruder"), &file, &FileMetaAccessContext::UserAvatar).unwrap_err(),
         FileAccessError::AccessDenied
     );
 }
@@ -114,7 +119,7 @@ fn can_delete_file_denied_when_persona_not_owned() {
         can_delete_file(
             &user("u1"),
             &file,
-            &FileMetaAccessContext {
+            &FileMetaAccessContext::PersonaAvatar {
                 persona_owned_by_actor: false,
             }
         )

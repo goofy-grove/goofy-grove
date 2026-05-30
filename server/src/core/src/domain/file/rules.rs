@@ -1,5 +1,6 @@
 mod access;
 mod assert_file_matches_policy;
+mod bind;
 mod file_content;
 mod file_content_type;
 mod file_id;
@@ -12,6 +13,7 @@ mod uploaded_at;
 
 pub use access::*;
 pub use assert_file_matches_policy::*;
+pub use bind::*;
 pub use file_content::*;
 pub use file_content_type::*;
 pub use file_id::*;

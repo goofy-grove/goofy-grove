@@ -93,6 +93,7 @@ impl<S: SaveUserPort, H: PasswordHasherPort, U: IdGenerator> RegistrationUseCase
             name,
             // NOTE: this unwrap is safe, because hashed_password has same checks and already checked
             password: hashed_password.into_inner().try_into().unwrap(),
+            avatar_uid: None,
         };
 
         match self.save_user_port.save_user(user).await {

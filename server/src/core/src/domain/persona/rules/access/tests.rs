@@ -10,6 +10,7 @@ fn persona(creator: UserId) -> Persona {
         creator_id: creator,
         name: PersonaName::try_new("Guide".to_string()).unwrap(),
         description: PersonaDescription::new("desc".to_string()),
+        avatar_uid: None,
     }
 }
 

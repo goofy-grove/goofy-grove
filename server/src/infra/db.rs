@@ -1,4 +1,5 @@
 pub mod entities;
+mod mappers;
 mod repositories;
 
 use gg_core::{

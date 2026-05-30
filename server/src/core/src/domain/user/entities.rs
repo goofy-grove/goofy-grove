@@ -8,4 +8,5 @@ pub struct User {
     pub uid: UserId,
     pub name: Username,
     pub password: UserPassword,
+    pub avatar_uid: Option<FileId>,
 }

@@ -10,14 +10,14 @@ use tracing::info;
 
 use crate::infra::{
     api::{
-        auth::create_auth_router, characters::create_character_router,
+        auth::create_auth_router, characters::create_character_router, files::create_files_router,
         personas::create_persona_router, users::create_user_router,
     },
     config::Config,
     event_bus::{
         CharacterCreatedEventHandler, CharacterDeletedEventHandler, CharacterUpdatedEventHandler,
         InMemoryEventBus, PersonaCreatedEventHandler, PersonaDeletedEventHandler,
-        PersonaUpdatedEventHandler,
+        PersonaUpdatedEventHandler, UserUpdatedEventHandler,
     },
     socketio::create_socketio_layer,
 };
@@ -36,7 +36,11 @@ pub fn init_router(
         )
         .nest(
             "/api/v1/users",
-            create_user_router(config.clone(), connection.clone()),
+            create_user_router(config.clone(), connection.clone(), event_bus.clone()),
+        )
+        .nest(
+            "/api/v1/files",
+            create_files_router(config.clone(), connection.clone()),
         )
         .nest(
             "/api/v1/personas",
@@ -54,6 +58,7 @@ pub fn register_event_handlers(event_bus: &mut InMemoryEventBus, socket: SocketI
     event_bus.subscribe(PersonaCreatedEventHandler::new(socket.clone()));
     event_bus.subscribe(PersonaUpdatedEventHandler::new(socket.clone()));
     event_bus.subscribe(PersonaDeletedEventHandler::new(socket.clone()));
+    event_bus.subscribe(UserUpdatedEventHandler::new(socket.clone()));
     event_bus.subscribe(CharacterCreatedEventHandler::new(socket.clone()));
     event_bus.subscribe(CharacterUpdatedEventHandler::new(socket.clone()));
     event_bus.subscribe(CharacterDeletedEventHandler::new(socket));

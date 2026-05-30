@@ -40,6 +40,14 @@ pub fn auth_error(reasons: &[&str]) -> Response<Body> {
         .into_response()
 }
 
+pub fn forbidden(reasons: &[&str]) -> Response<Body> {
+    (
+        StatusCode::FORBIDDEN,
+        Json(json!({"error": true, "data": {"reasons": reasons, "code": "forbidden"}})),
+    )
+        .into_response()
+}
+
 pub fn bad_request(reasons: &[&str]) -> Response<Body> {
     (
         StatusCode::BAD_REQUEST,

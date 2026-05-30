@@ -157,3 +157,17 @@ pub trait ActivateFilePort {
         meta: &FileMeta,
     ) -> impl Future<Output = Result<(), ActivateFilePortError>>;
 }
+
+#[derive(Debug, Clone, Error)]
+pub enum OrphanFilePortError {
+    #[error("Internal error: {0}")]
+    InternalError(String),
+
+    #[error("File not found")]
+    FileNotFound,
+}
+
+pub trait OrphanFilePort {
+    fn orphan_file(&self, meta: &FileMeta)
+    -> impl Future<Output = Result<(), OrphanFilePortError>>;
+}
