@@ -2,4 +2,5 @@
 pub enum FileStatus {
     Created,
     Activated,
+    Orphaned,
 }

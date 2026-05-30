@@ -11,10 +11,19 @@ pub struct Model {
     #[sea_orm(column_type = "Text")]
     pub description: String,
     pub creator_id: String,
+    pub avatar_uid: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::files::Entity",
+        from = "Column::AvatarUid",
+        to = "super::files::Column::Uid",
+        on_update = "NoAction",
+        on_delete = "SetNull"
+    )]
+    Files,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::CreatorId",
@@ -23,6 +32,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Users,
+}
+
+impl Related<super::files::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Files.def()
+    }
 }
 
 impl Related<super::users::Entity> for Entity {

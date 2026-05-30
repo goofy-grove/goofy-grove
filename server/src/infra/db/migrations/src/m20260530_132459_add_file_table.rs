@@ -6,22 +6,12 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        //     pub id: FileId,
-        // pub filename: Filename,
-        // pub uploaded_by: UserId,
-        // pub scope: FileScope,
-        // pub uploaded_at: UploadedAt,
-        // pub status: FileStatus,
-        // pub original_name: FileOriginalName,
-        // pub content_type: FileContentType,
-        // pub size: FileSize,
-
         manager
             .create_table(
                 Table::create()
                     .table("files")
                     .if_not_exists()
-                    .col(string("id").primary_key())
+                    .col(string("uid").primary_key())
                     .col(string("filename").unique_key())
                     .col(string("uploaded_by"))
                     .col(string("scope_kind"))

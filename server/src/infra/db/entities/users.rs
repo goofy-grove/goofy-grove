@@ -10,12 +10,21 @@ pub struct Model {
     #[sea_orm(unique)]
     pub name: String,
     pub password: String,
+    pub avatar_uid: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(has_many = "super::characters::Entity")]
     Characters,
+    #[sea_orm(
+        belongs_to = "super::files::Entity",
+        from = "Column::AvatarUid",
+        to = "super::files::Column::Uid",
+        on_update = "NoAction",
+        on_delete = "SetNull"
+    )]
+    Files,
     #[sea_orm(has_many = "super::personas::Entity")]
     Personas,
     #[sea_orm(has_many = "super::tokens::Entity")]
@@ -25,6 +34,12 @@ pub enum Relation {
 impl Related<super::characters::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Characters.def()
+    }
+}
+
+impl Related<super::files::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Files.def()
     }
 }
 

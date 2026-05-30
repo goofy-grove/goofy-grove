@@ -6,7 +6,7 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "files")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
-    pub id: String,
+    pub uid: String,
     #[sea_orm(unique)]
     pub filename: String,
     pub uploaded_by: String,
@@ -22,6 +22,8 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::personas::Entity")]
+    Personas,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::ScopeOwnerId",
@@ -38,6 +40,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Users1,
+}
+
+impl Related<super::personas::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Personas.def()
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}

@@ -32,7 +32,11 @@ jwt:
     expiration_time: 604800 # 1 week
     salt: "default_refresh_token_salt"
 
-policy:
-  avatar:
-    max_file_size: [5, "MB"]
-    allowed_content_types: ["image/jpeg", "image/png", "image/gif"]
+policies:
+  files:
+    user_avatar:
+      max_file_size: [5, "MB"]
+      allowed_content_types: ["image/jpeg", "image/png", "image/gif"]
+    persona_avatar:
+      max_file_size: [5, "MB"]
+      allowed_content_types: ["image/jpeg", "image/png", "image/gif"]
