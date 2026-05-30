@@ -4,6 +4,7 @@ mod m20220101_000001_create_table;
 mod m20260217_201018_create_personas_table;
 mod m20260321_155310_create_tokens_users;
 mod m20260427_082333_add_character;
+mod m20260530_132459_add_file_table;
 
 pub struct Migrator;
 
@@ -15,6 +16,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260217_201018_create_personas_table::Migration),
             Box::new(m20260321_155310_create_tokens_users::Migration),
             Box::new(m20260427_082333_add_character::Migration),
+            Box::new(m20260530_132459_add_file_table::Migration),
         ]
     }
 }
