@@ -1,5 +1,5 @@
 [workspace]
-members = [".", "src/core/", "src/infra/db/migrations"]
+members = [".", "src/platform/database/migrations"]
 
 [package]
 name = "goofy-grove"
@@ -11,8 +11,7 @@ axum = { version = "0.8.8", features = ["multipart"] }
 serde_yaml = "0.9"
 env_logger = "0.11.8"
 serde = { version = "1.0", features = ["derive"] }
-migration = { path = "src/infra/db/migrations" }
-gg_core = { path = "src/core/" }
+migration = { path = "src/platform/database/migrations" }
 tokio = { version = "1.49.0", features = ["rt-multi-thread"] }
 sea-orm = { version = "2.0.0-rc", features = [
   "sqlx-sqlite",

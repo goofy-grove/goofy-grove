@@ -1315,14 +1315,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gg_core"
-version = "0.1.0"
-dependencies = [
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "glob"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1339,7 +1331,6 @@ dependencies = [
  "blake3",
  "chrono",
  "env_logger",
- "gg_core",
  "jsonwebtoken",
  "keyv",
  "migration",

@@ -1,26 +1,29 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::infra::config::TokenConfig;
+use crate::platform::config::TokenConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct JwtData {
+pub struct TokenClaims {
     pub uid: String,
     pub sub: String,
     pub exp: usize,
 }
 
 #[derive(Debug, Clone)]
-pub struct UserData {
+pub struct UserTokenInput {
     pub uid: String,
     pub username: String,
 }
 
-async fn generate_token(user: UserData, config: &TokenConfig) -> Result<(String, usize), String> {
+pub fn generate_token(
+    user: UserTokenInput,
+    config: &TokenConfig,
+) -> Result<(String, usize), String> {
     let expires = (chrono::Utc::now() + chrono::Duration::seconds(config.expiration_time as i64))
         .timestamp() as usize;
-    let UserData { uid, username } = user;
-    let jwt_access_data = JwtData {
+    let UserTokenInput { uid, username } = user;
+    let claims = TokenClaims {
         uid,
         sub: username,
         exp: expires,
@@ -28,7 +31,7 @@ async fn generate_token(user: UserData, config: &TokenConfig) -> Result<(String,
 
     jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
-        &jwt_access_data,
+        &claims,
         &jsonwebtoken::EncodingKey::from_secret(config.secret.as_ref()),
     )
     .map_err(|err| err.to_string())
@@ -44,20 +47,19 @@ pub enum ValidateTokenError {
     TokenInvalid,
 }
 
-async fn validate_token(token: &str, config: &TokenConfig) -> Result<JwtData, ValidateTokenError> {
-    let validated_token = jsonwebtoken::decode::<JwtData>(
+pub fn validate_token(
+    token: &str,
+    config: &TokenConfig,
+) -> Result<TokenClaims, ValidateTokenError> {
+    match jsonwebtoken::decode::<TokenClaims>(
         token,
         &jsonwebtoken::DecodingKey::from_secret(config.secret.as_ref()),
         &jsonwebtoken::Validation::default(),
-    )
-    .map(|token| token.claims)
-    .map_err(|err| {
-        if err.kind() == &jsonwebtoken::errors::ErrorKind::ExpiredSignature {
-            ValidateTokenError::TokenExpired
-        } else {
-            ValidateTokenError::TokenInvalid
+    ) {
+        Ok(token) => Ok(token.claims),
+        Err(err) if err.kind() == &jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
+            Err(ValidateTokenError::TokenExpired)
         }
-    })?;
-
-    Ok(validated_token)
+        Err(_) => Err(ValidateTokenError::TokenInvalid),
+    }
 }

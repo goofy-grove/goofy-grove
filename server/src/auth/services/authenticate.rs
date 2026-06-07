@@ -1,0 +1,35 @@
+use thiserror::Error;
+
+use crate::{
+    app::AppDeps,
+    auth::services::crypto,
+    user::public::{self, User},
+};
+
+#[derive(Debug, Clone, Error)]
+pub enum AuthenticateError {
+    #[error("Invalid credentials")]
+    InvalidCredentials,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+pub async fn authenticate(
+    deps: &AppDeps,
+    username: &str,
+    password: &str,
+) -> Result<User, AuthenticateError> {
+    let user = public::get_by_name(deps, username)
+        .await
+        .map_err(|_| AuthenticateError::InvalidCredentials)?;
+
+    let verified = crypto::verify_password(password, &user.password)
+        .map_err(AuthenticateError::InternalError)?;
+
+    if verified {
+        Ok(user)
+    } else {
+        Err(AuthenticateError::InvalidCredentials)
+    }
+}

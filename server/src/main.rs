@@ -2,15 +2,20 @@ use std::sync::Arc;
 
 use env_logger::Env;
 
-mod infra;
+mod app;
 mod auth;
+mod character;
+mod file;
+mod persona;
+mod platform;
 mod user;
 
-use infra::config::Config;
+use platform::config::Config;
 use tracing::info;
 use tracing_subscriber::FmtSubscriber;
 
-use crate::infra::{api::server::start_server, db::init_db};
+use crate::app::start_server;
+use crate::platform::database::init_db;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
