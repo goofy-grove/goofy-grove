@@ -1,8 +1,7 @@
 use crate::infra::db::entities::{prelude::Tokens, tokens};
 use chrono::DateTime;
 use sea_orm::{
-    ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, ModelTrait, QueryFilter,
-    SqlErr, TransactionTrait,
+    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, ModelTrait, QueryFilter, SqlErr,
 };
 use thiserror::Error;
 
@@ -54,85 +53,71 @@ impl From<tokens::Model> for UserDevice {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct DeviceRepository {
-    connection: DatabaseConnection,
+async fn load_device(
+    connection: &impl ConnectionTrait,
+    hashed_token: &str,
+) -> Result<UserDevice, LoadDeviceError> {
+    let token = Tokens::find()
+        .filter(tokens::Column::HashedToken.eq(hashed_token))
+        .one(connection)
+        .await;
+
+    match token {
+        Ok(Some(token)) => Ok(token.into()),
+        Ok(None) => Err(LoadDeviceError::DeviceNotFound),
+        Err(err) => Err(LoadDeviceError::InternalError(err.to_string())),
+    }
 }
 
-impl DeviceRepository {
-    pub fn new(connection: DatabaseConnection) -> Self {
-        Self { connection }
-    }
+async fn create_device(
+    connection: &impl ConnectionTrait,
+    device: UserDevice,
+) -> Result<UserDevice, SaveDeviceError> {
+    let UserDevice {
+        uid,
+        hashed_token,
+        user_id,
+        user_agent,
+        last_accessed_at,
+    } = device;
 
-    async fn load_device(&self, hashed_token: &str) -> Result<UserDevice, LoadDeviceError> {
-        let token = Tokens::find()
-            .filter(tokens::Column::HashedToken.eq(hashed_token))
-            .one(&self.connection)
-            .await;
+    let token = tokens::ActiveModel {
+        uid: Set(uid),
+        hashed_token: Set(hashed_token),
+        user_id: Set(user_id),
+        user_agent: Set(user_agent),
+        last_accessed_at: Set(last_accessed_at.naive_utc()),
+    };
 
-        match token {
-            Ok(Some(token)) => Ok(token.into()),
-            Ok(None) => Err(LoadDeviceError::DeviceNotFound),
-            Err(err) => Err(LoadDeviceError::InternalError(err.to_string())),
-        }
-    }
+    let result = Tokens::insert(token).exec_with_returning(connection).await;
 
-    async fn create_device(&self, device: UserDevice) -> Result<UserDevice, SaveDeviceError> {
-        let UserDevice {
-            uid,
-            hashed_token,
-            user_id,
-            user_agent,
-            last_accessed_at,
-        } = device;
-
-        let token = tokens::ActiveModel {
-            uid: Set(uid),
-            hashed_token: Set(hashed_token),
-            user_id: Set(user_id),
-            user_agent: Set(user_agent),
-            last_accessed_at: Set(last_accessed_at.naive_utc()),
-        };
-
-        let result = Tokens::insert(token)
-            .exec_with_returning(&self.connection)
-            .await;
-
-        match result {
-            Ok(token) => Ok(token.into()),
-            Err(err) => {
-                if let Some(SqlErr::UniqueConstraintViolation(_)) = err.sql_err() {
-                    Err(SaveDeviceError::DeviceAlreadyExists)
-                } else {
-                    Err(SaveDeviceError::InternalError(err.to_string()))
-                }
+    match result {
+        Ok(token) => Ok(token.into()),
+        Err(err) => {
+            if let Some(SqlErr::UniqueConstraintViolation(_)) = err.sql_err() {
+                Err(SaveDeviceError::DeviceAlreadyExists)
+            } else {
+                Err(SaveDeviceError::InternalError(err.to_string()))
             }
         }
     }
+}
 
-    async fn invalidate_device(&self, hashed_token: &str) -> Result<(), InvalidateDeviceError> {
-        let tx = self
-            .connection
-            .begin()
-            .await
-            .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?;
+async fn invalidate_device(
+    connection: &impl ConnectionTrait,
+    hashed_token: &str,
+) -> Result<(), InvalidateDeviceError> {
+    let token = Tokens::find()
+        .filter(tokens::Column::HashedToken.eq(hashed_token))
+        .one(connection)
+        .await
+        .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?
+        .ok_or(InvalidateDeviceError::DeviceNotFound)?;
 
-        let token = Tokens::find()
-            .filter(tokens::Column::HashedToken.eq(hashed_token))
-            .one(&tx)
-            .await
-            .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?
-            .ok_or(InvalidateDeviceError::DeviceNotFound)?;
+    token
+        .delete(connection)
+        .await
+        .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?;
 
-        token
-            .delete(&tx)
-            .await
-            .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?;
-
-        tx.commit()
-            .await
-            .map_err(|err| InvalidateDeviceError::InternalError(err.to_string()))?;
-
-        Ok(())
-    }
+    Ok(())
 }

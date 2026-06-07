@@ -1,5 +1,6 @@
 use sea_orm::{
-    ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, sea_query,
+    ActiveValue::Set, ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    sea_query,
 };
 use thiserror::Error;
 
@@ -33,72 +34,64 @@ impl From<users::Model> for User {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct UserRepository {
-    connection: DatabaseConnection,
+pub async fn load_user_by_name(
+    connection: &impl ConnectionTrait,
+    name: &str,
+) -> Result<User, LoadUserError> {
+    let result = Users::find()
+        .filter(users::Column::Name.eq(name))
+        .one(connection)
+        .await;
+
+    match result {
+        Ok(Some(user)) => Ok(user.into()),
+        Ok(None) => Err(LoadUserError::NotFound),
+        Err(err) => Err(LoadUserError::InternalError(err.to_string())),
+    }
 }
 
-impl UserRepository {
-    pub fn new(connection: DatabaseConnection) -> Self {
-        Self { connection }
+pub async fn load_user_by_id(connection: &impl ConnectionTrait, user_id: &str) -> Result<User, LoadUserError> {
+    let result = Users::find()
+        .filter(users::Column::Uid.eq(user_id))
+        .one(connection)
+        .await;
+
+    match result {
+        Ok(Some(user)) => Ok(user.into()),
+        Ok(None) => Err(LoadUserError::NotFound),
+        Err(err) => Err(LoadUserError::InternalError(err.to_string())),
     }
+}
 
-    async fn load_user_by_name(&self, name: &str) -> Result<User, LoadUserError> {
-        let result = Users::find()
-            .filter(users::Column::Name.eq(name))
-            .one(&self.connection)
-            .await;
+pub async fn save_user(connection: &impl ConnectionTrait, user: User) -> Result<User, LoadUserError> {
+    let User {
+        uid,
+        name,
+        password,
+        avatar_uid,
+    } = user;
 
-        match result {
-            Ok(Some(user)) => Ok(user.into()),
-            Ok(None) => Err(LoadUserError::NotFound),
-            Err(err) => Err(LoadUserError::InternalError(err.to_string())),
-        }
-    }
+    let new_user = users::ActiveModel {
+        uid: Set(uid),
+        name: Set(name),
+        password: Set(password),
+        avatar_uid: Set(avatar_uid),
+    };
 
-    async fn load_user_by_id(&self, user_id: &str) -> Result<User, LoadUserError> {
-        let result = Users::find()
-            .filter(users::Column::Uid.eq(user_id))
-            .one(&self.connection)
-            .await;
-
-        match result {
-            Ok(Some(user)) => Ok(user.into()),
-            Ok(None) => Err(LoadUserError::NotFound),
-            Err(err) => Err(LoadUserError::InternalError(err.to_string())),
-        }
-    }
-
-    async fn save_user(&self, user: User) -> Result<User, LoadUserError> {
-        let User {
-            uid,
-            name,
-            password,
-            avatar_uid,
-        } = user;
-
-        let new_user = users::ActiveModel {
-            uid: Set(uid),
-            name: Set(name),
-            password: Set(password),
-            avatar_uid: Set(avatar_uid),
-        };
-
-        match Users::insert(new_user)
-            .on_conflict(
-                sea_query::OnConflict::column(users::Column::Uid)
-                    .update_columns([
-                        users::Column::Name,
-                        users::Column::Password,
-                        users::Column::AvatarUid,
-                    ])
-                    .to_owned(),
-            )
-            .exec_with_returning(&self.connection)
-            .await
-        {
-            Ok(user) => Ok(user.into()),
-            Err(err) => Err(LoadUserError::InternalError(err.to_string())),
-        }
+    match Users::insert(new_user)
+        .on_conflict(
+            sea_query::OnConflict::column(users::Column::Uid)
+                .update_columns([
+                    users::Column::Name,
+                    users::Column::Password,
+                    users::Column::AvatarUid,
+                ])
+                .to_owned(),
+        )
+        .exec_with_returning(connection)
+        .await
+    {
+        Ok(user) => Ok(user.into()),
+        Err(err) => Err(LoadUserError::InternalError(err.to_string())),
     }
 }
