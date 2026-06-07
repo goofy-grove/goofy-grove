@@ -4,6 +4,7 @@ mod policies_config;
 mod storage_config;
 
 pub use db_config::DbConfig;
+pub use jwt_config::TokenConfig;
 pub use policies_config::PoliciesConfig;
 pub use storage_config::StorageConfig;
 

@@ -3,6 +3,8 @@ use std::sync::Arc;
 use env_logger::Env;
 
 mod infra;
+mod auth;
+mod user;
 
 use infra::config::Config;
 use tracing::info;

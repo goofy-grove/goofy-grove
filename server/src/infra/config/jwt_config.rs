@@ -1,15 +1,15 @@
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct TokenData {
+pub struct TokenConfig {
     pub secret: String,
     pub expiration_time: u64,
 }
 
 #[derive(Debug, Clone)]
 pub struct JwtConfig {
-    pub access_token: TokenData,
-    pub refresh_token: TokenData,
+    pub access_token: TokenConfig,
+    pub refresh_token: TokenConfig,
 }
 
 impl<'de> Deserialize<'de> for JwtConfig {
@@ -30,17 +30,17 @@ impl<'de> Deserialize<'de> for JwtConfig {
         }
 
         let helper = JwtConfigHelper::deserialize(deserializer)?;
-        let default_access_token = TokenData {
+        let default_access_token = TokenConfig {
             secret: "default_access_token_secret".to_string(),
             expiration_time: 3_600, // 1 hour
         };
-        let default_refresh_token = TokenData {
+        let default_refresh_token = TokenConfig {
             secret: "default_refresh_token_secret".to_string(),
             expiration_time: 2_592_000, // 1 month
         };
 
         Ok(JwtConfig {
-            access_token: TokenData {
+            access_token: TokenConfig {
                 secret: helper
                     .access_token
                     .clone()
@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for JwtConfig {
                     .expiration_time
                     .unwrap_or(default_access_token.expiration_time),
             },
-            refresh_token: TokenData {
+            refresh_token: TokenConfig {
                 secret: helper
                     .refresh_token
                     .clone()
@@ -74,11 +74,11 @@ impl<'de> Deserialize<'de> for JwtConfig {
 impl Default for JwtConfig {
     fn default() -> Self {
         JwtConfig {
-            access_token: TokenData {
+            access_token: TokenConfig {
                 secret: "default_access_token_secret".to_string(),
                 expiration_time: 3_600, // 1 hour
             },
-            refresh_token: TokenData {
+            refresh_token: TokenConfig {
                 secret: "default_refresh_token_secret".to_string(),
                 expiration_time: 2_592_000, // 1 month
             },
