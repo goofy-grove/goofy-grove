@@ -398,65 +398,55 @@ components:
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - properties:
-                  data:
-                    properties:
-                      code:
-                        const: unauthorized
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: auth_invalid_credentials
 
     InternalError:
       description: Internal Server Error
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - properties:
-                  data:
-                    properties:
-                      code:
-                        const: internal_error
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: persona_create_failed
 
     BadRequestError:
       description: Bad Request
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - properties:
-                  data:
-                    properties:
-                      code:
-                        const: bad_request
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: persona_invalid_name
 
     NotFoundError:
       description: Not Found
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - properties:
-                  data:
-                    properties:
-                      code:
-                        const: not_found
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: persona_not_found
 
     ForbiddenError:
       description: Forbidden
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/ErrorResponse'
-              - properties:
-                  data:
-                    properties:
-                      code:
-                        const: forbidden
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: file_access_denied
 
 
   schemas:
@@ -539,16 +529,6 @@ components:
         password:
           type: string
 
-    # Enums
-    ErrorCodes:
-      type: string
-      enum:
-        - unauthorized
-        - forbidden
-        - internal_error
-        - bad_request
-        - not_found
-
     # Responses
     ErrorResponse:
       type: object
@@ -559,15 +539,19 @@ components:
           const: true
         data:
           type: object
-          required: [reasons, code]
+          required: [code]
           properties:
-            reasons:
-              type: array
-              items:
-                type: string
-              example: ['Failed to authenticate user']
             code:
-              $ref: '#/components/schemas/ErrorCodes'
+              type: string
+              description: Stable snake_case error code for client-side localization
+              example: persona_invalid_name
+            params:
+              type: object
+              description: Optional interpolation parameters for localized messages
+              additionalProperties: true
+              example:
+                max_size: 1048576
+                size: 2097152
     AuthenticationResponse:
       type: object
       properties:

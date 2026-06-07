@@ -15,20 +15,20 @@ use crate::{
         db::file::{self, LoadFileError},
         services::get::{GetFileError, get_file as fetch_file_bytes},
     },
-    platform::http::response,
+    platform::http::error::{ApiError, codes},
 };
 
 async fn get_file(
     Extension(user): Extension<AuthenticatedUser>,
     Path(file_uid): Path<String>,
     State(deps): State<AppDeps>,
-) -> Response {
+) -> Result<Response, ApiError> {
     let meta = match file::load_file(&deps.db, &file_uid).await {
         Ok(meta) => meta,
-        Err(LoadFileError::NotFound) => return response::not_found(&["File not found"]),
+        Err(LoadFileError::NotFound) => return Err(ApiError::not_found(codes::FILE_NOT_FOUND)),
         Err(err) => {
             error!(target: "application::api::get_file", ?err, "Failed to load file metadata");
-            return response::internal_error(&["Failed to get file"]);
+            return Err(ApiError::internal(codes::FILE_GET_FAILED));
         }
     };
 
@@ -39,13 +39,12 @@ async fn get_file(
             .status(StatusCode::OK)
             .header(header::CONTENT_TYPE, content_type)
             .body(Body::from(content))
-            .unwrap_or_else(|_| response::internal_error(&["Failed to build file response"])),
-        Err(GetFileError::NotFound) => response::not_found(&["File not found"]),
-        Err(GetFileError::AccessDenied) => response::forbidden(&["Access denied"]),
+            .map_err(|_| ApiError::internal(codes::FILE_RESPONSE_BUILD_FAILED)),
+        Err(GetFileError::NotFound) => Err(ApiError::not_found(codes::FILE_NOT_FOUND)),
+        Err(GetFileError::AccessDenied) => Err(ApiError::forbidden(codes::FILE_ACCESS_DENIED)),
         Err(err) => {
             error!(target: "application::api::get_file", ?err, "Failed to get file");
-
-            response::internal_error(&["Failed to get file"])
+            Err(ApiError::internal(codes::FILE_GET_FAILED))
         }
     }
 }

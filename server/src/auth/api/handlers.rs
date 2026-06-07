@@ -1,5 +1,5 @@
 use axum::{
-    Json, Router,
+    Router,
     extract::State,
     http::{HeaderValue, header},
     response::Response,
@@ -17,7 +17,11 @@ use crate::{
         jwt::validate_token,
         tokens::generate_tokens,
     },
-    platform::http::response::{self, ToJson},
+    platform::http::{
+        error::{ApiError, codes},
+        extract::ValidatedJson,
+        response::{self, ToJson},
+    },
     user::public,
 };
 
@@ -51,29 +55,29 @@ fn set_refresh_cookie(response: &mut Response, refresh_token: &str, max_age: usi
 
 async fn authenticate_user(
     State(deps): State<AppDeps>,
-    Json(payload): Json<AuthenticateUserRequest>,
-) -> Result<Response, Response> {
+    ValidatedJson(payload): ValidatedJson<AuthenticateUserRequest>,
+) -> Result<Response, ApiError> {
     if payload.username.trim().is_empty() {
-        return Err(response::bad_request(&["Invalid username"]));
+        return Err(ApiError::bad_request(codes::AUTH_INVALID_USERNAME));
     }
     if payload.password.trim().is_empty() {
-        return Err(response::bad_request(&["Invalid password"]));
+        return Err(ApiError::bad_request(codes::AUTH_INVALID_PASSWORD));
     }
 
     let user = authenticate(&deps, &payload.username, &payload.password)
         .await
         .map_err(|err| match err {
             AuthenticateError::InvalidCredentials => {
-                response::auth_error(&["Failed to authenticate user"])
+                ApiError::unauthorized(codes::AUTH_INVALID_CREDENTIALS)
             }
             AuthenticateError::InternalError(_) => {
-                response::internal_error(&["Failed to authenticate user"])
+                ApiError::internal(codes::AUTH_AUTHENTICATION_FAILED)
             }
         })?;
 
     let tokens = generate_tokens(&deps, &user)
         .await
-        .map_err(|err| response::internal_error(&[&err.to_string()]))?;
+        .map_err(|_| ApiError::internal(codes::AUTH_TOKEN_GENERATION_FAILED))?;
 
     let mut response = response::ok(TokenResponse {
         token: tokens.access_token,
@@ -88,26 +92,26 @@ async fn authenticate_user(
 async fn refresh_token(
     State(deps): State<AppDeps>,
     cookie: CookieJar,
-) -> Result<Response, Response> {
+) -> Result<Response, ApiError> {
     let refresh_token = cookie
         .get("refresh_token")
-        .ok_or(response::auth_error(&["Refresh token not found"]))?
+        .ok_or(ApiError::unauthorized(codes::AUTH_REFRESH_TOKEN_NOT_FOUND))?
         .value();
 
     invalidate_device_by_token(&deps, refresh_token)
         .await
-        .map_err(|_| response::auth_error(&["Token not found"]))?;
+        .map_err(|_| ApiError::unauthorized(codes::AUTH_TOKEN_NOT_FOUND))?;
 
     let claims = validate_token(refresh_token, &deps.config.jwt.refresh_token)
-        .map_err(|_| response::auth_error(&["Invalid token"]))?;
+        .map_err(|_| ApiError::unauthorized(codes::AUTH_TOKEN_INVALID))?;
 
     let user = public::get_by_name(&deps, &claims.sub)
         .await
-        .map_err(|_| response::auth_error(&["User not found"]))?;
+        .map_err(|_| ApiError::unauthorized(codes::AUTH_USER_NOT_FOUND))?;
 
     let tokens = generate_tokens(&deps, &user)
         .await
-        .map_err(|err| response::internal_error(&[&err.to_string()]))?;
+        .map_err(|_| ApiError::internal(codes::AUTH_TOKEN_GENERATION_FAILED))?;
 
     let mut response = response::ok(TokenResponse {
         token: tokens.access_token,

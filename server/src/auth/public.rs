@@ -12,7 +12,10 @@ use sea_orm::DatabaseConnection;
 use crate::{
     app::AppDeps,
     auth::services::jwt::validate_token,
-    platform::{config::Config, http::response},
+    platform::{
+        config::Config,
+        http::error::{ApiError, codes},
+    },
     user::public,
 };
 
@@ -63,22 +66,23 @@ async fn authentication_middleware(
     State(state): State<AuthMiddlewareState>,
     mut req: Request,
     next: Next,
-) -> Result<Response, Response> {
+) -> Result<Response, ApiError> {
     let auth_header = req
         .headers()
         .get(header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok());
 
-    let auth_header = auth_header.ok_or_else(|| response::auth_error(&["Token not found"]))?;
+    let auth_header =
+        auth_header.ok_or_else(|| ApiError::unauthorized(codes::AUTH_TOKEN_NOT_FOUND))?;
 
     let token = auth_header
         .strip_prefix("Bearer ")
-        .ok_or_else(|| response::auth_error(&["Failed to authenticate user"]))?;
+        .ok_or_else(|| ApiError::unauthorized(codes::AUTH_AUTHENTICATION_FAILED))?;
 
     let user = resolve_user_with_token_expiry(&state, token)
         .await
         .map(|(user, _)| user)
-        .ok_or_else(|| response::auth_error(&["Failed to authenticate user"]))?;
+        .ok_or_else(|| ApiError::unauthorized(codes::AUTH_AUTHENTICATION_FAILED))?;
 
     req.extensions_mut().insert(user);
 

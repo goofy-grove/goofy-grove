@@ -1,5 +1,5 @@
 use axum::{
-    Extension, Json, Router,
+    Extension, Router,
     extract::{Multipart, Path, State},
     response::Response,
     routing::{delete, get, patch, post},
@@ -11,7 +11,7 @@ use tracing::error;
 use crate::{
     app::AppDeps,
     auth::public::AuthenticatedUser,
-    file::public::{CreateFileError, CreateFileInput, FileScope, create_file_for_user},
+    file::public::{CreateFileInput, FileScope, create_file_for_user},
     persona::{
         db::persona::Persona,
         services::{
@@ -23,8 +23,8 @@ use crate::{
     },
     platform::{
         http::{
-            extract::ExcludeSocketParticipants,
-            multipart::read_multipart_file,
+            error::{ApiError, codes},
+            extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
             response::{self, ToJson},
         },
         types::PatchField,
@@ -57,14 +57,16 @@ impl ToJson for FileUploadResponse {
 async fn get_all_user_personas(
     Extension(user): Extension<AuthenticatedUser>,
     State(deps): State<AppDeps>,
-) -> Response {
-    match services::get::get_personas(&deps, &user.uid).await {
-        Ok(personas) => response::ok(personas),
-        Err(err) => {
+) -> Result<Response, ApiError> {
+    let personas = services::get::get_personas(&deps, &user.uid)
+        .await
+        .map_err(|err| {
             error!(target: "application::api::get_all_user_personas", ?err, "Failed to get personas:");
-            response::internal_error(&["Failed to get personas"])
-        }
-    }
+
+            ApiError::internal(codes::PERSONA_LIST_FAILED)
+        })?;
+
+    Ok(response::ok(personas))
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -78,10 +80,10 @@ async fn create_persona(
     Extension(user): Extension<AuthenticatedUser>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-    Json(request): Json<PersonaCreateRequest>,
-) -> Response {
+    ValidatedJson(request): ValidatedJson<PersonaCreateRequest>,
+) -> Result<Response, ApiError> {
     if request.name.trim().is_empty() {
-        return response::bad_request(&["Invalid persona name"]);
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_NAME));
     }
 
     let input = CreatePersonaInput {
@@ -92,15 +94,24 @@ async fn create_persona(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::create::create_persona(&deps, input).await {
-        Ok(persona) => response::created(persona),
-        Err(CreatePersonaError::FileNotFound) => response::not_found(&["Avatar file not found"]),
-        Err(CreatePersonaError::ValidationError(message)) => response::bad_request(&[&message]),
-        Err(err) => {
-            error!(target: "application::api::create_persona", ?err, "Failed to create persona:");
-            response::internal_error(&["Failed to create persona"])
-        }
-    }
+    let persona = services::create::create_persona(&deps, input)
+        .await
+        .map_err(|err| match err {
+            CreatePersonaError::FileNotFound => ApiError::not_found(codes::PERSONA_AVATAR_NOT_FOUND),
+            CreatePersonaError::InvalidFileStatus => {
+                ApiError::bad_request(codes::FILE_INVALID_STATUS)
+            }
+            CreatePersonaError::InvalidFileScope => {
+                ApiError::bad_request(codes::FILE_INVALID_SCOPE)
+            }
+            CreatePersonaError::InternalError(_) => {
+                error!(target: "application::api::create_persona", ?err, "Failed to create persona:");
+
+                ApiError::internal(codes::PERSONA_CREATE_FAILED)
+            }
+        })?;
+
+    Ok(response::created(persona))
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -124,20 +135,20 @@ async fn patch_persona(
     Path(persona_id): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-    Json(request): Json<PersonaUpdateRequest>,
-) -> Response {
+    ValidatedJson(request): ValidatedJson<PersonaUpdateRequest>,
+) -> Result<Response, ApiError> {
     if request.name.is_none() && request.description.is_none() && request.avatar_uid.is_none() {
-        return response::bad_request(&["At least one field should be provided"]);
+        return Err(ApiError::bad_request(codes::PERSONA_NO_FIELDS_PROVIDED));
     }
 
     if persona_id.trim().is_empty() {
-        return response::bad_request(&["Invalid persona id"]);
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
     }
 
     if let Some(name) = &request.name
         && name.trim().is_empty()
     {
-        return response::bad_request(&["Invalid persona name"]);
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_NAME));
     }
 
     let avatar_uid = match request.avatar_uid {
@@ -155,16 +166,27 @@ async fn patch_persona(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::update::update_persona(&deps, input).await {
-        Ok(persona) => response::ok(persona),
-        Err(UpdatePersonaError::NotFound) => response::not_found(&["Persona not found"]),
-        Err(UpdatePersonaError::FileNotFound) => response::not_found(&["Avatar file not found"]),
-        Err(UpdatePersonaError::ValidationError(message)) => response::bad_request(&[&message]),
-        Err(err) => {
-            error!(target: "application::api::patch_persona", ?err, "Failed to patch persona:");
-            response::internal_error(&["Failed to patch persona"])
-        }
-    }
+    let persona = services::update::update_persona(&deps, input)
+        .await
+        .map_err(|err| match err {
+            UpdatePersonaError::NotFound => ApiError::not_found(codes::PERSONA_NOT_FOUND),
+            UpdatePersonaError::AccessDenied => ApiError::forbidden(codes::PERSONA_ACCESS_DENIED),
+            UpdatePersonaError::FileNotFound => {
+                ApiError::not_found(codes::PERSONA_AVATAR_NOT_FOUND)
+            }
+            UpdatePersonaError::InvalidFileStatus => {
+                ApiError::bad_request(codes::FILE_INVALID_STATUS)
+            }
+            UpdatePersonaError::InvalidFileScope => {
+                ApiError::bad_request(codes::FILE_INVALID_SCOPE)
+            }
+            UpdatePersonaError::InternalError(_) => {
+                error!(target: "application::api::patch_persona", ?err, "Failed to patch persona:");
+                ApiError::internal(codes::PERSONA_UPDATE_FAILED)
+            }
+        })?;
+
+    Ok(response::ok(persona))
 }
 
 async fn upload_persona_avatar(
@@ -172,15 +194,12 @@ async fn upload_persona_avatar(
     Path(persona_id): Path<String>,
     State(deps): State<AppDeps>,
     multipart: Multipart,
-) -> Response {
+) -> Result<Response, ApiError> {
     if persona_id.trim().is_empty() {
-        return response::bad_request(&["Invalid persona id"]);
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
     }
 
-    let (original_name, content_type, content) = match read_multipart_file(multipart).await {
-        Ok(value) => value,
-        Err(message) => return response::bad_request(&[&message]),
-    };
+    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
 
     let input = CreateFileInput {
         content_type,
@@ -192,20 +211,15 @@ async fn upload_persona_avatar(
         content,
     };
 
-    match create_file_for_user(&deps, input, &user.uid).await {
-        Ok(file_id) => response::ok(FileUploadResponse { uid: file_id }),
-        Err(CreateFileError::AccessDenied) => response::forbidden(&["Access denied"]),
-        Err(CreateFileError::PolicyViolation(_)) => {
-            response::bad_request(&["File does not match upload policy"])
-        }
-        Err(CreateFileError::PolicyForScopeNotFound) => {
-            response::internal_error(&["Upload policy not configured"])
-        }
-        Err(err) => {
+    let file_id = create_file_for_user(&deps, input, &user.uid)
+        .await
+        .map_err(|err| {
             error!(target: "application::api::upload_persona_avatar", ?err, "Failed to upload persona avatar");
-            response::internal_error(&["Failed to upload avatar"])
-        }
-    }
+
+            ApiError::from(err)
+        })?;
+
+    Ok(response::ok(FileUploadResponse { uid: file_id }))
 }
 
 async fn delete_persona(
@@ -213,9 +227,9 @@ async fn delete_persona(
     Path(persona_id): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-) -> Response {
+) -> Result<Response, ApiError> {
     if persona_id.trim().is_empty() {
-        return response::bad_request(&["Invalid persona id"]);
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
     }
 
     let input = DeletePersonaInput {
@@ -224,14 +238,18 @@ async fn delete_persona(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::delete::delete_persona(&deps, input).await {
-        Ok(()) => response::ok(DeletePersonaResponse),
-        Err(DeletePersonaError::NotFound) => response::not_found(&["Persona not found"]),
-        Err(err) => {
-            error!(target: "application::api::delete_persona", ?err, "Failed to delete persona:");
-            response::internal_error(&["Failed to delete persona"])
-        }
-    }
+    services::delete::delete_persona(&deps, input)
+        .await
+        .map_err(|err| match err {
+            DeletePersonaError::NotFound => ApiError::not_found(codes::PERSONA_NOT_FOUND),
+            DeletePersonaError::AccessDenied => ApiError::forbidden(codes::PERSONA_ACCESS_DENIED),
+            DeletePersonaError::InternalError(_) => {
+                error!(target: "application::api::delete_persona", ?err, "Failed to delete persona:");
+                ApiError::internal(codes::PERSONA_DELETE_FAILED)
+            }
+        })?;
+
+    Ok(response::ok(DeletePersonaResponse))
 }
 
 pub fn routes() -> Router<AppDeps> {

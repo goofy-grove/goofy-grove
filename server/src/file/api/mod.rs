@@ -1,3 +1,4 @@
+mod errors;
 mod handlers;
 
 use axum::Router;

@@ -16,8 +16,11 @@ pub enum CreatePersonaError {
     #[error("File not found")]
     FileNotFound,
 
-    #[error("Validation error: {0}")]
-    ValidationError(String),
+    #[error("Invalid file status")]
+    InvalidFileStatus,
+
+    #[error("Invalid file scope")]
+    InvalidFileScope,
 
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -48,12 +51,8 @@ pub async fn create_persona(
             .await
             .map_err(|err| match err {
                 ApplyAvatarPatchError::FileNotFound => CreatePersonaError::FileNotFound,
-                ApplyAvatarPatchError::InvalidFileStatus => {
-                    CreatePersonaError::ValidationError("Invalid file status".into())
-                }
-                ApplyAvatarPatchError::InvalidFileScope => {
-                    CreatePersonaError::ValidationError("Invalid file scope".into())
-                }
+                ApplyAvatarPatchError::InvalidFileStatus => CreatePersonaError::InvalidFileStatus,
+                ApplyAvatarPatchError::InvalidFileScope => CreatePersonaError::InvalidFileScope,
                 ApplyAvatarPatchError::InternalError(message) => {
                     CreatePersonaError::InternalError(message)
                 }

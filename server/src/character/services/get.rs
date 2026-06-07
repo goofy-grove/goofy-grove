@@ -18,11 +18,11 @@ pub async fn get_characters(
     character::load_characters(&deps.db, user_id)
         .await
         .map_err(|err| match err {
-            character::LoadCharacterError::NotFound => {
-                GetCharactersError::InternalError("Character not found".into())
-            }
             character::LoadCharacterError::InternalError(message) => {
                 GetCharactersError::InternalError(message)
+            }
+            character::LoadCharacterError::NotFound => {
+                GetCharactersError::InternalError("unexpected character not found".into())
             }
         })
 }

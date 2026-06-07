@@ -22,8 +22,11 @@ pub enum UpdatePersonaError {
     #[error("File not found")]
     FileNotFound,
 
-    #[error("Validation error: {0}")]
-    ValidationError(String),
+    #[error("Invalid file status")]
+    InvalidFileStatus,
+
+    #[error("Invalid file scope")]
+    InvalidFileScope,
 
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -70,12 +73,8 @@ pub async fn update_persona(
     .await
     .map_err(|err| match err {
         ApplyAvatarPatchError::FileNotFound => UpdatePersonaError::FileNotFound,
-        ApplyAvatarPatchError::InvalidFileStatus => {
-            UpdatePersonaError::ValidationError("Invalid file status".into())
-        }
-        ApplyAvatarPatchError::InvalidFileScope => {
-            UpdatePersonaError::ValidationError("Invalid file scope".into())
-        }
+        ApplyAvatarPatchError::InvalidFileStatus => UpdatePersonaError::InvalidFileStatus,
+        ApplyAvatarPatchError::InvalidFileScope => UpdatePersonaError::InvalidFileScope,
         ApplyAvatarPatchError::InternalError(message) => UpdatePersonaError::InternalError(message),
     })?;
 

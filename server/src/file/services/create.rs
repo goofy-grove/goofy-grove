@@ -26,8 +26,8 @@ pub enum CreateFileError {
     #[error("Access denied")]
     AccessDenied,
 
-    #[error("Policy violation: {0}")]
-    PolicyViolation(String),
+    #[error("Policy violation")]
+    PolicyViolation(#[from] policy::PolicyViolationError),
 
     #[error("Policy for scope not found")]
     PolicyForScopeNotFound,
@@ -53,7 +53,7 @@ pub async fn create_file(
         .ok_or(CreateFileError::PolicyForScopeNotFound)?;
 
     policy::assert_file_matches_policy(input.content.len(), &input.content_type, policy)
-        .map_err(|err| CreateFileError::PolicyViolation(err.to_string()))?;
+        .map_err(CreateFileError::PolicyViolation)?;
 
     let uid = util::id_generator::generate_id("file");
     let filename = filename::resolve_filename(&uid, &input.original_name);

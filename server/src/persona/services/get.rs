@@ -15,11 +15,11 @@ pub async fn get_personas(deps: &AppDeps, user_id: &str) -> Result<Vec<Persona>,
     persona::load_personas(&deps.db, user_id)
         .await
         .map_err(|err| match err {
-            persona::LoadPersonaError::NotFound => {
-                GetPersonasError::InternalError("Persona not found".into())
-            }
             persona::LoadPersonaError::InternalError(message) => {
                 GetPersonasError::InternalError(message)
+            }
+            persona::LoadPersonaError::NotFound => {
+                GetPersonasError::InternalError("unexpected persona not found".into())
             }
         })
 }

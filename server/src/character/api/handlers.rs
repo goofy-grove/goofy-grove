@@ -1,5 +1,5 @@
 use axum::{
-    Extension, Json,
+    Extension,
     extract::{Path, State},
     response::Response,
     routing::{delete, get, patch, post},
@@ -21,7 +21,8 @@ use crate::{
         },
     },
     platform::http::{
-        extract::ExcludeSocketParticipants,
+        error::{ApiError, codes},
+        extract::{ExcludeSocketParticipants, ValidatedJson},
         response::{self, ToJson},
     },
 };
@@ -61,24 +62,26 @@ impl ToJson for DeleteCharacterResponse {
 async fn get_all_user_characters(
     Extension(user): Extension<AuthenticatedUser>,
     State(deps): State<AppDeps>,
-) -> Response {
-    match services::get::get_characters(&deps, &user.uid).await {
-        Ok(characters) => response::ok(characters),
-        Err(err) => {
+) -> Result<Response, ApiError> {
+    let characters = services::get::get_characters(&deps, &user.uid)
+        .await
+        .map_err(|err| {
             error!(target: "character::api::get_all_user_characters", ?err, "Failed to get characters");
-            response::internal_error(&["Failed to get characters"])
-        }
-    }
+
+            ApiError::internal(codes::CHARACTER_LIST_FAILED)
+        })?;
+
+    Ok(response::ok(characters))
 }
 
 async fn create_character(
     Extension(user): Extension<AuthenticatedUser>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-    Json(request): Json<CharacterCreateRequest>,
-) -> Response {
+    ValidatedJson(request): ValidatedJson<CharacterCreateRequest>,
+) -> Result<Response, ApiError> {
     if request.name.trim().is_empty() {
-        return response::bad_request(&["Invalid character name"]);
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_NAME));
     }
 
     let input = CreateCharacterInput {
@@ -88,14 +91,15 @@ async fn create_character(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::create::create_character(&deps, input).await {
-        Ok(character) => response::created(character),
-        Err(err) => {
+    let character = services::create::create_character(&deps, input)
+        .await
+        .map_err(|err| {
             error!(target: "character::api::create_character", ?err, "Failed to create character");
 
-            response::internal_error(&["Failed to create character"])
-        }
-    }
+            ApiError::internal(codes::CHARACTER_CREATE_FAILED)
+        })?;
+
+    Ok(response::created(character))
 }
 
 async fn patch_character(
@@ -103,14 +107,14 @@ async fn patch_character(
     Path(character_id): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-    Json(request): Json<CharacterUpdateRequest>,
-) -> Response {
+    ValidatedJson(request): ValidatedJson<CharacterUpdateRequest>,
+) -> Result<Response, ApiError> {
     if request.name.is_none() && request.description.is_none() {
-        return response::bad_request(&["At least one field should be provided"]);
+        return Err(ApiError::bad_request(codes::CHARACTER_NO_FIELDS_PROVIDED));
     }
 
     if character_id.trim().is_empty() {
-        return response::bad_request(&["Invalid character id"]);
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
     }
 
     let input = UpdateCharacterInput {
@@ -121,15 +125,17 @@ async fn patch_character(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::update::update_character(&deps, input).await {
-        Ok(character) => response::ok(character),
-        Err(UpdateCharacterError::NotFound) => response::not_found(&["Character not found"]),
-        Err(err) => {
-            error!(target: "character::api::patch_character", ?err, "Failed to patch character");
+    let character = services::update::update_character(&deps, input)
+        .await
+        .map_err(|err| match err {
+            UpdateCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
+            UpdateCharacterError::InternalError(_) => {
+                error!(target: "character::api::patch_character", ?err, "Failed to patch character");
+                ApiError::internal(codes::CHARACTER_UPDATE_FAILED)
+            }
+        })?;
 
-            response::internal_error(&["Failed to patch character"])
-        }
-    }
+    Ok(response::ok(character))
 }
 
 async fn delete_character(
@@ -137,9 +143,9 @@ async fn delete_character(
     Path(character_id): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-) -> Response {
+) -> Result<Response, ApiError> {
     if character_id.trim().is_empty() {
-        return response::bad_request(&["Invalid character id"]);
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
     }
 
     let input = DeleteCharacterInput {
@@ -148,14 +154,19 @@ async fn delete_character(
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
-    match services::delete::delete_character(&deps, input).await {
-        Ok(()) => response::ok(DeleteCharacterResponse),
-        Err(DeleteCharacterError::NotFound) => response::not_found(&["Character not found"]),
-        Err(err) => {
-            error!(target: "character::api::delete_character", ?err, "Failed to delete character");
-            response::internal_error(&["Failed to delete character"])
-        }
-    }
+    services::delete::delete_character(&deps, input)
+        .await
+        .map_err(|err| match err {
+            DeleteCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
+            DeleteCharacterError::InternalError(_) => {
+                error!(target: "character::api::delete_character", ?err, "Failed to delete character");
+
+
+                ApiError::internal(codes::CHARACTER_DELETE_FAILED)
+            }
+        })?;
+
+    Ok(response::ok(DeleteCharacterResponse))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {

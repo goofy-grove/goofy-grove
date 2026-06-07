@@ -36,7 +36,5 @@ pub async fn register(deps: &AppDeps, name: &str, password: &str) -> Result<User
         avatar_uid: None,
     };
 
-    save_user(&deps.db, user)
-        .await
-        .map_err(RegisterError::Save)
+    save_user(&deps.db, user).await.map_err(RegisterError::Save)
 }

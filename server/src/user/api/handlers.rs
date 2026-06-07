@@ -1,5 +1,5 @@
 use axum::{
-    Extension, Json,
+    Extension,
     extract::{Multipart, State},
     response::Response,
     routing::{get, patch, post},
@@ -10,11 +10,11 @@ use serde_json::json;
 use crate::{
     app::AppDeps,
     auth::public::AuthenticatedUser,
-    file::public::{CreateFileError, CreateFileInput, FileScope, create_file_for_user},
+    file::public::{CreateFileInput, FileScope, create_file_for_user},
     platform::{
         http::{
-            extract::ExcludeSocketParticipants,
-            multipart::read_multipart_file,
+            error::{ApiError, codes},
+            extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
             response::{self, ToJson},
         },
         types::PatchField,
@@ -59,10 +59,10 @@ async fn patch_current_user(
     Extension(user): Extension<AuthenticatedUser>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
-    Json(request): Json<UserUpdateRequest>,
-) -> Response {
+    ValidatedJson(request): ValidatedJson<UserUpdateRequest>,
+) -> Result<Response, ApiError> {
     if request.avatar_uid.is_none() {
-        return response::bad_request(&["At least one field should be provided"]);
+        return Err(ApiError::bad_request(codes::USER_NO_FIELDS_PROVIDED));
     }
 
     let avatar_uid = match request.avatar_uid {
@@ -73,26 +73,25 @@ async fn patch_current_user(
 
     let exclude_participants: Vec<String> = exclude_participant.into_iter().collect();
 
-    match update_user(&deps, &user.uid, avatar_uid, exclude_participants).await {
-        Ok(updated_user) => response::ok(updated_user),
-        Err(UpdateUserError::NotFound) => response::not_found(&["User not found"]),
-        Err(UpdateUserError::FileNotFound) => response::not_found(&["Avatar file not found"]),
-        Err(UpdateUserError::ValidationError(message)) => response::bad_request(&[&message]),
-        Err(UpdateUserError::InternalError(_)) => {
-            response::internal_error(&["Failed to update user"])
-        }
-    }
+    let updated_user = update_user(&deps, &user.uid, avatar_uid, exclude_participants)
+        .await
+        .map_err(|err| match err {
+            UpdateUserError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
+            UpdateUserError::FileNotFound => ApiError::not_found(codes::USER_AVATAR_NOT_FOUND),
+            UpdateUserError::InvalidFileStatus => ApiError::bad_request(codes::FILE_INVALID_STATUS),
+            UpdateUserError::InvalidFileScope => ApiError::bad_request(codes::FILE_INVALID_SCOPE),
+            UpdateUserError::InternalError(_) => ApiError::internal(codes::USER_UPDATE_FAILED),
+        })?;
+
+    Ok(response::ok(updated_user))
 }
 
 async fn upload_user_avatar(
     Extension(user): Extension<AuthenticatedUser>,
     State(deps): State<AppDeps>,
     multipart: Multipart,
-) -> Response {
-    let (original_name, content_type, content) = match read_multipart_file(multipart).await {
-        Ok(value) => value,
-        Err(message) => return response::bad_request(&[&message]),
-    };
+) -> Result<Response, ApiError> {
+    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
 
     let input = CreateFileInput {
         content_type,
@@ -103,17 +102,11 @@ async fn upload_user_avatar(
         content,
     };
 
-    match create_file_for_user(&deps, input, &user.uid).await {
-        Ok(file_id) => response::ok(FileUploadResponse { uid: file_id }),
-        Err(CreateFileError::AccessDenied) => response::forbidden(&["Access denied"]),
-        Err(CreateFileError::PolicyViolation(_)) => {
-            response::bad_request(&["File does not match upload policy"])
-        }
-        Err(CreateFileError::PolicyForScopeNotFound) => {
-            response::internal_error(&["Upload policy not configured"])
-        }
-        Err(_) => response::internal_error(&["Failed to upload avatar"]),
-    }
+    let file_id = create_file_for_user(&deps, input, &user.uid)
+        .await
+        .map_err(ApiError::from)?;
+
+    Ok(response::ok(FileUploadResponse { uid: file_id }))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {

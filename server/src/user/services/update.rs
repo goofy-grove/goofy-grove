@@ -16,8 +16,11 @@ pub enum UpdateUserError {
     #[error("File not found")]
     FileNotFound,
 
-    #[error("Validation error: {0}")]
-    ValidationError(String),
+    #[error("Invalid file status")]
+    InvalidFileStatus,
+
+    #[error("Invalid file scope")]
+    InvalidFileScope,
 
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -44,12 +47,8 @@ pub async fn update_user(
     .await
     .map_err(|err| match err {
         ApplyAvatarPatchError::FileNotFound => UpdateUserError::FileNotFound,
-        ApplyAvatarPatchError::InvalidFileStatus => {
-            UpdateUserError::ValidationError("Invalid file status".into())
-        }
-        ApplyAvatarPatchError::InvalidFileScope => {
-            UpdateUserError::ValidationError("Invalid file scope".into())
-        }
+        ApplyAvatarPatchError::InvalidFileStatus => UpdateUserError::InvalidFileStatus,
+        ApplyAvatarPatchError::InvalidFileScope => UpdateUserError::InvalidFileScope,
         ApplyAvatarPatchError::InternalError(message) => UpdateUserError::InternalError(message),
     })?;
 
