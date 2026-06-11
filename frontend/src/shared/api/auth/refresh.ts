@@ -28,7 +28,7 @@ const refresh = async () => {
   const result = await refreshTokens();
 
   if (result.error) {
-    throw new Error(result.data.reason.join(', '));
+    throw new Error(result.data.code);
   }
 
   updateAuthState(result.data.token, result.data.exp);

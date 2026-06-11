@@ -1,10 +1,10 @@
 export type CharacterEventData = {
-  id: string;
+  uid: string;
   name: string;
   description: string;
   creator_uid: string;
 };
 
 export type CharacterDeletedEventData = {
-  id: string;
+  uid: string;
 };

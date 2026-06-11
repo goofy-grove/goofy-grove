@@ -32,7 +32,7 @@ export const usePersonasQuery = () =>
 
 socket.on('persona:created', (persona: PersonaEventData) => {
   const newPersona = new Persona(
-    persona.id,
+    persona.uid,
     persona.name,
     persona.description,
     persona.creator_uid,
@@ -45,7 +45,7 @@ socket.on('persona:created', (persona: PersonaEventData) => {
 
 socket.on('persona:updated', (persona: PersonaEventData) => {
   const updatedPersona = new Persona(
-    persona.id,
+    persona.uid,
     persona.name,
     persona.description,
     persona.creator_uid,
@@ -54,7 +54,7 @@ socket.on('persona:updated', (persona: PersonaEventData) => {
   queryClient.setQueryData<Persona[]>(
     [PERSONAS_QUERY_KEY],
     (old) =>
-      old?.map((item) => (item.uid !== persona.id ? item : updatedPersona)) ||
+      old?.map((item) => (item.uid !== persona.uid ? item : updatedPersona)) ||
       [],
   );
 });
@@ -62,6 +62,6 @@ socket.on('persona:updated', (persona: PersonaEventData) => {
 socket.on('persona:deleted', (payload: PersonaDeletedEventData) => {
   queryClient.setQueryData<Persona[]>(
     [PERSONAS_QUERY_KEY],
-    (old) => old?.filter((item) => item.uid !== payload.id) || [],
+    (old) => old?.filter((item) => item.uid !== payload.uid) || [],
   );
 });

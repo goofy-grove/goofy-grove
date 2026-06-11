@@ -1,6 +1,6 @@
 export class AuthenticatedUser {
   constructor(
-    public readonly id: string,
+    public readonly uid: string,
     public username: string,
   ) {}
 }

@@ -21,7 +21,7 @@ export const useCreateCharacterMutation = () =>
     onMutate: async ({ name, description }, context) => {
       await context.client.cancelQueries({ queryKey: [CHARACTERS_QUERY_KEY] });
 
-      const currentUserId = useAuthStore.getState().currentUser?.id;
+      const currentUserId = useAuthStore.getState().currentUser?.uid;
 
       if (!currentUserId) {
         throw new Error('User is not logged in');

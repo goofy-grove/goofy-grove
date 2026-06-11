@@ -21,7 +21,7 @@ export const useCreatePersonaMutation = () =>
     onMutate: async ({ name, description }, context) => {
       await context.client.cancelQueries({ queryKey: [PERSONAS_QUERY_KEY] });
 
-      const currentUserId = useAuthStore.getState().currentUser?.id;
+      const currentUserId = useAuthStore.getState().currentUser?.uid;
 
       if (!currentUserId) {
         throw new Error('User is not logged in');

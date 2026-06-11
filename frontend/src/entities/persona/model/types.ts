@@ -1,10 +1,10 @@
 export type PersonaEventData = {
-  id: string;
+  uid: string;
   name: string;
   description: string;
   creator_uid: string;
 };
 
 export type PersonaDeletedEventData = {
-  id: string;
+  uid: string;
 };

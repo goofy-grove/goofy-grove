@@ -21,7 +21,7 @@ export const authenticate = async (username: string, password: string) => {
   const result = await auth(username, password);
 
   if (result.error) {
-    throw new Error(result.data.reason.join(', '));
+    throw new Error(result.data.code);
   }
 
   updateAuthState(result.data.token, result.data.exp);

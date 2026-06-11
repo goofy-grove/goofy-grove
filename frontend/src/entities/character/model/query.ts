@@ -32,7 +32,7 @@ export const useCharactersQuery = () =>
 
 socket.on('character:created', (character: CharacterEventData) => {
   const newCharacter = new Character(
-    character.id,
+    character.uid,
     character.name,
     character.description,
     character.creator_uid,
@@ -45,7 +45,7 @@ socket.on('character:created', (character: CharacterEventData) => {
 
 socket.on('character:updated', (character: CharacterEventData) => {
   const updatedCharacter = new Character(
-    character.id,
+    character.uid,
     character.name,
     character.description,
     character.creator_uid,
@@ -55,7 +55,7 @@ socket.on('character:updated', (character: CharacterEventData) => {
     [CHARACTERS_QUERY_KEY],
     (old) =>
       old?.map((item) =>
-        item.uid !== character.id ? item : updatedCharacter,
+        item.uid !== character.uid ? item : updatedCharacter,
       ) || [],
   );
 });
@@ -63,6 +63,6 @@ socket.on('character:updated', (character: CharacterEventData) => {
 socket.on('character:deleted', (payload: CharacterDeletedEventData) => {
   queryClient.setQueryData<Character[]>(
     [CHARACTERS_QUERY_KEY],
-    (old) => old?.filter((item) => item.uid !== payload.id) || [],
+    (old) => old?.filter((item) => item.uid !== payload.uid) || [],
   );
 });

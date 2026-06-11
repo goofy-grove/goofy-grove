@@ -1,12 +1,10 @@
 import * as z from 'zod';
 
+import { ApiErrorDataSchema } from './api-error-data';
+
 export const ResponseErrorSchema = z.object({
   error: z.literal(true),
-  data: z.object({
-    reason: z.string().array(),
-    // TODO: rework to union type with union of supported server codes
-    code: z.string(),
-  }),
+  data: ApiErrorDataSchema,
 });
 
 export const ResponseOkSchema = z.object({

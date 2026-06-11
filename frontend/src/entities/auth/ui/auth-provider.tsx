@@ -13,11 +13,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const currentUser = await api.users.getMe();
 
     if (currentUser.error) {
-      throw new Error(currentUser.data.reason.join(', '));
+      throw new Error(currentUser.data.code);
     }
 
     loginUser(
-      new AuthenticatedUser(currentUser.data.id, currentUser.data.username),
+      new AuthenticatedUser(currentUser.data.uid, currentUser.data.username),
     );
   };
 
@@ -27,11 +27,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (currentUser.error) {
       logoutUser();
 
-      throw new Error(currentUser.data.reason.join(', '));
+      throw new Error(currentUser.data.code);
     }
 
     loginUser(
-      new AuthenticatedUser(currentUser.data.id, currentUser.data.username),
+      new AuthenticatedUser(currentUser.data.uid, currentUser.data.username),
     );
   };
 
