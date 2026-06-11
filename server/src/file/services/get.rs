@@ -23,17 +23,17 @@ pub enum GetFileError {
 
 pub async fn get_file(
     deps: &AppDeps,
-    file_id: &str,
-    user_id: &str,
+    file_uid: &str,
+    user_uid: &str,
 ) -> Result<Vec<u8>, GetFileError> {
-    let meta = file::load_file(&deps.db, file_id)
+    let meta = file::load_file(&deps.db, file_uid)
         .await
         .map_err(|err| match err {
             file::LoadFileError::NotFound => GetFileError::NotFound,
             file::LoadFileError::InternalError(message) => GetFileError::InternalError(message),
         })?;
 
-    access::can_access_file_meta(deps, user_id, &meta)
+    access::can_access_file_meta(deps, user_uid, &meta)
         .await
         .map_err(|_| GetFileError::AccessDenied)?;
 

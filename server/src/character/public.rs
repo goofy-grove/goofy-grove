@@ -1,7 +1,7 @@
 use crate::{app::AppDeps, character::db::character};
 
-pub async fn is_owner(deps: &AppDeps, character_id: &str, user_id: &str) -> bool {
-    character::load_character(&deps.db, character_id, user_id)
+pub async fn is_owner(deps: &AppDeps, character_uid: &str, user_uid: &str) -> bool {
+    character::load_character(&deps.db, character_uid, user_uid)
         .await
         .is_ok()
 }

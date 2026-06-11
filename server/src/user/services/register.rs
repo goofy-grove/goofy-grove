@@ -30,7 +30,7 @@ pub async fn register(deps: &AppDeps, name: &str, password: &str) -> Result<User
     let hashed = hash_password(password).map_err(RegisterError::Hash)?;
 
     let user = User {
-        uid: util::id_generator::generate_id("user"),
+        uid: util::uid_generator::generate_uid("user"),
         name: name.to_owned(),
         password: hashed,
         avatar_uid: None,

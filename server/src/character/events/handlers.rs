@@ -23,24 +23,24 @@ impl CharacterCreatedEventHandler {
 
 impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
     fn handle(&self, event: &CharacterCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.character.creator_id.clone();
+        let creator_uid = event.character.creator_uid.clone();
         let json = json!({
-            "id": event.character.uid,
+            "uid": event.character.uid,
             "name": event.character.name,
             "description": event.character.description,
-            "creator_id": creator_id,
+            "creator_uid": creator_uid,
             "avatar_uid": event.character.avatar_uid
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
         Box::pin(async move {
-            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting character:created event");
+            info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:created event");
 
             socket
                 .of("/v1")
                 .unwrap()
-                .within(format!("user:{creator_id}"))
+                .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
                 .emit("character:created", &json)
                 .await
@@ -61,24 +61,24 @@ impl CharacterUpdatedEventHandler {
 
 impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
     fn handle(&self, event: &CharacterUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.character.creator_id.clone();
+        let creator_uid = event.character.creator_uid.clone();
         let json = json!({
-            "id": event.character.uid,
+            "uid": event.character.uid,
             "name": event.character.name,
             "description": event.character.description,
-            "creator_id": creator_id,
+            "creator_uid": creator_uid,
             "avatar_uid": event.character.avatar_uid
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
         Box::pin(async move {
-            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting character:updated event");
+            info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:updated event");
 
             socket
                 .of("/v1")
                 .unwrap()
-                .within(format!("user:{creator_id}"))
+                .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
                 .emit("character:updated", &json)
                 .await
@@ -99,20 +99,20 @@ impl CharacterDeletedEventHandler {
 
 impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
     fn handle(&self, event: &CharacterDeletedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let creator_id = event.creator_id.clone();
+        let creator_uid = event.creator_uid.clone();
         let json = json!({
-            "id": event.id,
+            "uid": event.character_uid,
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
         Box::pin(async move {
-            info!(target: "application::event_bus", ?creator_id, ?exclude_participants, "Emitting character:deleted event");
+            info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:deleted event");
 
             socket
                 .of("/v1")
                 .unwrap()
-                .within(format!("user:{creator_id}"))
+                .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
                 .emit("character:deleted", &json)
                 .await

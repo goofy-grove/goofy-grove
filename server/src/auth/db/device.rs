@@ -27,7 +27,7 @@ pub enum SaveDeviceError {
 pub struct UserDevice {
     pub uid: String,
     pub hashed_token: String,
-    pub user_id: String,
+    pub user_uid: String,
     pub user_agent: String,
     pub last_accessed_at: DateTime<chrono::Utc>,
 }
@@ -37,7 +37,7 @@ impl From<tokens::Model> for UserDevice {
         Self {
             uid: value.uid,
             hashed_token: value.hashed_token,
-            user_id: value.user_id,
+            user_uid: value.user_uid,
             user_agent: value.user_agent,
             last_accessed_at: value.last_accessed_at.and_utc(),
         }
@@ -51,7 +51,7 @@ pub async fn create_device(
     let UserDevice {
         uid,
         hashed_token,
-        user_id,
+        user_uid,
         user_agent,
         last_accessed_at,
     } = device;
@@ -59,7 +59,7 @@ pub async fn create_device(
     let token = tokens::ActiveModel {
         uid: Set(uid),
         hashed_token: Set(hashed_token),
-        user_id: Set(user_id),
+        user_uid: Set(user_uid),
         user_agent: Set(user_agent),
         last_accessed_at: Set(last_accessed_at.naive_utc()),
     };

@@ -24,8 +24,8 @@ pub enum DeletePersonaError {
 
 #[derive(Debug, Clone)]
 pub struct DeletePersonaInput {
-    pub id: String,
-    pub user_id: String,
+    pub persona_uid: String,
+    pub user_uid: String,
     pub exclude_participants: Vec<String>,
 }
 
@@ -33,7 +33,7 @@ pub async fn delete_persona(
     deps: &AppDeps,
     input: DeletePersonaInput,
 ) -> Result<(), DeletePersonaError> {
-    let persona = persona::load_persona(&deps.db, &input.id, &input.user_id)
+    let persona = persona::load_persona(&deps.db, &input.persona_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
             persona::LoadPersonaError::NotFound => DeletePersonaError::NotFound,
@@ -42,17 +42,17 @@ pub async fn delete_persona(
             }
         })?;
 
-    if persona.creator_id != input.user_id {
+    if persona.creator_uid != input.user_uid {
         return Err(DeletePersonaError::AccessDenied);
     }
 
     if let Err(OrphanAvatarError::InternalError(message)) =
-        orphan_avatar_if_present(deps, persona.avatar_id.clone()).await
+        orphan_avatar_if_present(deps, persona.avatar_uid.clone()).await
     {
         return Err(DeletePersonaError::InternalError(message));
     }
 
-    persona::delete_persona(&deps.db, &input.id, &input.user_id)
+    persona::delete_persona(&deps.db, &input.persona_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
             persona::DeletePersonaError::NotFound => DeletePersonaError::NotFound,

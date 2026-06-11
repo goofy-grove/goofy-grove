@@ -1,10 +1,13 @@
 use thiserror::Error;
 
 use crate::{
-    app::AppDeps, character::{
+    app::AppDeps,
+    character::{
         db::character::{self, Character},
         events::types::CharacterUpdatedEvent,
-    }, file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch}, platform::{events::EventPublisher, types::PatchField}
+    },
+    file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
+    platform::{events::EventPublisher, types::PatchField},
 };
 
 #[derive(Debug, Clone, Error)]
@@ -30,8 +33,8 @@ pub enum UpdateCharacterError {
 
 #[derive(Debug, Clone)]
 pub struct UpdateCharacterInput {
-    pub id: String,
-    pub user_id: String,
+    pub character_uid: String,
+    pub user_uid: String,
     pub name: Option<String>,
     pub description: Option<String>,
     pub avatar_uid: PatchField<String>,
@@ -42,7 +45,7 @@ pub async fn update_character(
     deps: &AppDeps,
     input: UpdateCharacterInput,
 ) -> Result<Character, UpdateCharacterError> {
-    let character = character::load_character(&deps.db, &input.id, &input.user_id)
+    let character = character::load_character(&deps.db, &input.character_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::NotFound => UpdateCharacterError::NotFound,
@@ -51,13 +54,13 @@ pub async fn update_character(
             }
         })?;
 
-    if character.creator_id != input.user_id {
+    if character.creator_uid != input.user_uid {
         return Err(UpdateCharacterError::AccessDenied);
     }
 
     let expected_scope = FileScope::CharacterAvatar {
-        user_id: input.user_id.clone(),
-        character_id: character.uid.clone(),
+        user_uid: input.user_uid.clone(),
+        character_uid: character.uid.clone(),
     };
 
     let next_avatar_uid = apply_avatar_uid_patch(
@@ -71,12 +74,14 @@ pub async fn update_character(
         ApplyAvatarPatchError::FileNotFound => UpdateCharacterError::FileNotFound,
         ApplyAvatarPatchError::InvalidFileStatus => UpdateCharacterError::InvalidFileStatus,
         ApplyAvatarPatchError::InvalidFileScope => UpdateCharacterError::InvalidFileScope,
-        ApplyAvatarPatchError::InternalError(message) => UpdateCharacterError::InternalError(message),
+        ApplyAvatarPatchError::InternalError(message) => {
+            UpdateCharacterError::InternalError(message)
+        }
     })?;
 
     let updated = Character {
         uid: character.uid,
-        creator_id: character.creator_id,
+        creator_uid: character.creator_uid,
         name: input.name.unwrap_or(character.name),
         description: input.description.unwrap_or(character.description),
         avatar_uid: next_avatar_uid,

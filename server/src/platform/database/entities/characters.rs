@@ -10,7 +10,7 @@ pub struct Model {
     pub name: String,
     #[sea_orm(column_type = "Text")]
     pub description: String,
-    pub user_id: String,
+    pub creator_uid: String,
     pub avatar_uid: Option<String>,
 }
 
@@ -26,7 +26,7 @@ pub enum Relation {
     Files,
     #[sea_orm(
         belongs_to = "super::users::Entity",
-        from = "Column::UserId",
+        from = "Column::CreatorUid",
         to = "super::users::Column::Uid",
         on_update = "NoAction",
         on_delete = "Cascade"

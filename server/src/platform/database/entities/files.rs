@@ -9,10 +9,10 @@ pub struct Model {
     pub uid: String,
     #[sea_orm(unique)]
     pub filename: String,
-    pub uploaded_by: String,
+    pub uploaded_by_uid: String,
     pub scope_kind: String,
-    pub scope_owner_id: String,
-    pub scope_entity_id: Option<String>,
+    pub scope_owner_uid: String,
+    pub scope_entity_uid: Option<String>,
     pub uploaded_at: DateTime,
     pub status: String,
     pub original_name: String,
@@ -28,7 +28,7 @@ pub enum Relation {
     Personas,
     #[sea_orm(
         belongs_to = "super::users::Entity",
-        from = "Column::ScopeOwnerId",
+        from = "Column::ScopeOwnerUid",
         to = "super::users::Column::Uid",
         on_update = "NoAction",
         on_delete = "Cascade"
@@ -36,7 +36,7 @@ pub enum Relation {
     Users2,
     #[sea_orm(
         belongs_to = "super::users::Entity",
-        from = "Column::UploadedBy",
+        from = "Column::UploadedByUid",
         to = "super::users::Column::Uid",
         on_update = "NoAction",
         on_delete = "Cascade"

@@ -147,7 +147,11 @@ async fn rebuild_characters_sqlite(
         .await?;
 
     manager
-        .rename_table(Table::rename().table(CHARACTERS_NEW, "characters").to_owned())
+        .rename_table(
+            Table::rename()
+                .table(CHARACTERS_NEW, "characters")
+                .to_owned(),
+        )
         .await?;
 
     set_sqlite_foreign_keys(manager, true).await?;

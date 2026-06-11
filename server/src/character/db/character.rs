@@ -8,7 +8,7 @@ use crate::platform::database::entities::{characters, prelude::Characters};
 #[derive(Debug, Clone)]
 pub struct Character {
     pub uid: String,
-    pub creator_id: String,
+    pub creator_uid: String,
     pub name: String,
     pub description: String,
     pub avatar_uid: Option<String>,
@@ -18,7 +18,7 @@ impl From<characters::Model> for Character {
     fn from(model: characters::Model) -> Self {
         Self {
             uid: model.uid,
-            creator_id: model.user_id,
+            creator_uid: model.creator_uid,
             name: model.name,
             description: model.description,
             avatar_uid: model.avatar_uid,
@@ -52,10 +52,10 @@ pub enum DeleteCharacterError {
 
 pub async fn load_characters(
     connection: &impl ConnectionTrait,
-    user_id: &str,
+    user_uid: &str,
 ) -> Result<Vec<Character>, LoadCharacterError> {
     let models = Characters::find()
-        .filter(characters::Column::UserId.eq(user_id))
+        .filter(characters::Column::CreatorUid.eq(user_uid))
         .all(connection)
         .await
         .map_err(|err| LoadCharacterError::InternalError(err.to_string()))?;
@@ -65,12 +65,12 @@ pub async fn load_characters(
 
 pub async fn load_character(
     connection: &impl ConnectionTrait,
-    character_id: &str,
-    user_id: &str,
+    character_uid: &str,
+    user_uid: &str,
 ) -> Result<Character, LoadCharacterError> {
     let model = Characters::find()
-        .filter(characters::Column::Uid.eq(character_id))
-        .filter(characters::Column::UserId.eq(user_id))
+        .filter(characters::Column::Uid.eq(character_uid))
+        .filter(characters::Column::CreatorUid.eq(user_uid))
         .one(connection)
         .await
         .map_err(|err| LoadCharacterError::InternalError(err.to_string()))?
@@ -85,18 +85,18 @@ pub async fn save_character(
 ) -> Result<Character, SaveCharacterError> {
     let Character {
         uid,
-        creator_id,
+        creator_uid,
         name,
         description,
-        avatar_uid: avatar_id
+        avatar_uid,
     } = character;
 
     let active = characters::ActiveModel {
         uid: Set(uid),
-        user_id: Set(creator_id),
+        creator_uid: Set(creator_uid),
         name: Set(name),
         description: Set(description),
-        avatar_uid: Set(avatar_id),
+        avatar_uid: Set(avatar_uid),
     };
 
     let model = Characters::insert(active)
@@ -105,7 +105,7 @@ pub async fn save_character(
                 .update_columns([
                     characters::Column::Name,
                     characters::Column::Description,
-                    characters::Column::UserId,
+                    characters::Column::CreatorUid,
                     characters::Column::AvatarUid,
                 ])
                 .to_owned(),
@@ -119,12 +119,12 @@ pub async fn save_character(
 
 pub async fn delete_character(
     connection: &impl ConnectionTrait,
-    character_id: &str,
-    user_id: &str,
+    character_uid: &str,
+    user_uid: &str,
 ) -> Result<(), DeleteCharacterError> {
     let result = Characters::delete_many()
-        .filter(characters::Column::Uid.eq(character_id))
-        .filter(characters::Column::UserId.eq(user_id))
+        .filter(characters::Column::Uid.eq(character_uid))
+        .filter(characters::Column::CreatorUid.eq(user_uid))
         .exec(connection)
         .await
         .map_err(|err| DeleteCharacterError::InternalError(err.to_string()))?;

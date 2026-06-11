@@ -8,20 +8,20 @@ use crate::platform::database::entities::{personas, prelude::Personas};
 #[derive(Debug, Clone)]
 pub struct Persona {
     pub uid: String,
-    pub creator_id: String,
+    pub creator_uid: String,
     pub name: String,
     pub description: String,
-    pub avatar_id: Option<String>,
+    pub avatar_uid: Option<String>,
 }
 
 impl From<personas::Model> for Persona {
     fn from(model: personas::Model) -> Self {
         Self {
             uid: model.uid,
-            creator_id: model.creator_id,
+            creator_uid: model.creator_uid,
             name: model.name,
             description: model.description,
-            avatar_id: model.avatar_uid,
+            avatar_uid: model.avatar_uid,
         }
     }
 }
@@ -52,10 +52,10 @@ pub enum DeletePersonaError {
 
 pub async fn load_personas(
     connection: &impl ConnectionTrait,
-    user_id: &str,
+    user_uid: &str,
 ) -> Result<Vec<Persona>, LoadPersonaError> {
     let personas = Personas::find()
-        .filter(personas::Column::CreatorId.eq(user_id))
+        .filter(personas::Column::CreatorUid.eq(user_uid))
         .all(connection)
         .await
         .map_err(|err| LoadPersonaError::InternalError(err.to_string()))?;
@@ -65,12 +65,12 @@ pub async fn load_personas(
 
 pub async fn load_persona(
     connection: &impl ConnectionTrait,
-    persona_id: &str,
-    user_id: &str,
+    persona_uid: &str,
+    user_uid: &str,
 ) -> Result<Persona, LoadPersonaError> {
     Personas::find()
-        .filter(personas::Column::Uid.eq(persona_id))
-        .filter(personas::Column::CreatorId.eq(user_id))
+        .filter(personas::Column::Uid.eq(persona_uid))
+        .filter(personas::Column::CreatorUid.eq(user_uid))
         .one(connection)
         .await
         .map_err(|err| LoadPersonaError::InternalError(err.to_string()))?
@@ -84,15 +84,15 @@ pub async fn save_persona(
 ) -> Result<Persona, SavePersonaError> {
     let Persona {
         uid,
-        creator_id,
+        creator_uid,
         name,
         description,
-        avatar_id: avatar_uid,
+        avatar_uid,
     } = persona;
 
     let new_persona = personas::ActiveModel {
         uid: Set(uid),
-        creator_id: Set(creator_id),
+        creator_uid: Set(creator_uid),
         name: Set(name),
         description: Set(description),
         avatar_uid: Set(avatar_uid),
@@ -104,7 +104,7 @@ pub async fn save_persona(
                 .update_columns([
                     personas::Column::Name,
                     personas::Column::Description,
-                    personas::Column::CreatorId,
+                    personas::Column::CreatorUid,
                     personas::Column::AvatarUid,
                 ])
                 .to_owned(),
@@ -118,12 +118,12 @@ pub async fn save_persona(
 
 pub async fn delete_persona(
     connection: &impl ConnectionTrait,
-    persona_id: &str,
-    user_id: &str,
+    persona_uid: &str,
+    user_uid: &str,
 ) -> Result<(), DeletePersonaError> {
     let result = Personas::delete_many()
-        .filter(personas::Column::Uid.eq(persona_id))
-        .filter(personas::Column::CreatorId.eq(user_id))
+        .filter(personas::Column::Uid.eq(persona_uid))
+        .filter(personas::Column::CreatorUid.eq(user_uid))
         .exec(connection)
         .await
         .map_err(|err| DeletePersonaError::InternalError(err.to_string()))?;

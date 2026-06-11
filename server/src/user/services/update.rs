@@ -3,7 +3,7 @@ use crate::{
     file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
     platform::{events::EventPublisher, types::PatchField},
     user::{
-        db::user::{User, load_user_by_id, save_user},
+        db::user::{User, load_user_by_uid, save_user},
         events::types::UserUpdatedEvent,
     },
 };
@@ -28,11 +28,11 @@ pub enum UpdateUserError {
 
 pub async fn update_user(
     deps: &AppDeps,
-    user_id: &str,
+    user_uid: &str,
     avatar_uid: PatchField<String>,
     exclude_participants: Vec<String>,
 ) -> Result<User, UpdateUserError> {
-    let user = load_user_by_id(&deps.db, user_id)
+    let user = load_user_by_uid(&deps.db, user_uid)
         .await
         .map_err(|_| UpdateUserError::NotFound)?;
 
@@ -41,7 +41,7 @@ pub async fn update_user(
         user.avatar_uid.clone(),
         avatar_uid,
         &FileScope::UserAvatar {
-            user_id: user.uid.clone(),
+            user_uid: user.uid.clone(),
         },
     )
     .await

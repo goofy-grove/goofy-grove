@@ -49,12 +49,12 @@ pub async fn load_user_by_name(
     }
 }
 
-pub async fn load_user_by_id(
+pub async fn load_user_by_uid(
     connection: &impl ConnectionTrait,
-    user_id: &str,
+    user_uid: &str,
 ) -> Result<User, LoadUserError> {
     let result = Users::find()
-        .filter(users::Column::Uid.eq(user_id))
+        .filter(users::Column::Uid.eq(user_uid))
         .one(connection)
         .await;
 

@@ -37,8 +37,8 @@ impl ToJson for Persona {
             "uid": self.uid,
             "name": self.name,
             "description": self.description,
-            "creator_uid": self.creator_id,
-            "avatar_uid": self.avatar_id,
+            "creator_uid": self.creator_uid,
+            "avatar_uid": self.avatar_uid,
         })
     }
 }
@@ -89,7 +89,7 @@ async fn create_persona(
     let input = CreatePersonaInput {
         name: request.name,
         description: request.description,
-        creator_id: user.uid.clone(),
+        creator_uid: user.uid.clone(),
         avatar_uid: request.avatar_uid,
         exclude_participants: exclude_participant.into_iter().collect(),
     };
@@ -132,7 +132,7 @@ impl ToJson for DeletePersonaResponse {
 
 async fn patch_persona(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(persona_id): Path<String>,
+    Path(persona_uid): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
     ValidatedJson(request): ValidatedJson<PersonaUpdateRequest>,
@@ -141,8 +141,8 @@ async fn patch_persona(
         return Err(ApiError::bad_request(codes::PERSONA_NO_FIELDS_PROVIDED));
     }
 
-    if persona_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
+    if persona_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_UID));
     }
 
     if let Some(name) = &request.name
@@ -158,8 +158,8 @@ async fn patch_persona(
     };
 
     let input = UpdatePersonaInput {
-        id: persona_id,
-        user_id: user.uid.clone(),
+        persona_uid,
+        user_uid: user.uid.clone(),
         name: request.name,
         description: request.description,
         avatar_uid,
@@ -191,12 +191,12 @@ async fn patch_persona(
 
 async fn upload_persona_avatar(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(persona_id): Path<String>,
+    Path(persona_uid): Path<String>,
     State(deps): State<AppDeps>,
     multipart: Multipart,
 ) -> Result<Response, ApiError> {
-    if persona_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
+    if persona_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_UID));
     }
 
     let (original_name, content_type, content) = read_multipart_file(multipart).await?;
@@ -205,13 +205,13 @@ async fn upload_persona_avatar(
         content_type,
         original_name,
         scope: FileScope::PersonaAvatar {
-            user_id: user.uid.clone(),
-            persona_id: persona_id.clone(),
+            user_uid: user.uid.clone(),
+            persona_uid: persona_uid.clone(),
         },
         content,
     };
 
-    let file_id = create_file_for_user(&deps, input, &user.uid)
+    let file_uid = create_file_for_user(&deps, input, &user.uid)
         .await
         .map_err(|err| {
             error!(target: "application::api::upload_persona_avatar", ?err, "Failed to upload persona avatar");
@@ -219,22 +219,22 @@ async fn upload_persona_avatar(
             ApiError::from(err)
         })?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_id }))
+    Ok(response::ok(FileUploadResponse { uid: file_uid }))
 }
 
 async fn delete_persona(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(persona_id): Path<String>,
+    Path(persona_uid): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
 ) -> Result<Response, ApiError> {
-    if persona_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::PERSONA_INVALID_ID));
+    if persona_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::PERSONA_INVALID_UID));
     }
 
     let input = DeletePersonaInput {
-        id: persona_id,
-        user_id: user.uid.clone(),
+        persona_uid,
+        user_uid: user.uid.clone(),
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
@@ -256,7 +256,7 @@ pub fn routes() -> Router<AppDeps> {
     Router::new()
         .route("/", get(get_all_user_personas))
         .route("/", post(create_persona))
-        .route("/{id}", patch(patch_persona))
-        .route("/{id}", delete(delete_persona))
-        .route("/{id}/avatar", post(upload_persona_avatar))
+        .route("/{persona_uid}", patch(patch_persona))
+        .route("/{persona_uid}", delete(delete_persona))
+        .route("/{persona_uid}/avatar", post(upload_persona_avatar))
 }

@@ -18,8 +18,8 @@ impl Event for CharacterUpdatedEvent {}
 
 #[derive(Debug, Clone)]
 pub struct CharacterDeletedEvent {
-    pub id: String,
-    pub creator_id: String,
+    pub character_uid: String,
+    pub creator_uid: String,
     pub exclude_participants: Vec<String>,
 }
 

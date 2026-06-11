@@ -28,7 +28,7 @@ use crate::{
 impl ToJson for User {
     fn to_json(self) -> serde_json::Value {
         json!({
-            "id": self.uid,
+            "uid": self.uid,
             "username": self.name,
             "avatar_uid": self.avatar_uid,
         })
@@ -97,16 +97,16 @@ async fn upload_user_avatar(
         content_type,
         original_name,
         scope: FileScope::UserAvatar {
-            user_id: user.uid.clone(),
+            user_uid: user.uid.clone(),
         },
         content,
     };
 
-    let file_id = create_file_for_user(&deps, input, &user.uid)
+    let file_uid = create_file_for_user(&deps, input, &user.uid)
         .await
         .map_err(ApiError::from)?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_id }))
+    Ok(response::ok(FileUploadResponse { uid: file_uid }))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {

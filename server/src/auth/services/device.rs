@@ -24,7 +24,7 @@ pub enum RegisterDeviceError {
 #[derive(Debug, Clone)]
 pub struct RegisterDeviceInput {
     pub refresh_token: String,
-    pub user_id: String,
+    pub user_uid: String,
     pub user_agent: String,
 }
 
@@ -34,14 +34,14 @@ pub async fn register_device(
 ) -> Result<(), RegisterDeviceError> {
     let RegisterDeviceInput {
         refresh_token,
-        user_id,
+        user_uid,
         user_agent,
     } = input;
 
     let device = UserDevice {
-        uid: util::id_generator::generate_id("device"),
+        uid: util::uid_generator::generate_uid("device"),
         hashed_token: crypto::hash_token(&refresh_token),
-        user_id,
+        user_uid,
         user_agent,
         last_accessed_at: Utc::now(),
     };

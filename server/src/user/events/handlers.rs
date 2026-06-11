@@ -18,9 +18,9 @@ impl UserUpdatedEventHandler {
 
 impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
     fn handle(&self, event: &UserUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        let user_id = event.user.uid.clone();
+        let user_uid = event.user.uid.clone();
         let json = json!({
-            "id": user_id,
+            "uid": user_uid,
             "username": event.user.name,
             "avatar_uid": event.user.avatar_uid,
         });
@@ -28,12 +28,12 @@ impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
         let exclude_participants = event.exclude_participants.clone();
 
         Box::pin(async move {
-            info!(target: "application::event_bus", ?user_id, ?exclude_participants, "Emitting user:updated event");
+            info!(target: "application::event_bus", ?user_uid, ?exclude_participants, "Emitting user:updated event");
 
             socket
                 .of("/v1")
                 .unwrap()
-                .within(format!("user:{user_id}"))
+                .within(format!("user:{user_uid}"))
                 .except(exclude_participants)
                 .emit("user:updated", &json)
                 .await

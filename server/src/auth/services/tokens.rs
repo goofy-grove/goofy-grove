@@ -56,7 +56,7 @@ pub async fn generate_tokens(
         deps,
         RegisterDeviceInput {
             refresh_token: refresh_token.clone(),
-            user_id: user.uid.clone(),
+            user_uid: user.uid.clone(),
             user_agent: String::new(),
         },
     )

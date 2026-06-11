@@ -9,7 +9,7 @@ pub struct Model {
     pub uid: String,
     #[sea_orm(unique)]
     pub hashed_token: String,
-    pub user_id: String,
+    pub user_uid: String,
     pub user_agent: String,
     pub last_accessed_at: DateTime,
 }
@@ -18,7 +18,7 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::users::Entity",
-        from = "Column::UserId",
+        from = "Column::UserUid",
         to = "super::users::Column::Uid",
         on_update = "NoAction",
         on_delete = "Cascade"

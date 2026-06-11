@@ -30,7 +30,7 @@ pub enum CreatePersonaError {
 pub struct CreatePersonaInput {
     pub name: String,
     pub description: String,
-    pub creator_id: String,
+    pub creator_uid: String,
     pub avatar_uid: Option<String>,
     pub exclude_participants: Vec<String>,
 }
@@ -39,15 +39,15 @@ pub async fn create_persona(
     deps: &AppDeps,
     input: CreatePersonaInput,
 ) -> Result<Persona, CreatePersonaError> {
-    let uid = util::id_generator::generate_id("persona");
+    let uid = util::uid_generator::generate_uid("persona");
 
-    let avatar_uid = if let Some(file_id) = input.avatar_uid {
+    let avatar_uid = if let Some(file_uid) = input.avatar_uid {
         let scope = FileScope::PersonaAvatar {
-            user_id: input.creator_id.clone(),
-            persona_id: uid.clone(),
+            user_uid: input.creator_uid.clone(),
+            persona_uid: uid.clone(),
         };
 
-        apply_avatar_uid_patch(deps, None, PatchField::Set(file_id), &scope)
+        apply_avatar_uid_patch(deps, None, PatchField::Set(file_uid), &scope)
             .await
             .map_err(|err| match err {
                 ApplyAvatarPatchError::FileNotFound => CreatePersonaError::FileNotFound,
@@ -63,10 +63,10 @@ pub async fn create_persona(
 
     let persona = Persona {
         uid,
-        creator_id: input.creator_id,
+        creator_uid: input.creator_uid,
         name: input.name,
         description: input.description,
-        avatar_id: avatar_uid,
+        avatar_uid,
     };
 
     let saved = persona::save_persona(&deps.db, persona)

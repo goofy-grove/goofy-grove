@@ -11,8 +11,11 @@ pub enum GetPersonasError {
     InternalError(String),
 }
 
-pub async fn get_personas(deps: &AppDeps, user_id: &str) -> Result<Vec<Persona>, GetPersonasError> {
-    persona::load_personas(&deps.db, user_id)
+pub async fn get_personas(
+    deps: &AppDeps,
+    user_uid: &str,
+) -> Result<Vec<Persona>, GetPersonasError> {
+    persona::load_personas(&deps.db, user_uid)
         .await
         .map_err(|err| match err {
             persona::LoadPersonaError::InternalError(message) => {

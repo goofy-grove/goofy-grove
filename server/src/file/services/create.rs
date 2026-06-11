@@ -39,9 +39,9 @@ pub enum CreateFileError {
 pub async fn create_file(
     deps: &AppDeps,
     input: CreateFileInput,
-    user_id: &str,
+    user_uid: &str,
 ) -> Result<String, CreateFileError> {
-    access::can_create_file(deps, user_id, &input.scope)
+    access::can_create_file(deps, user_uid, &input.scope)
         .await
         .map_err(|_| CreateFileError::AccessDenied)?;
 
@@ -55,12 +55,12 @@ pub async fn create_file(
     policy::assert_file_matches_policy(input.content.len(), &input.content_type, policy)
         .map_err(CreateFileError::PolicyViolation)?;
 
-    let uid = util::id_generator::generate_id("file");
+    let uid = util::uid_generator::generate_uid("file");
     let filename = filename::resolve_filename(&uid, &input.original_name);
     let meta = FileMeta {
         uid: uid.clone(),
         filename,
-        uploaded_by: user_id.to_string(),
+        uploaded_by_uid: user_uid.to_string(),
         scope: input.scope,
         uploaded_at: Utc::now(),
         status: FileStatus::Created,

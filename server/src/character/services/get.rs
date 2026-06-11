@@ -13,9 +13,9 @@ pub enum GetCharactersError {
 
 pub async fn get_characters(
     deps: &AppDeps,
-    user_id: &str,
+    user_uid: &str,
 ) -> Result<Vec<Character>, GetCharactersError> {
-    character::load_characters(&deps.db, user_id)
+    character::load_characters(&deps.db, user_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::InternalError(message) => {

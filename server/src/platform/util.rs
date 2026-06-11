@@ -1,1 +1,1 @@
-pub mod id_generator;
+pub mod uid_generator;

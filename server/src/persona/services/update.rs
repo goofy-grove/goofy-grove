@@ -34,8 +34,8 @@ pub enum UpdatePersonaError {
 
 #[derive(Debug, Clone)]
 pub struct UpdatePersonaInput {
-    pub id: String,
-    pub user_id: String,
+    pub persona_uid: String,
+    pub user_uid: String,
     pub name: Option<String>,
     pub description: Option<String>,
     pub avatar_uid: PatchField<String>,
@@ -46,7 +46,7 @@ pub async fn update_persona(
     deps: &AppDeps,
     input: UpdatePersonaInput,
 ) -> Result<Persona, UpdatePersonaError> {
-    let persona = persona::load_persona(&deps.db, &input.id, &input.user_id)
+    let persona = persona::load_persona(&deps.db, &input.persona_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
             persona::LoadPersonaError::NotFound => UpdatePersonaError::NotFound,
@@ -55,18 +55,18 @@ pub async fn update_persona(
             }
         })?;
 
-    if persona.creator_id != input.user_id {
+    if persona.creator_uid != input.user_uid {
         return Err(UpdatePersonaError::AccessDenied);
     }
 
     let expected_scope = FileScope::PersonaAvatar {
-        user_id: input.user_id.clone(),
-        persona_id: persona.uid.clone(),
+        user_uid: input.user_uid.clone(),
+        persona_uid: persona.uid.clone(),
     };
 
     let next_avatar_uid = apply_avatar_uid_patch(
         deps,
-        persona.avatar_id.clone(),
+        persona.avatar_uid.clone(),
         input.avatar_uid,
         &expected_scope,
     )
@@ -80,10 +80,10 @@ pub async fn update_persona(
 
     let updated = Persona {
         uid: persona.uid,
-        creator_id: persona.creator_id,
+        creator_uid: persona.creator_uid,
         name: input.name.unwrap_or(persona.name),
         description: input.description.unwrap_or(persona.description),
-        avatar_id: next_avatar_uid,
+        avatar_uid: next_avatar_uid,
     };
 
     let saved = persona::save_persona(&deps.db, updated)

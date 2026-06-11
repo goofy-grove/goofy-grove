@@ -16,9 +16,17 @@ pub const STATUS_ORPHANED: &str = "orphaned";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FileScope {
-    UserAvatar { user_id: String },
-    PersonaAvatar { user_id: String, persona_id: String },
-    CharacterAvatar { user_id: String, character_id: String },
+    UserAvatar {
+        user_uid: String,
+    },
+    PersonaAvatar {
+        user_uid: String,
+        persona_uid: String,
+    },
+    CharacterAvatar {
+        user_uid: String,
+        character_uid: String,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -32,7 +40,7 @@ pub enum FileStatus {
 pub struct FileMeta {
     pub uid: String,
     pub filename: String,
-    pub uploaded_by: String,
+    pub uploaded_by_uid: String,
     pub scope: FileScope,
     pub uploaded_at: DateTime<Utc>,
     pub status: FileStatus,
@@ -64,49 +72,51 @@ pub enum UpdateFileStatusError {
 
 pub fn scope_to_db(scope: &FileScope) -> (String, String, Option<String>) {
     match scope {
-        FileScope::UserAvatar { user_id } => (SCOPE_USER_AVATAR.to_string(), user_id.clone(), None),
+        FileScope::UserAvatar { user_uid } => {
+            (SCOPE_USER_AVATAR.to_string(), user_uid.clone(), None)
+        }
         FileScope::PersonaAvatar {
-            user_id,
-            persona_id,
+            user_uid,
+            persona_uid,
         } => (
             SCOPE_PERSONA_AVATAR.to_string(),
-            user_id.clone(),
-            Some(persona_id.clone()),
+            user_uid.clone(),
+            Some(persona_uid.clone()),
         ),
         FileScope::CharacterAvatar {
-            user_id,
-            character_id,
+            user_uid,
+            character_uid,
         } => (
             SCOPE_CHARACTER_AVATAR.to_string(),
-            user_id.clone(),
-            Some(character_id.clone()),
+            user_uid.clone(),
+            Some(character_uid.clone()),
         ),
     }
 }
 
 pub fn scope_from_db(
     scope_kind: &str,
-    scope_owner_id: &str,
-    scope_entity_id: Option<&str>,
+    scope_owner_uid: &str,
+    scope_entity_uid: Option<&str>,
 ) -> Result<FileScope, String> {
     match scope_kind {
         SCOPE_USER_AVATAR => Ok(FileScope::UserAvatar {
-            user_id: scope_owner_id.to_string(),
+            user_uid: scope_owner_uid.to_string(),
         }),
         SCOPE_PERSONA_AVATAR => {
-            let persona_id = scope_entity_id.ok_or_else(|| "internal error".to_string())?;
+            let persona_uid = scope_entity_uid.ok_or_else(|| "internal error".to_string())?;
 
             Ok(FileScope::PersonaAvatar {
-                user_id: scope_owner_id.to_string(),
-                persona_id: persona_id.to_string(),
+                user_uid: scope_owner_uid.to_string(),
+                persona_uid: persona_uid.to_string(),
             })
         }
         SCOPE_CHARACTER_AVATAR => {
-            let character_id = scope_entity_id.ok_or_else(|| "internal error".to_string())?;
+            let character_uid = scope_entity_uid.ok_or_else(|| "internal error".to_string())?;
 
             Ok(FileScope::CharacterAvatar {
-                user_id: scope_owner_id.to_string(),
-                character_id: character_id.to_string(),
+                user_uid: scope_owner_uid.to_string(),
+                character_uid: character_uid.to_string(),
             })
         }
         _ => Err("internal error".to_string()),
@@ -137,11 +147,11 @@ impl TryFrom<files::Model> for FileMeta {
         Ok(Self {
             uid: model.uid,
             filename: model.filename,
-            uploaded_by: model.uploaded_by,
+            uploaded_by_uid: model.uploaded_by_uid,
             scope: scope_from_db(
                 &model.scope_kind,
-                &model.scope_owner_id,
-                model.scope_entity_id.as_deref(),
+                &model.scope_owner_uid,
+                model.scope_entity_uid.as_deref(),
             )?,
             uploaded_at: model.uploaded_at.and_utc(),
             status: status_from_db(&model.status)?,
@@ -169,15 +179,15 @@ pub async fn save_file(
     connection: &impl ConnectionTrait,
     meta: &FileMeta,
 ) -> Result<(), SaveFileError> {
-    let (scope_kind, scope_owner_id, scope_entity_id) = scope_to_db(&meta.scope);
+    let (scope_kind, scope_owner_uid, scope_entity_uid) = scope_to_db(&meta.scope);
 
     let active = files::ActiveModel {
         uid: Set(meta.uid.clone()),
         filename: Set(meta.filename.clone()),
-        uploaded_by: Set(meta.uploaded_by.clone()),
+        uploaded_by_uid: Set(meta.uploaded_by_uid.clone()),
         scope_kind: Set(scope_kind),
-        scope_owner_id: Set(scope_owner_id),
-        scope_entity_id: Set(scope_entity_id),
+        scope_owner_uid: Set(scope_owner_uid),
+        scope_entity_uid: Set(scope_entity_uid),
         uploaded_at: Set(meta.uploaded_at.naive_utc()),
         status: Set(status_to_db(&meta.status).to_string()),
         original_name: Set(meta.original_name.clone()),

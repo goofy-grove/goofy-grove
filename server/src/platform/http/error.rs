@@ -26,7 +26,7 @@ pub mod codes {
     pub const PERSONA_NOT_FOUND: &str = "persona_not_found";
     pub const CHARACTER_ACCESS_DENIED: &str = "character_access_denied";
     pub const PERSONA_INVALID_NAME: &str = "persona_invalid_name";
-    pub const PERSONA_INVALID_ID: &str = "persona_invalid_id";
+    pub const PERSONA_INVALID_UID: &str = "persona_invalid_uid";
     pub const PERSONA_AVATAR_NOT_FOUND: &str = "persona_avatar_not_found";
     pub const PERSONA_NO_FIELDS_PROVIDED: &str = "persona_no_fields_provided";
     pub const PERSONA_ACCESS_DENIED: &str = "persona_access_denied";
@@ -38,7 +38,7 @@ pub mod codes {
     pub const CHARACTER_NOT_FOUND: &str = "character_not_found";
     pub const CHARACTER_AVATAR_NOT_FOUND: &str = "character_avatar_not_found";
     pub const CHARACTER_INVALID_NAME: &str = "character_invalid_name";
-    pub const CHARACTER_INVALID_ID: &str = "character_invalid_id";
+    pub const CHARACTER_INVALID_UID: &str = "character_invalid_uid";
     pub const CHARACTER_NO_FIELDS_PROVIDED: &str = "character_no_fields_provided";
     pub const CHARACTER_LIST_FAILED: &str = "character_list_failed";
     pub const CHARACTER_CREATE_FAILED: &str = "character_create_failed";

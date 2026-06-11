@@ -9,7 +9,9 @@ use serde_json::json;
 use tracing::error;
 
 use crate::{
-    app::AppDeps, auth::public::AuthenticatedUser, character::{
+    app::AppDeps,
+    auth::public::AuthenticatedUser,
+    character::{
         db::character::Character,
         services::{
             self,
@@ -17,11 +19,16 @@ use crate::{
             delete::{DeleteCharacterError, DeleteCharacterInput},
             update::{UpdateCharacterError, UpdateCharacterInput},
         },
-    }, file::public::{CreateFileInput, FileScope, create_file_for_user}, platform::{http::{
-        error::{ApiError, codes},
-        extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-        response::{self, ToJson},
-    }, types::PatchField}
+    },
+    file::public::{CreateFileInput, FileScope, create_file_for_user},
+    platform::{
+        http::{
+            error::{ApiError, codes},
+            extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
+            response::{self, ToJson},
+        },
+        types::PatchField,
+    },
 };
 
 impl ToJson for Character {
@@ -30,7 +37,7 @@ impl ToJson for Character {
             "uid": self.uid,
             "name": self.name,
             "description": self.description,
-            "creator_uid": self.creator_id,
+            "creator_uid": self.creator_uid,
             "avatar_uid": self.avatar_uid
         })
     }
@@ -98,28 +105,27 @@ async fn create_character(
     let input = CreateCharacterInput {
         name: request.name,
         description: request.description,
-        creator_id: user.uid.clone(),
+        creator_uid: user.uid.clone(),
         exclude_participants: exclude_participant.into_iter().collect(),
         avatar_uid: request.avatar_uid,
     };
 
     let character = services::create::create_character(&deps, input)
         .await
-        .map_err(|err| {
-            match err {
-                CreateCharacterError::FileNotFound => ApiError::not_found(codes::CHARACTER_AVATAR_NOT_FOUND),
-                CreateCharacterError::InvalidFileStatus => {
-                    ApiError::bad_request(codes::FILE_INVALID_STATUS)
-                }
-                CreateCharacterError::InvalidFileScope => {
-                    ApiError::bad_request(codes::FILE_INVALID_SCOPE)
-                }
-                CreateCharacterError::InternalError(_) => {
+        .map_err(|err| match err {
+            CreateCharacterError::FileNotFound => {
+                ApiError::not_found(codes::CHARACTER_AVATAR_NOT_FOUND)
+            }
+            CreateCharacterError::InvalidFileStatus => {
+                ApiError::bad_request(codes::FILE_INVALID_STATUS)
+            }
+            CreateCharacterError::InvalidFileScope => {
+                ApiError::bad_request(codes::FILE_INVALID_SCOPE)
+            }
+            CreateCharacterError::InternalError(_) => {
+                error!(target: "character::api::create_character", ?err, "Failed to create character");
 
-                    error!(target: "character::api::create_character", ?err, "Failed to create character");
-        
-                    ApiError::internal(codes::CHARACTER_CREATE_FAILED)
-                }
+                ApiError::internal(codes::CHARACTER_CREATE_FAILED)
             }
         })?;
 
@@ -128,7 +134,7 @@ async fn create_character(
 
 async fn patch_character(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(character_id): Path<String>,
+    Path(character_uid): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
     ValidatedJson(request): ValidatedJson<CharacterUpdateRequest>,
@@ -137,8 +143,8 @@ async fn patch_character(
         return Err(ApiError::bad_request(codes::CHARACTER_NO_FIELDS_PROVIDED));
     }
 
-    if character_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
+    if character_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_UID));
     }
 
     if let Some(name) = &request.name
@@ -154,8 +160,8 @@ async fn patch_character(
     };
 
     let input = UpdateCharacterInput {
-        id: character_id,
-        user_id: user.uid.clone(),
+        character_uid,
+        user_uid: user.uid.clone(),
         name: request.name,
         description: request.description,
         exclude_participants: exclude_participant.into_iter().collect(),
@@ -166,7 +172,9 @@ async fn patch_character(
         .await
         .map_err(|err| match err {
             UpdateCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
-            UpdateCharacterError::AccessDenied => ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED),
+            UpdateCharacterError::AccessDenied => {
+                ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED)
+            }
             UpdateCharacterError::FileNotFound => {
                 ApiError::not_found(codes::CHARACTER_AVATAR_NOT_FOUND)
             }
@@ -187,12 +195,12 @@ async fn patch_character(
 
 async fn upload_character_avatar(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(character_id): Path<String>,
+    Path(character_uid): Path<String>,
     State(deps): State<AppDeps>,
     multipart: Multipart,
 ) -> Result<Response, ApiError> {
-    if character_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
+    if character_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_UID));
     }
 
     let (original_name, content_type, content) = read_multipart_file(multipart).await?;
@@ -201,13 +209,13 @@ async fn upload_character_avatar(
         content_type,
         original_name,
         scope: FileScope::CharacterAvatar {
-            user_id: user.uid.clone(),
-            character_id: character_id.clone(),
+            user_uid: user.uid.clone(),
+            character_uid: character_uid.clone(),
         },
         content,
     };
 
-    let file_id = create_file_for_user(&deps, input, &user.uid)
+    let file_uid = create_file_for_user(&deps, input, &user.uid)
         .await
         .map_err(|err| {
             error!(target: "application::api::upload_character_avatar", ?err, "Failed to upload character avatar");
@@ -215,22 +223,22 @@ async fn upload_character_avatar(
             ApiError::from(err)
         })?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_id }))
+    Ok(response::ok(FileUploadResponse { uid: file_uid }))
 }
 
 async fn delete_character(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(character_id): Path<String>,
+    Path(character_uid): Path<String>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
 ) -> Result<Response, ApiError> {
-    if character_id.trim().is_empty() {
-        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
+    if character_uid.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_UID));
     }
 
     let input = DeleteCharacterInput {
-        id: character_id,
-        user_id: user.uid.clone(),
+        character_uid,
+        user_uid: user.uid.clone(),
         exclude_participants: exclude_participant.into_iter().collect(),
     };
 
@@ -238,10 +246,11 @@ async fn delete_character(
         .await
         .map_err(|err| match err {
             DeleteCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
-            DeleteCharacterError::AccessDenied => ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED),
+            DeleteCharacterError::AccessDenied => {
+                ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED)
+            }
             DeleteCharacterError::InternalError(_) => {
                 error!(target: "character::api::delete_character", ?err, "Failed to delete character");
-
 
                 ApiError::internal(codes::CHARACTER_DELETE_FAILED)
             }
@@ -254,7 +263,7 @@ pub fn routes() -> axum::Router<AppDeps> {
     axum::Router::new()
         .route("/", get(get_all_user_characters))
         .route("/", post(create_character))
-        .route("/{id}", patch(patch_character))
-        .route("/{id}", delete(delete_character))
-        .route("/{id}/avatar", post(upload_character_avatar))
+        .route("/{character_uid}", patch(patch_character))
+        .route("/{character_uid}", delete(delete_character))
+        .route("/{character_uid}/avatar", post(upload_character_avatar))
 }
