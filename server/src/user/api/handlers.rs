@@ -106,7 +106,7 @@ async fn upload_user_avatar(
         .await
         .map_err(ApiError::from)?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_uid }))
+    Ok(response::created(FileUploadResponse { uid: file_uid }))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {

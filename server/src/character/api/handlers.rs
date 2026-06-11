@@ -223,7 +223,7 @@ async fn upload_character_avatar(
             ApiError::from(err)
         })?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_uid }))
+    Ok(response::created(FileUploadResponse { uid: file_uid }))
 }
 
 async fn delete_character(

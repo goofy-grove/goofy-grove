@@ -219,7 +219,7 @@ async fn upload_persona_avatar(
             ApiError::from(err)
         })?;
 
-    Ok(response::ok(FileUploadResponse { uid: file_uid }))
+    Ok(response::created(FileUploadResponse { uid: file_uid }))
 }
 
 async fn delete_persona(

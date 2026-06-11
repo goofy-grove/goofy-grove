@@ -3,7 +3,7 @@ info:
   title: Goofy Grove Server API
   version: '0.1.0'
 servers:
-  - url: https://127.0.0.2:3003/api/v1
+  - url: http://127.0.0.2:3003/api/v1
 security:
   - JwtToken: []
 tags:
@@ -29,6 +29,8 @@ paths:
           $ref: '#/components/responses/InternalError'
     post:
       tags: [Personas]
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -36,14 +38,18 @@ paths:
             schema:
               $ref: '#/components/schemas/PersonaCreateRequest'
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PersonaCreateResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -57,6 +63,7 @@ paths:
           description: Persona Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -74,6 +81,8 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         404:
           $ref: '#/components/responses/NotFoundError'
         default:
@@ -87,6 +96,7 @@ paths:
           description: Persona Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       responses:
         200:
           description: OK
@@ -98,6 +108,8 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         404:
           $ref: '#/components/responses/NotFoundError'
         default:
@@ -139,8 +151,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -171,6 +181,10 @@ paths:
               schema:
                 type: string
                 format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -196,6 +210,8 @@ paths:
           $ref: '#/components/responses/InternalError'
     post:
       tags: [Characters]
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -203,14 +219,18 @@ paths:
             schema:
               $ref: '#/components/schemas/CharacterCreateRequest'
       responses:
-        200:
-          description: OK
+        201:
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CharacterCreateResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -224,6 +244,7 @@ paths:
           description: Character Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -241,6 +262,8 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         404:
           $ref: '#/components/responses/NotFoundError'
         default:
@@ -254,6 +277,7 @@ paths:
           description: Character Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       responses:
         200:
           description: OK
@@ -265,6 +289,8 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         404:
           $ref: '#/components/responses/NotFoundError'
         default:
@@ -274,6 +300,10 @@ paths:
     post:
       tags: [Characters]
       summary: Upload character avatar
+      description: |
+        Returns 403 `file_access_denied` when the character does not exist or the caller
+        is not the owner. The file access layer intentionally does not distinguish these
+        cases.
       parameters:
         - name: uid
           in: path
@@ -306,8 +336,6 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -326,6 +354,8 @@ paths:
     patch:
       tags: [Users]
       summary: Update current user
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -396,14 +426,22 @@ paths:
       responses:
         200:
           description: OK
+          headers:
+            Set-Cookie:
+              description: |
+                HttpOnly refresh token cookie. Attributes: Secure, SameSite=None,
+                Path=/api/v1/auth/refresh.
+              schema:
+                type: string
+              example: refresh_token=eyJ...; Secure; HttpOnly; SameSite=None; Path=/api/v1/auth/refresh; Max-Age=604800
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationResponse'
-
+        400:
+          $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-        
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -412,27 +450,54 @@ paths:
       tags: [Authentication]
       security: []
       summary: Refresh tokens
+      description: |
+        Exchanges the `refresh_token` HttpOnly cookie for a new access token and
+        rotates the refresh cookie. No request body is required.
+      parameters:
+        - name: refresh_token
+          in: cookie
+          required: true
+          description: Refresh token issued by `/auth/login`
+          schema:
+            type: string
       responses:
         200:
           description: OK
+          headers:
+            Set-Cookie:
+              description: |
+                Rotated refresh token cookie. Attributes: Secure, SameSite=None,
+                Path=/api/v1/auth/refresh.
+              schema:
+                type: string
+              example: refresh_token=eyJ...; Secure; HttpOnly; SameSite=None; Path=/api/v1/auth/refresh; Max-Age=604800
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationResponse'
-
         401:
           $ref: '#/components/responses/UnauthorizedError'
-        
         default:
           $ref: '#/components/responses/InternalError'
 
 components:
   securitySchemes:
-      JwtToken:
-        type: http
-        scheme: bearer
-        bearerFormat: JWT
-        description: JWT token in Bearer format
+    JwtToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token in Bearer format
+
+  parameters:
+    SocketIdHeader:
+      name: x-socket-id
+      in: header
+      required: false
+      description: |
+        Optional Socket.IO socket id. When provided, that participant is excluded
+        from the broadcast of the mutation event.
+      schema:
+        type: string
 
   responses:
     UnauthorizedError:
@@ -490,7 +555,6 @@ components:
             data:
               code: file_access_denied
 
-
   schemas:
     # Requests
     PersonaCreateRequest:
@@ -503,6 +567,9 @@ components:
         description:
           type: string
           description: Persona Description
+        avatar_uid:
+          type: string
+          description: Optional file uid to bind as avatar on create
     PersonaUpdateRequest:
       type: object
       description: At least one of `name`, `description`, or `avatar_uid` must be provided
@@ -551,6 +618,9 @@ components:
         description:
           type: string
           description: Character Description
+        avatar_uid:
+          type: string
+          description: Optional file uid to bind as avatar on create
     CharacterUpdateRequest:
       type: object
       description: At least one of `name`, `description`, or `avatar_uid` must be provided
