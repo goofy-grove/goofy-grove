@@ -11,7 +11,7 @@ pub struct Persona {
     pub creator_id: String,
     pub name: String,
     pub description: String,
-    pub avatar_uid: Option<String>,
+    pub avatar_id: Option<String>,
 }
 
 impl From<personas::Model> for Persona {
@@ -21,7 +21,7 @@ impl From<personas::Model> for Persona {
             creator_id: model.creator_id,
             name: model.name,
             description: model.description,
-            avatar_uid: model.avatar_uid,
+            avatar_id: model.avatar_uid,
         }
     }
 }
@@ -87,7 +87,7 @@ pub async fn save_persona(
         creator_id,
         name,
         description,
-        avatar_uid,
+        avatar_id: avatar_uid,
     } = persona;
 
     let new_persona = personas::ActiveModel {

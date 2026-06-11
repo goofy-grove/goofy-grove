@@ -3,7 +3,8 @@ use thiserror::Error;
 use crate::{
     app::AppDeps,
     file::db::file::{FileMeta, FileScope},
-    persona::public,
+    persona,
+    character,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
@@ -16,6 +17,7 @@ fn scope_owner(scope: &FileScope) -> &str {
     match scope {
         FileScope::PersonaAvatar { user_id, .. } => user_id,
         FileScope::UserAvatar { user_id } => user_id,
+        FileScope::CharacterAvatar { user_id, .. } => user_id,
     }
 }
 
@@ -34,12 +36,19 @@ pub async fn can_create_file(
             persona_id,
             user_id,
         } => {
-            if public::is_owner(deps, persona_id, user_id).await {
+            if persona::public::is_owner(deps, persona_id, user_id).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)
             }
         }
+        FileScope::CharacterAvatar { user_id, character_id } => {
+            if character::public::is_owner(deps, character_id, user_id).await {
+                Ok(())
+            } else {
+                Err(FileAccessError::AccessDenied)
+            }
+        },
     }
 }
 
@@ -58,11 +67,18 @@ pub async fn can_access_file_meta(
             persona_id,
             user_id,
         } => {
-            if public::is_owner(deps, persona_id, user_id).await {
+            if persona::public::is_owner(deps, persona_id, user_id).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)
             }
         }
+        FileScope::CharacterAvatar { user_id, character_id } => {
+            if character::public::is_owner(deps, character_id, user_id).await {
+                Ok(())
+            } else {
+                Err(FileAccessError::AccessDenied)
+            }
+        },
     }
 }

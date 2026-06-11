@@ -38,7 +38,7 @@ impl ToJson for Persona {
             "name": self.name,
             "description": self.description,
             "creator_uid": self.creator_id,
-            "avatar_uid": self.avatar_uid,
+            "avatar_uid": self.avatar_id,
         })
     }
 }

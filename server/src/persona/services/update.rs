@@ -66,7 +66,7 @@ pub async fn update_persona(
 
     let next_avatar_uid = apply_avatar_uid_patch(
         deps,
-        persona.avatar_uid.clone(),
+        persona.avatar_id.clone(),
         input.avatar_uid,
         &expected_scope,
     )
@@ -83,7 +83,7 @@ pub async fn update_persona(
         creator_id: persona.creator_id,
         name: input.name.unwrap_or(persona.name),
         description: input.description.unwrap_or(persona.description),
-        avatar_uid: next_avatar_uid,
+        avatar_id: next_avatar_uid,
     };
 
     let saved = persona::save_persona(&deps.db, updated)

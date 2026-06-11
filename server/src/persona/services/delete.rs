@@ -47,7 +47,7 @@ pub async fn delete_persona(
     }
 
     if let Err(OrphanAvatarError::InternalError(message)) =
-        orphan_avatar_if_present(deps, persona.avatar_uid.clone()).await
+        orphan_avatar_if_present(deps, persona.avatar_id.clone()).await
     {
         return Err(DeletePersonaError::InternalError(message));
     }

@@ -24,6 +24,7 @@ pub mod codes {
     pub const USER_UPDATE_FAILED: &str = "user_update_failed";
 
     pub const PERSONA_NOT_FOUND: &str = "persona_not_found";
+    pub const CHARACTER_ACCESS_DENIED: &str = "character_access_denied";
     pub const PERSONA_INVALID_NAME: &str = "persona_invalid_name";
     pub const PERSONA_INVALID_ID: &str = "persona_invalid_id";
     pub const PERSONA_AVATAR_NOT_FOUND: &str = "persona_avatar_not_found";
@@ -35,6 +36,7 @@ pub mod codes {
     pub const PERSONA_DELETE_FAILED: &str = "persona_delete_failed";
 
     pub const CHARACTER_NOT_FOUND: &str = "character_not_found";
+    pub const CHARACTER_AVATAR_NOT_FOUND: &str = "character_avatar_not_found";
     pub const CHARACTER_INVALID_NAME: &str = "character_invalid_name";
     pub const CHARACTER_INVALID_ID: &str = "character_invalid_id";
     pub const CHARACTER_NO_FIELDS_PROVIDED: &str = "character_no_fields_provided";

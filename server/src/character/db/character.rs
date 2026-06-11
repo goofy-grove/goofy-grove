@@ -11,6 +11,7 @@ pub struct Character {
     pub creator_id: String,
     pub name: String,
     pub description: String,
+    pub avatar_uid: Option<String>,
 }
 
 impl From<characters::Model> for Character {
@@ -20,6 +21,7 @@ impl From<characters::Model> for Character {
             creator_id: model.user_id,
             name: model.name,
             description: model.description,
+            avatar_uid: model.avatar_uid,
         }
     }
 }
@@ -86,6 +88,7 @@ pub async fn save_character(
         creator_id,
         name,
         description,
+        avatar_uid: avatar_id
     } = character;
 
     let active = characters::ActiveModel {
@@ -93,6 +96,7 @@ pub async fn save_character(
         user_id: Set(creator_id),
         name: Set(name),
         description: Set(description),
+        avatar_uid: Set(avatar_id),
     };
 
     let model = Characters::insert(active)
@@ -102,6 +106,7 @@ pub async fn save_character(
                     characters::Column::Name,
                     characters::Column::Description,
                     characters::Column::UserId,
+                    characters::Column::AvatarUid,
                 ])
                 .to_owned(),
         )

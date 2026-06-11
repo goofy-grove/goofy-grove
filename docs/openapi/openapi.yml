@@ -269,6 +269,48 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
+
+  /characters/{uid}/avatar:
+    post:
+      tags: [Characters]
+      summary: Upload character avatar
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          description: Character Unique ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Avatar image file
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
   /users/me:
     get:
       tags: [Users]
@@ -511,7 +553,7 @@ components:
           description: Character Description
     CharacterUpdateRequest:
       type: object
-      description: At least one of `name` or `description` must be provided
+      description: At least one of `name`, `description`, or `avatar_uid` must be provided
       minProperties: 1
       properties:
         name:
@@ -520,6 +562,11 @@ components:
         description:
           type: string
           description: Character Description
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: File uid to bind as avatar, or null to clear
     AuthenticationRequest:
       type: object
       required: [username, password]
@@ -665,6 +712,11 @@ components:
         creator_uid:
           type: string
           description: Creator Unique ID (User UID)
+        avatar_uid:
+          oneOf:
+            - type: string
+            - type: 'null'
+          description: Current avatar file uid
     User:
       type: object
       required: [uid, username]

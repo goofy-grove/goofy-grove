@@ -29,6 +29,7 @@ impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
             "name": event.character.name,
             "description": event.character.description,
             "creator_id": creator_id,
+            "avatar_uid": event.character.avatar_uid
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
@@ -66,6 +67,7 @@ impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
             "name": event.character.name,
             "description": event.character.description,
             "creator_id": creator_id,
+            "avatar_uid": event.character.avatar_uid
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();

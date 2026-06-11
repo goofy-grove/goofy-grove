@@ -66,7 +66,7 @@ pub async fn create_persona(
         creator_id: input.creator_id,
         name: input.name,
         description: input.description,
-        avatar_uid,
+        avatar_id: avatar_uid,
     };
 
     let saved = persona::save_persona(&deps.db, persona)

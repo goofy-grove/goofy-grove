@@ -1,6 +1,6 @@
 use axum::{
     Extension,
-    extract::{Path, State},
+    extract::{Multipart, Path, State},
     response::Response,
     routing::{delete, get, patch, post},
 };
@@ -9,22 +9,19 @@ use serde_json::json;
 use tracing::error;
 
 use crate::{
-    app::AppDeps,
-    auth::public::AuthenticatedUser,
-    character::{
+    app::AppDeps, auth::public::AuthenticatedUser, character::{
         db::character::Character,
         services::{
             self,
-            create::CreateCharacterInput,
+            create::{CreateCharacterError, CreateCharacterInput},
             delete::{DeleteCharacterError, DeleteCharacterInput},
             update::{UpdateCharacterError, UpdateCharacterInput},
         },
-    },
-    platform::http::{
+    }, file::public::{CreateFileInput, FileScope, create_file_for_user}, platform::{http::{
         error::{ApiError, codes},
-        extract::{ExcludeSocketParticipants, ValidatedJson},
+        extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
         response::{self, ToJson},
-    },
+    }, types::PatchField}
 };
 
 impl ToJson for Character {
@@ -34,6 +31,7 @@ impl ToJson for Character {
             "name": self.name,
             "description": self.description,
             "creator_uid": self.creator_id,
+            "avatar_uid": self.avatar_uid
         })
     }
 }
@@ -42,12 +40,25 @@ impl ToJson for Character {
 pub struct CharacterCreateRequest {
     name: String,
     description: String,
+    avatar_uid: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CharacterUpdateRequest {
     name: Option<String>,
     description: Option<String>,
+    avatar_uid: Option<Option<String>>,
+}
+
+#[derive(Debug, Clone)]
+pub struct FileUploadResponse {
+    pub uid: String,
+}
+
+impl ToJson for FileUploadResponse {
+    fn to_json(self) -> serde_json::Value {
+        json!({ "uid": self.uid })
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -89,14 +100,27 @@ async fn create_character(
         description: request.description,
         creator_id: user.uid.clone(),
         exclude_participants: exclude_participant.into_iter().collect(),
+        avatar_uid: request.avatar_uid,
     };
 
     let character = services::create::create_character(&deps, input)
         .await
         .map_err(|err| {
-            error!(target: "character::api::create_character", ?err, "Failed to create character");
+            match err {
+                CreateCharacterError::FileNotFound => ApiError::not_found(codes::CHARACTER_AVATAR_NOT_FOUND),
+                CreateCharacterError::InvalidFileStatus => {
+                    ApiError::bad_request(codes::FILE_INVALID_STATUS)
+                }
+                CreateCharacterError::InvalidFileScope => {
+                    ApiError::bad_request(codes::FILE_INVALID_SCOPE)
+                }
+                CreateCharacterError::InternalError(_) => {
 
-            ApiError::internal(codes::CHARACTER_CREATE_FAILED)
+                    error!(target: "character::api::create_character", ?err, "Failed to create character");
+        
+                    ApiError::internal(codes::CHARACTER_CREATE_FAILED)
+                }
+            }
         })?;
 
     Ok(response::created(character))
@@ -109,7 +133,7 @@ async fn patch_character(
     State(deps): State<AppDeps>,
     ValidatedJson(request): ValidatedJson<CharacterUpdateRequest>,
 ) -> Result<Response, ApiError> {
-    if request.name.is_none() && request.description.is_none() {
+    if request.name.is_none() && request.description.is_none() && request.avatar_uid.is_none() {
         return Err(ApiError::bad_request(codes::CHARACTER_NO_FIELDS_PROVIDED));
     }
 
@@ -117,18 +141,41 @@ async fn patch_character(
         return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
     }
 
+    if let Some(name) = &request.name
+        && name.trim().is_empty()
+    {
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_NAME));
+    }
+
+    let avatar_uid = match request.avatar_uid {
+        None => PatchField::Unchanged,
+        Some(None) => PatchField::Clear,
+        Some(Some(value)) => PatchField::Set(value),
+    };
+
     let input = UpdateCharacterInput {
         id: character_id,
         user_id: user.uid.clone(),
         name: request.name,
         description: request.description,
         exclude_participants: exclude_participant.into_iter().collect(),
+        avatar_uid,
     };
 
     let character = services::update::update_character(&deps, input)
         .await
         .map_err(|err| match err {
             UpdateCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
+            UpdateCharacterError::AccessDenied => ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED),
+            UpdateCharacterError::FileNotFound => {
+                ApiError::not_found(codes::CHARACTER_AVATAR_NOT_FOUND)
+            }
+            UpdateCharacterError::InvalidFileStatus => {
+                ApiError::bad_request(codes::FILE_INVALID_STATUS)
+            }
+            UpdateCharacterError::InvalidFileScope => {
+                ApiError::bad_request(codes::FILE_INVALID_SCOPE)
+            }
             UpdateCharacterError::InternalError(_) => {
                 error!(target: "character::api::patch_character", ?err, "Failed to patch character");
                 ApiError::internal(codes::CHARACTER_UPDATE_FAILED)
@@ -136,6 +183,39 @@ async fn patch_character(
         })?;
 
     Ok(response::ok(character))
+}
+
+async fn upload_character_avatar(
+    Extension(user): Extension<AuthenticatedUser>,
+    Path(character_id): Path<String>,
+    State(deps): State<AppDeps>,
+    multipart: Multipart,
+) -> Result<Response, ApiError> {
+    if character_id.trim().is_empty() {
+        return Err(ApiError::bad_request(codes::CHARACTER_INVALID_ID));
+    }
+
+    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
+
+    let input = CreateFileInput {
+        content_type,
+        original_name,
+        scope: FileScope::CharacterAvatar {
+            user_id: user.uid.clone(),
+            character_id: character_id.clone(),
+        },
+        content,
+    };
+
+    let file_id = create_file_for_user(&deps, input, &user.uid)
+        .await
+        .map_err(|err| {
+            error!(target: "application::api::upload_character_avatar", ?err, "Failed to upload character avatar");
+
+            ApiError::from(err)
+        })?;
+
+    Ok(response::ok(FileUploadResponse { uid: file_id }))
 }
 
 async fn delete_character(
@@ -158,6 +238,7 @@ async fn delete_character(
         .await
         .map_err(|err| match err {
             DeleteCharacterError::NotFound => ApiError::not_found(codes::CHARACTER_NOT_FOUND),
+            DeleteCharacterError::AccessDenied => ApiError::forbidden(codes::CHARACTER_ACCESS_DENIED),
             DeleteCharacterError::InternalError(_) => {
                 error!(target: "character::api::delete_character", ?err, "Failed to delete character");
 
@@ -175,4 +256,5 @@ pub fn routes() -> axum::Router<AppDeps> {
         .route("/", post(create_character))
         .route("/{id}", patch(patch_character))
         .route("/{id}", delete(delete_character))
+        .route("/{id}/avatar", post(upload_character_avatar))
 }

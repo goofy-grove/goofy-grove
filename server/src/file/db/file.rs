@@ -8,6 +8,7 @@ use crate::platform::database::entities::{files, prelude::Files};
 
 pub const SCOPE_USER_AVATAR: &str = "user_avatar";
 pub const SCOPE_PERSONA_AVATAR: &str = "persona_avatar";
+pub const SCOPE_CHARACTER_AVATAR: &str = "character_avatar";
 
 pub const STATUS_CREATED: &str = "created";
 pub const STATUS_ACTIVATED: &str = "activated";
@@ -17,6 +18,7 @@ pub const STATUS_ORPHANED: &str = "orphaned";
 pub enum FileScope {
     UserAvatar { user_id: String },
     PersonaAvatar { user_id: String, persona_id: String },
+    CharacterAvatar { user_id: String, character_id: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -71,6 +73,14 @@ pub fn scope_to_db(scope: &FileScope) -> (String, String, Option<String>) {
             user_id.clone(),
             Some(persona_id.clone()),
         ),
+        FileScope::CharacterAvatar {
+            user_id,
+            character_id,
+        } => (
+            SCOPE_CHARACTER_AVATAR.to_string(),
+            user_id.clone(),
+            Some(character_id.clone()),
+        ),
     }
 }
 
@@ -89,6 +99,14 @@ pub fn scope_from_db(
             Ok(FileScope::PersonaAvatar {
                 user_id: scope_owner_id.to_string(),
                 persona_id: persona_id.to_string(),
+            })
+        }
+        SCOPE_CHARACTER_AVATAR => {
+            let character_id = scope_entity_id.ok_or_else(|| "internal error".to_string())?;
+
+            Ok(FileScope::CharacterAvatar {
+                user_id: scope_owner_id.to_string(),
+                character_id: character_id.to_string(),
             })
         }
         _ => Err("internal error".to_string()),

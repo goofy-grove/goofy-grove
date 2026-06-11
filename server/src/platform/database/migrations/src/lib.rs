@@ -6,6 +6,7 @@ mod m20260321_155310_create_tokens_users;
 mod m20260427_082333_add_character;
 mod m20260530_132459_add_file_table;
 mod m20260530_145742_add_avatar_uid_field;
+mod m20260611_145415_add_avatar_uid_field_for_character;
 
 pub struct Migrator;
 
@@ -19,6 +20,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260427_082333_add_character::Migration),
             Box::new(m20260530_132459_add_file_table::Migration),
             Box::new(m20260530_145742_add_avatar_uid_field::Migration),
+            Box::new(m20260611_145415_add_avatar_uid_field_for_character::Migration),
         ]
     }
 }

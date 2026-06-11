@@ -27,7 +27,7 @@ impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
             "name": event.persona.name,
             "description": event.persona.description,
             "creator_id": creator_id,
-            "avatar_uid": event.persona.avatar_uid,
+            "avatar_uid": event.persona.avatar_id,
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
@@ -65,7 +65,7 @@ impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
             "name": event.persona.name,
             "description": event.persona.description,
             "creator_id": creator_id,
-            "avatar_uid": event.persona.avatar_uid,
+            "avatar_uid": event.persona.avatar_id,
         });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();

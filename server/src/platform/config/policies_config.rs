@@ -14,6 +14,8 @@ pub struct FilesPoliciesConfig {
     pub user_avatar: FilePolicyConfig,
     #[serde(default)]
     pub persona_avatar: FilePolicyConfig,
+    #[serde(default)]
+    pub character_avatar: FilePolicyConfig,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -93,6 +95,7 @@ impl FilesPoliciesConfig {
         let config = match scope {
             FileScope::UserAvatar { .. } => &self.user_avatar,
             FileScope::PersonaAvatar { .. } => &self.persona_avatar,
+            FileScope::CharacterAvatar { .. } => &self.character_avatar,
         };
 
         if config.allowed_content_types.is_empty() && config.max_file_size.0 == 0 {

@@ -6,12 +6,21 @@ use crate::{
         db::character::{self, Character},
         events::types::CharacterCreatedEvent,
     },
-    platform::events::EventPublisher,
-    platform::util,
+    file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
+    platform::{events::EventPublisher, types::PatchField, util},
 };
 
 #[derive(Debug, Clone, Error)]
 pub enum CreateCharacterError {
+    #[error("File not found")]
+    FileNotFound,
+
+    #[error("Invalid file status")]
+    InvalidFileStatus,
+
+    #[error("Invalid file scope")]
+    InvalidFileScope,
+
     #[error("Internal error: {0}")]
     InternalError(String),
 }
@@ -21,6 +30,7 @@ pub struct CreateCharacterInput {
     pub name: String,
     pub description: String,
     pub creator_id: String,
+    pub avatar_uid: Option<String>,
     pub exclude_participants: Vec<String>,
 }
 
@@ -28,11 +38,34 @@ pub async fn create_character(
     deps: &AppDeps,
     input: CreateCharacterInput,
 ) -> Result<Character, CreateCharacterError> {
+    let uid = util::id_generator::generate_id("character");
+
+    let avatar_uid = if let Some(file_id) = input.avatar_uid {
+        let scope = FileScope::CharacterAvatar {
+            user_id: input.creator_id.clone(),
+            character_id: uid.clone(),
+        };
+
+        apply_avatar_uid_patch(deps, None, PatchField::Set(file_id), &scope)
+            .await
+            .map_err(|err| match err {
+                ApplyAvatarPatchError::FileNotFound => CreateCharacterError::FileNotFound,
+                ApplyAvatarPatchError::InvalidFileStatus => CreateCharacterError::InvalidFileStatus,
+                ApplyAvatarPatchError::InvalidFileScope => CreateCharacterError::InvalidFileScope,
+                ApplyAvatarPatchError::InternalError(message) => {
+                    CreateCharacterError::InternalError(message)
+                }
+            })?
+    } else {
+        None
+    };
+
     let character = Character {
-        uid: util::id_generator::generate_id("character"),
+        uid,
         creator_id: input.creator_id,
         name: input.name,
         description: input.description,
+        avatar_uid,
     };
 
     let saved = character::save_character(&deps.db, character)
