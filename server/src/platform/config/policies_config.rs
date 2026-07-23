@@ -104,4 +104,25 @@ impl FilesPoliciesConfig {
 
         Some(config)
     }
+
+    pub fn max_file_size_bytes(&self) -> u64 {
+        [
+            self.user_avatar.max_file_size.to_bytes(),
+            self.persona_avatar.max_file_size.to_bytes(),
+            self.character_avatar.max_file_size.to_bytes(),
+        ]
+        .into_iter()
+        .max()
+        .unwrap_or(0)
+    }
+}
+
+impl PoliciesConfig {
+    pub fn max_upload_body_limit(&self) -> usize {
+        const MULTIPART_OVERHEAD: u64 = 1024 * 1024;
+
+        self.files
+            .max_file_size_bytes()
+            .saturating_add(MULTIPART_OVERHEAD) as usize
+    }
 }

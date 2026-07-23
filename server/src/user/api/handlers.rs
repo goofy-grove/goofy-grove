@@ -91,7 +91,16 @@ async fn upload_user_avatar(
     State(deps): State<AppDeps>,
     multipart: Multipart,
 ) -> Result<Response, ApiError> {
-    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
+    let max_file_bytes = deps
+        .config
+        .policies
+        .files
+        .user_avatar
+        .max_file_size
+        .to_bytes() as usize;
+
+    let (original_name, content_type, content) =
+        read_multipart_file(multipart, max_file_bytes).await?;
 
     let input = CreateFileInput {
         content_type,

@@ -203,7 +203,16 @@ async fn upload_character_avatar(
         return Err(ApiError::bad_request(codes::CHARACTER_INVALID_UID));
     }
 
-    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
+    let max_file_bytes = deps
+        .config
+        .policies
+        .files
+        .character_avatar
+        .max_file_size
+        .to_bytes() as usize;
+
+    let (original_name, content_type, content) =
+        read_multipart_file(multipart, max_file_bytes).await?;
 
     let input = CreateFileInput {
         content_type,

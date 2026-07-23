@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import * as z from 'zod';
 
 import { ResponseErrorSchema, ResponseOkSchema } from './schemas';
@@ -22,7 +23,17 @@ export const withValidation = <
   return async (
     ...args: Parameters<ApiFn>
   ): Promise<z.infer<typeof ResponseSchema>> => {
-    const fnResult = await fn(...args);
+    let fnResult: unknown;
+
+    try {
+      fnResult = await fn(...args);
+    } catch (error) {
+      if (!isAxiosError(error)) {
+        throw error;
+      }
+
+      fnResult = error.response?.data;
+    }
 
     const result = ResponseSchema.parse(fnResult);
 

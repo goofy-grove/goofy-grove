@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 
 import { useAuthStore } from '@entities/auth';
 
-import { api } from '@shared/api';
+import { api, ApiRequestError } from '@shared/api';
 
 import { CHARACTERS_QUERY_KEY } from './constants';
 import { Character } from './entity';
@@ -85,7 +85,7 @@ export const useCreateCharacterMutation = () =>
             [],
         );
 
-        throw new Error('Failed to create character');
+        throw new ApiRequestError(result.data);
       }
 
       const newCharacter = new Character(
@@ -179,7 +179,7 @@ export const useUpdateCharacterMutation = () =>
           onMutateResult || [],
         );
 
-        throw new Error('Failed to update character');
+        throw new ApiRequestError(result.data);
       }
 
       const updatedCharacter = new Character(
@@ -232,7 +232,7 @@ export const useDeleteCharacterMutation = () =>
           onMutateResult || [],
         );
 
-        throw new Error('Failed to delete character');
+        throw new ApiRequestError(result.data);
       }
     },
   });

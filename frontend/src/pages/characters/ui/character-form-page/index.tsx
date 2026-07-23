@@ -9,6 +9,7 @@ import {
 } from '@pages/characters/model';
 import { CharacterForm } from '@pages/characters/ui/character-form';
 
+import { getApiErrorMessage } from '@shared/api';
 import { Button, IconLoader, Text, useObjectUrl } from '@shared/ui';
 
 import type { CharacterFormPageProps, CharacterFormStateProps } from './types';
@@ -58,8 +59,8 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
       }
 
       void navigate({ to: '/characters' });
-    } catch {
-      setErrorMessage(t('common.errors.save_failed'));
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, t));
     }
   };
 

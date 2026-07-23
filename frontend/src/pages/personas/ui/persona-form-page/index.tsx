@@ -9,6 +9,7 @@ import {
 } from '@pages/personas/model';
 import { PersonaForm } from '@pages/personas/ui/persona-form';
 
+import { getApiErrorMessage } from '@shared/api';
 import { Button, IconLoader, Text, useObjectUrl } from '@shared/ui';
 
 import type { PersonaFormPageProps, PersonaFormStateProps } from './types';
@@ -58,8 +59,8 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
       }
 
       void navigate({ to: '/personas' });
-    } catch {
-      setErrorMessage(t('common.errors.save_failed'));
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, t));
     }
   };
 

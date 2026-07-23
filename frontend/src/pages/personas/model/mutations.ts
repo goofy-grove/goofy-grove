@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 
 import { useAuthStore } from '@entities/auth';
 
-import { api } from '@shared/api';
+import { api, ApiRequestError } from '@shared/api';
 
 import { PERSONAS_QUERY_KEY } from './constants';
 import { Persona } from './entity';
@@ -83,7 +83,7 @@ export const useCreatePersonaMutation = () =>
             old?.filter((persona) => persona.uid !== onMutateResult.uid) || [],
         );
 
-        throw new Error('Failed to create persona');
+        throw new ApiRequestError(result.data);
       }
 
       const newPersona = new Persona(
@@ -177,7 +177,7 @@ export const useUpdatePersonaMutation = () =>
           onMutateResult || [],
         );
 
-        throw new Error('Failed to update persona');
+        throw new ApiRequestError(result.data);
       }
 
       const updatedPersona = new Persona(
@@ -230,7 +230,7 @@ export const useDeletePersonaMutation = () =>
           onMutateResult || [],
         );
 
-        throw new Error('Failed to delete persona');
+        throw new ApiRequestError(result.data);
       }
     },
   });

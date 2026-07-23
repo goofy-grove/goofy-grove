@@ -60,7 +60,7 @@ export const ApiErrorDataSchema = z.discriminatedUnion('code', [
     'file_invalid_size',
     z.object({
       max_size: z.number(),
-      size: z.number(),
+      size: z.number().optional(),
     }),
   ),
   apiError(

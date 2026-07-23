@@ -199,7 +199,16 @@ async fn upload_persona_avatar(
         return Err(ApiError::bad_request(codes::PERSONA_INVALID_UID));
     }
 
-    let (original_name, content_type, content) = read_multipart_file(multipart).await?;
+    let max_file_bytes = deps
+        .config
+        .policies
+        .files
+        .persona_avatar
+        .max_file_size
+        .to_bytes() as usize;
+
+    let (original_name, content_type, content) =
+        read_multipart_file(multipart, max_file_bytes).await?;
 
     let input = CreateFileInput {
         content_type,

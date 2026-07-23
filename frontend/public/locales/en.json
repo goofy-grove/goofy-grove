@@ -21,7 +21,9 @@
     "cancel": "Cancel",
     "coming_soon": "Coming soon",
     "errors": {
-      "save_failed": "Failed to save. Please try again."
+      "save_failed": "Failed to save. Please try again.",
+      "file_too_large": "File is too large. Maximum size is {{maxSize}}.",
+      "file_invalid_type": "Unsupported file type. Use JPEG, PNG, or GIF."
     }
   },
   "persona": {

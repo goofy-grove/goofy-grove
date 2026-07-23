@@ -1,7 +1,10 @@
 use axum::{
+    extract::multipart::MultipartError,
     extract::rejection::JsonRejection,
     extract::{FromRequest, FromRequestParts, Multipart, Request},
+    http::StatusCode,
 };
+use serde_json::json;
 
 use super::error::{ApiError, codes};
 
@@ -58,13 +61,23 @@ where
     }
 }
 
+fn multipart_read_error(err: MultipartError, max_file_bytes: usize) -> ApiError {
+    if err.status() == StatusCode::PAYLOAD_TOO_LARGE {
+        return ApiError::bad_request(codes::FILE_INVALID_SIZE)
+            .with_params(json!({ "max_size": max_file_bytes }));
+    }
+
+    ApiError::bad_request(codes::COMMON_INVALID_REQUEST_BODY)
+}
+
 pub async fn read_multipart_file(
     mut multipart: Multipart,
+    max_file_bytes: usize,
 ) -> Result<(String, String, Vec<u8>), ApiError> {
-    while let Some(field) = multipart
+    while let Some(mut field) = multipart
         .next_field()
         .await
-        .map_err(|_| ApiError::bad_request(codes::COMMON_INVALID_REQUEST_BODY))?
+        .map_err(|err| multipart_read_error(err, max_file_bytes))?
     {
         if field.name() != Some("file") {
             continue;
@@ -75,11 +88,25 @@ pub async fn read_multipart_file(
             .content_type()
             .map(str::to_string)
             .unwrap_or_else(|| "application/octet-stream".to_string());
-        let bytes = field
-            .bytes()
+
+        let mut bytes = Vec::new();
+
+        while let Some(chunk) = field
+            .chunk()
             .await
-            .map_err(|_| ApiError::bad_request(codes::COMMON_INVALID_REQUEST_BODY))?
-            .to_vec();
+            .map_err(|err| multipart_read_error(err, max_file_bytes))?
+        {
+            let next_size = bytes.len().saturating_add(chunk.len());
+
+            if next_size > max_file_bytes {
+                return Err(ApiError::bad_request(codes::FILE_INVALID_SIZE).with_params(json!({
+                    "max_size": max_file_bytes,
+                    "size": next_size,
+                })));
+            }
+
+            bytes.extend_from_slice(&chunk);
+        }
 
         if original_name.trim().is_empty() {
             return Err(ApiError::bad_request(codes::FILE_INVALID_ORIGINAL_NAME));
