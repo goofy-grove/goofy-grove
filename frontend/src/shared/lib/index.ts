@@ -1,2 +1,2 @@
 export * from './i18next';
-export * from './@tanstack';
+export { queryClient } from './query-client';

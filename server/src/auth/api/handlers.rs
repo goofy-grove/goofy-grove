@@ -53,6 +53,16 @@ fn set_refresh_cookie(response: &mut Response, refresh_token: &str, max_age: usi
     );
 }
 
+fn clear_refresh_cookie(response: &mut Response) {
+    response.headers_mut().insert(
+        header::SET_COOKIE,
+        HeaderValue::from_str(
+            "refresh_token=;Secure;HttpOnly;SameSite=None;Max-Age=0;Path=/api/v1/auth/refresh",
+        )
+        .unwrap(),
+    );
+}
+
 async fn authenticate_user(
     State(deps): State<AppDeps>,
     ValidatedJson(payload): ValidatedJson<AuthenticateUserRequest>,
@@ -123,8 +133,29 @@ async fn refresh_token(
     Ok(response)
 }
 
+#[derive(Debug, Clone)]
+struct LogoutResponse;
+
+impl ToJson for LogoutResponse {
+    fn to_json(self) -> serde_json::Value {
+        json!({})
+    }
+}
+
+async fn logout_user(State(deps): State<AppDeps>, cookie: CookieJar) -> Result<Response, ApiError> {
+    if let Some(refresh_token) = cookie.get("refresh_token") {
+        let _ = invalidate_device_by_token(&deps, refresh_token.value()).await;
+    }
+
+    let mut response = response::ok(LogoutResponse);
+    clear_refresh_cookie(&mut response);
+
+    Ok(response)
+}
+
 pub fn routes() -> Router<AppDeps> {
     Router::new()
         .route("/login", post(authenticate_user))
         .route("/refresh", post(refresh_token))
+        .route("/logout", post(logout_user))
 }

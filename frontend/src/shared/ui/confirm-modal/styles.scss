@@ -1,0 +1,21 @@
+.confirm-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__title {
+    display: block;
+    margin: 0;
+    padding: 16px 16px 0;
+  }
+
+  &__message {
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}

@@ -1,13 +1,15 @@
-export * from './select';
-export * from './input';
-export * from './card';
-export * from './button';
-export * from './dropdown';
-export * from './icons';
-export * from './text';
 export * from './alert';
-export * from './hooks';
-export * from './window-system';
 export * from './avatar';
+export * from './button';
+export * from './card';
+export * from './confirm-modal';
+export * from './dropdown';
+export * from './file-avatar';
+export * from './hooks';
+export * from './icons/icon-loader';
+export * from './input';
+export * from './modal';
+export * from './select';
+export * from './text';
 
 export { LocaleSwitcher } from './locale-switcher';

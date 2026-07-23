@@ -18,6 +18,11 @@ export const updateAuthState = (token: string, exp: number) => {
   updateSocketAuth(token);
 };
 
+export const clearAuthState = () => {
+  authState.token = '';
+  authState.exp = 0;
+};
+
 const refresh = async () => {
   const refreshTokens = withValidation(AuthResponseSchema, async () => {
     const response = await api.post('/auth/refresh', {}, { skipAuth: true });

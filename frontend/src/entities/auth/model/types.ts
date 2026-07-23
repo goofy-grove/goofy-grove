@@ -12,4 +12,5 @@ export type AuthContextData = {
 
   login: (username: string, password: string) => Promise<void>;
   getMe: () => Promise<void>;
+  logout: () => Promise<void>;
 };

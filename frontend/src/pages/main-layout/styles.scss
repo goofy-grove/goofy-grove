@@ -1,48 +1,15 @@
-@use '../../shared/ui/styles' as *;
-
 .main-layout {
   display: flex;
-  flex-direction: column;
-
+  flex-direction: row;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 
   &__content {
     flex-grow: 1;
-  }
-
-  &__footer {
-    display: flex;
-    flex-shrink: 0;
-
-    @include tablet-sm {
-      padding: 12px;
-      justify-content: center;
-    }
-
-    &__content {
-      height: 64px;
-      flex-grow: 1;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-
-      background-color: var(--bg-panel);
-      border: 1px solid var(--border-default);
-      box-shadow: var(--elev-1);
-
-      transition: var(--transition-smooth);
-
-      @include tablet-sm {
-        height: 72px;
-        flex-grow: 0;
-        gap: 4px;
-        padding: 0 12px;
-        width: max-content;
-        border-radius: var(--border-radius-full);
-      }
-    }
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-primary);
   }
 }

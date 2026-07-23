@@ -5,4 +5,5 @@ export const PersonaSchema = z.object({
   name: z.string(),
   description: z.string(),
   creator_uid: z.string(),
+  avatar_uid: z.string().nullable(),
 });

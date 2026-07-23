@@ -6,7 +6,6 @@ import { StrictMode } from 'react';
 import { AuthProvider, useAuth } from '@entities/auth';
 
 import { queryClient } from '@shared/lib';
-import { WindowsProvider } from '@shared/ui';
 
 import { router } from './lib';
 
@@ -20,11 +19,9 @@ export const App = () => {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <WindowsProvider>
-          <AuthProvider>
-            <InnerApp />
-          </AuthProvider>
-        </WindowsProvider>
+        <AuthProvider>
+          <InnerApp />
+        </AuthProvider>
 
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>

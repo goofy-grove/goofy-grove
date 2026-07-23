@@ -13,43 +13,51 @@
       "enter_credentials": "Введите логин и пароль"
     }
   },
-  "window": {
-    "confirm": {
-      "title": "Подтвердите действие",
-      "cancel": "Отмена",
-      "confirm": "Подтвердить"
+  "auth": {
+    "logout": "Выйти"
+  },
+  "common": {
+    "back": "Назад",
+    "cancel": "Отмена",
+    "coming_soon": "Скоро",
+    "errors": {
+      "save_failed": "Не удалось сохранить. Попробуйте ещё раз."
     }
   },
   "persona": {
-    "window": {
-      "list_title": "Персоны",
-      "edit_title": "Изменить персону",
-      "create_title": "Создать персону",
-      "actions": {
-        "create": "Создать",
-        "edit": "Изменить",
-        "delete": "Удалить"
-      }
+    "list_title": "Персоны",
+    "edit_title": "Изменить персону",
+    "create_title": "Создать персону",
+    "empty": "Персон пока нет",
+    "not_found": "Персона не найдена",
+    "confirm_delete": "Удалить эту персону?",
+    "actions": {
+      "create": "Создать",
+      "edit": "Изменить",
+      "delete": "Удалить"
     },
     "labels": {
       "description": "Описание",
-      "name": "Название"
+      "name": "Название",
+      "avatar": "Выбрать аватар"
     }
   },
   "character": {
-    "window": {
-      "list_title": "Персонажи",
-      "edit_title": "Изменить персонажа",
-      "create_title": "Создать персонажа",
-      "actions": {
-        "create": "Создать",
-        "edit": "Изменить",
-        "delete": "Удалить"
-      }
+    "list_title": "Персонажи",
+    "edit_title": "Изменить персонажа",
+    "create_title": "Создать персонажа",
+    "empty": "Персонажей пока нет",
+    "not_found": "Персонаж не найден",
+    "confirm_delete": "Удалить этого персонажа?",
+    "actions": {
+      "create": "Создать",
+      "edit": "Изменить",
+      "delete": "Удалить"
     },
     "labels": {
       "description": "Описание",
-      "name": "Название"
+      "name": "Название",
+      "avatar": "Выбрать аватар"
     }
   },
   "ui": {
@@ -59,7 +67,6 @@
     "personas": "Персоны",
     "characters": "Персонажи",
     "chats": "Чаты",
-    "settings": "Настройки",
-    "other": "Другое"
+    "settings": "Настройки"
   }
 }

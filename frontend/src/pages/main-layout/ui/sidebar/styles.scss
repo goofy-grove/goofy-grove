@@ -1,0 +1,40 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 220px;
+  height: 100%;
+  padding: 12px 8px;
+  background-color: var(--bg-panel);
+  border-right: 1px solid var(--border-default);
+
+  &--collapsed {
+    width: 72px;
+    padding: 12px 4px;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__button {
+    width: 100%;
+    justify-content: flex-start;
+
+    &--active {
+      background-color: var(--bg-hover);
+      color: var(--accent-primary);
+    }
+  }
+
+  &--collapsed &__button {
+    justify-content: center;
+  }
+}

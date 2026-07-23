@@ -82,6 +82,3 @@ export const ApiErrorDataSchema = z.discriminatedUnion('code', [
   apiError('common_invalid_socket_id_header'),
   apiError('common_invalid_request_body'),
 ]);
-
-export type ApiErrorData = z.infer<typeof ApiErrorDataSchema>;
-export type ApiErrorCode = ApiErrorData['code'];

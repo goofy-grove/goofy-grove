@@ -1,5 +1,8 @@
-import { AuthenticatedUser, useAuthStore } from '@entities/auth/model';
-import { AuthContext } from '@entities/auth/model/use-auth';
+import {
+  AuthContext,
+  AuthenticatedUser,
+  useAuthStore,
+} from '@entities/auth/model';
 
 import { api } from '@shared/api';
 
@@ -35,12 +38,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  const logout = async () => {
+    try {
+      await api.auth.logout();
+    } finally {
+      logoutUser();
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         login,
         getMe,
+        logout,
       }}
     >
       {children}

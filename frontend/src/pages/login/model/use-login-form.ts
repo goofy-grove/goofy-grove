@@ -36,12 +36,10 @@ export const useLoginForm = () => {
 
     setIsLoading(false);
 
-    const search: { redirect: string } = routerState.location.search as {
-      redirect: string;
-    };
+    const search = routerState.location.search as { redirect?: string };
 
     await navigate({
-      to: search?.redirect ?? '/',
+      to: search.redirect ?? '/personas',
       replace: true,
     });
   };

@@ -7,7 +7,7 @@ export const Route = createFileRoute('/login')({
   beforeLoad: async ({ context }) => {
     if (context.auth.user) {
       throw redirect({
-        to: '/',
+        to: '/personas',
         replace: true,
       });
     }
@@ -16,7 +16,7 @@ export const Route = createFileRoute('/login')({
       await context.auth.getMe();
 
       throw redirect({
-        to: '/',
+        to: '/personas',
         replace: true,
       });
     } catch (err) {

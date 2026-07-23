@@ -13,43 +13,51 @@
       "enter_credentials": "Enter login and password"
     }
   },
-  "window": {
-    "confirm": {
-      "title": "Confirm action",
-      "cancel": "Cancel",
-      "confirm": "Confirm"
+  "auth": {
+    "logout": "Log out"
+  },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "coming_soon": "Coming soon",
+    "errors": {
+      "save_failed": "Failed to save. Please try again."
     }
   },
   "persona": {
-    "window": {
-      "list_title": "Personas",
-      "edit_title": "Edit persona",
-      "create_title": "Create persona",
-      "actions": {
-        "create": "Create",
-        "edit": "Edit",
-        "delete": "Delete"
-      }
+    "list_title": "Personas",
+    "edit_title": "Edit persona",
+    "create_title": "Create persona",
+    "empty": "No personas yet",
+    "not_found": "Persona not found",
+    "confirm_delete": "Delete this persona?",
+    "actions": {
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "labels": {
       "description": "Description",
-      "name": "Name"
+      "name": "Name",
+      "avatar": "Choose avatar"
     }
   },
   "character": {
-    "window": {
-      "list_title": "Characters",
-      "edit_title": "Edit character",
-      "create_title": "Create character",
-      "actions": {
-        "create": "Create",
-        "edit": "Edit",
-        "delete": "Delete"
-      }
+    "list_title": "Characters",
+    "edit_title": "Edit character",
+    "create_title": "Create character",
+    "empty": "No characters yet",
+    "not_found": "Character not found",
+    "confirm_delete": "Delete this character?",
+    "actions": {
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "labels": {
       "description": "Description",
-      "name": "Name"
+      "name": "Name",
+      "avatar": "Choose avatar"
     }
   },
   "ui": {
@@ -59,7 +67,6 @@
     "personas": "Personas",
     "characters": "Characters",
     "chats": "Chats",
-    "settings": "Settings",
-    "other": "Other"
+    "settings": "Settings"
   }
 }

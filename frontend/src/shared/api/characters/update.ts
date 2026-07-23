@@ -3,13 +3,12 @@ import { withValidation } from '@shared/api/common';
 
 import { CharacterSchema } from './schema';
 
+import type { UpdateCharacterPayload } from './types';
+
 export const update = withValidation(
   CharacterSchema,
-  async (uid: string, name: string, description: string) => {
-    const response = await api.patch(`/characters/${uid}`, {
-      name,
-      description,
-    });
+  async (uid: string, payload: UpdateCharacterPayload) => {
+    const response = await api.patch(`/characters/${uid}`, payload);
 
     return response.data as unknown;
   },
