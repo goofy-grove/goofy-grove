@@ -3,6 +3,9 @@
 pub mod prelude;
 
 pub mod characters;
+pub mod chat_characters;
+pub mod chat_members;
+pub mod chats;
 pub mod files;
 pub mod personas;
 pub mod tokens;

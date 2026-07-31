@@ -8,6 +8,9 @@ mod m20260530_132459_add_file_table;
 mod m20260530_145742_add_avatar_uid_field;
 mod m20260611_145415_add_avatar_uid_field_for_character;
 mod m20260611_162629_update_uid_naming_conventions;
+mod m20260731_142015_add_chats;
+mod m20260731_142806_add_chats_members;
+mod m20260731_150107_add_chats_characters;
 
 pub struct Migrator;
 
@@ -23,6 +26,9 @@ impl MigratorTrait for Migrator {
             Box::new(m20260530_145742_add_avatar_uid_field::Migration),
             Box::new(m20260611_145415_add_avatar_uid_field_for_character::Migration),
             Box::new(m20260611_162629_update_uid_naming_conventions::Migration),
+            Box::new(m20260731_142015_add_chats::Migration),
+            Box::new(m20260731_142806_add_chats_members::Migration),
+            Box::new(m20260731_150107_add_chats_characters::Migration),
         ]
     }
 }

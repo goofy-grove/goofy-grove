@@ -16,6 +16,8 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::chat_characters::Entity")]
+    ChatCharacters,
     #[sea_orm(
         belongs_to = "super::files::Entity",
         from = "Column::AvatarUid",
@@ -34,6 +36,12 @@ pub enum Relation {
     Users,
 }
 
+impl Related<super::chat_characters::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::ChatCharacters.def()
+    }
+}
+
 impl Related<super::files::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Files.def()
@@ -43,6 +51,15 @@ impl Related<super::files::Entity> for Entity {
 impl Related<super::users::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Users.def()
+    }
+}
+
+impl Related<super::chats::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::chat_characters::Relation::Chats.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::chat_characters::Relation::Characters.def().rev())
     }
 }
 

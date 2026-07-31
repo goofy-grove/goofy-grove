@@ -3,24 +3,22 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
-#[sea_orm(table_name = "users")]
+#[sea_orm(table_name = "chats")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub uid: String,
-    #[sea_orm(unique)]
     pub name: String,
-    pub password: String,
-    pub avatar_uid: Option<String>,
+    pub avatar_uid: String,
+    pub creator_uid: String,
+    pub created_at: DateTimeUtc,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::characters::Entity")]
-    Characters,
+    #[sea_orm(has_many = "super::chat_characters::Entity")]
+    ChatCharacters,
     #[sea_orm(has_many = "super::chat_members::Entity")]
     ChatMembers,
-    #[sea_orm(has_many = "super::chats::Entity")]
-    Chats,
     #[sea_orm(
         belongs_to = "super::files::Entity",
         from = "Column::AvatarUid",
@@ -29,15 +27,19 @@ pub enum Relation {
         on_delete = "SetNull"
     )]
     Files,
-    #[sea_orm(has_many = "super::personas::Entity")]
-    Personas,
-    #[sea_orm(has_many = "super::tokens::Entity")]
-    Tokens,
+    #[sea_orm(
+        belongs_to = "super::users::Entity",
+        from = "Column::CreatorUid",
+        to = "super::users::Column::Uid",
+        on_update = "NoAction",
+        on_delete = "Cascade"
+    )]
+    Users,
 }
 
-impl Related<super::characters::Entity> for Entity {
+impl Related<super::chat_characters::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Characters.def()
+        Relation::ChatCharacters.def()
     }
 }
 
@@ -53,24 +55,21 @@ impl Related<super::files::Entity> for Entity {
     }
 }
 
-impl Related<super::personas::Entity> for Entity {
+impl Related<super::characters::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Personas.def()
-    }
-}
-
-impl Related<super::tokens::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Tokens.def()
-    }
-}
-
-impl Related<super::chats::Entity> for Entity {
-    fn to() -> RelationDef {
-        super::chat_members::Relation::Chats.def()
+        super::chat_characters::Relation::Characters.def()
     }
     fn via() -> Option<RelationDef> {
-        Some(super::chat_members::Relation::Users.def().rev())
+        Some(super::chat_characters::Relation::Chats.def().rev())
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::chat_members::Relation::Users.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::chat_members::Relation::Chats.def().rev())
     }
 }
 
