@@ -1,11 +1,12 @@
 use sea_orm::{
     ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, sea_query,
 };
+use serde::Serialize;
 use thiserror::Error;
 
 use crate::platform::database::entities::{personas, prelude::Personas};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Persona {
     pub uid: String,
     pub creator_uid: String,

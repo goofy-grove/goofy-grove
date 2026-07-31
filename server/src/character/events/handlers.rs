@@ -24,13 +24,7 @@ impl CharacterCreatedEventHandler {
 impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
     fn handle(&self, event: &CharacterCreatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         let creator_uid = event.character.creator_uid.clone();
-        let json = json!({
-            "uid": event.character.uid,
-            "name": event.character.name,
-            "description": event.character.description,
-            "creator_uid": creator_uid,
-            "avatar_uid": event.character.avatar_uid
-        });
+        let character = event.character.clone();
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
@@ -42,7 +36,7 @@ impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
-                .emit("character:created", &json)
+                .emit("character:created", &character)
                 .await
                 .ok();
         })
@@ -62,13 +56,7 @@ impl CharacterUpdatedEventHandler {
 impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
     fn handle(&self, event: &CharacterUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         let creator_uid = event.character.creator_uid.clone();
-        let json = json!({
-            "uid": event.character.uid,
-            "name": event.character.name,
-            "description": event.character.description,
-            "creator_uid": creator_uid,
-            "avatar_uid": event.character.avatar_uid
-        });
+        let character = event.character.clone();
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
@@ -80,7 +68,7 @@ impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
-                .emit("character:updated", &json)
+                .emit("character:updated", &character)
                 .await
                 .ok();
         })
@@ -100,9 +88,7 @@ impl CharacterDeletedEventHandler {
 impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
     fn handle(&self, event: &CharacterDeletedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         let creator_uid = event.creator_uid.clone();
-        let json = json!({
-            "uid": event.character_uid,
-        });
+        let payload = json!({ "uid": event.character_uid });
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
@@ -114,7 +100,7 @@ impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
-                .emit("character:deleted", &json)
+                .emit("character:deleted", &payload)
                 .await
                 .ok();
         })

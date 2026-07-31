@@ -4,44 +4,28 @@ use axum::{
     response::Response,
     routing::{delete, get, patch, post},
 };
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 use tracing::error;
 
 use crate::{
     app::AppDeps,
     auth::public::AuthenticatedUser,
-    character::{
-        db::character::Character,
-        services::{
-            self,
-            create::{CreateCharacterError, CreateCharacterInput},
-            delete::{DeleteCharacterError, DeleteCharacterInput},
-            update::{UpdateCharacterError, UpdateCharacterInput},
-        },
+    character::services::{
+        self,
+        create::{CreateCharacterError, CreateCharacterInput},
+        delete::{DeleteCharacterError, DeleteCharacterInput},
+        update::{UpdateCharacterError, UpdateCharacterInput},
     },
     file::public::{CreateFileInput, FileScope, create_file_for_user},
     platform::{
         http::{
             error::{ApiError, codes},
             extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-            response::{self, ToJson},
+            response::{self, Empty},
         },
         types::PatchField,
     },
 };
-
-impl ToJson for Character {
-    fn to_json(self) -> serde_json::Value {
-        json!({
-            "uid": self.uid,
-            "name": self.name,
-            "description": self.description,
-            "creator_uid": self.creator_uid,
-            "avatar_uid": self.avatar_uid
-        })
-    }
-}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CharacterCreateRequest {
@@ -57,24 +41,9 @@ pub struct CharacterUpdateRequest {
     avatar_uid: Option<Option<String>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FileUploadResponse {
     pub uid: String,
-}
-
-impl ToJson for FileUploadResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({ "uid": self.uid })
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct DeleteCharacterResponse;
-
-impl ToJson for DeleteCharacterResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({})
-    }
 }
 
 async fn get_all_user_characters(
@@ -265,7 +234,7 @@ async fn delete_character(
             }
         })?;
 
-    Ok(response::ok(DeleteCharacterResponse))
+    Ok(response::ok(Empty {}))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {

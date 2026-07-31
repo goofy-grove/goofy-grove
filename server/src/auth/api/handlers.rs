@@ -6,8 +6,7 @@ use axum::{
     routing::post,
 };
 use axum_extra::extract::CookieJar;
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     app::AppDeps,
@@ -20,7 +19,7 @@ use crate::{
     platform::http::{
         error::{ApiError, codes},
         extract::ValidatedJson,
-        response::{self, ToJson},
+        response::{self, Empty},
     },
     user::public,
 };
@@ -31,15 +30,10 @@ struct AuthenticateUserRequest {
     password: String,
 }
 
+#[derive(Debug, Clone, Serialize)]
 struct TokenResponse {
     token: String,
     exp: usize,
-}
-
-impl ToJson for TokenResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({ "token": self.token, "exp": self.exp })
-    }
 }
 
 fn set_refresh_cookie(response: &mut Response, refresh_token: &str, max_age: usize) {
@@ -133,21 +127,12 @@ async fn refresh_token(
     Ok(response)
 }
 
-#[derive(Debug, Clone)]
-struct LogoutResponse;
-
-impl ToJson for LogoutResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({})
-    }
-}
-
 async fn logout_user(State(deps): State<AppDeps>, cookie: CookieJar) -> Result<Response, ApiError> {
     if let Some(refresh_token) = cookie.get("refresh_token") {
         let _ = invalidate_device_by_token(&deps, refresh_token.value()).await;
     }
 
-    let mut response = response::ok(LogoutResponse);
+    let mut response = response::ok(Empty {});
     clear_refresh_cookie(&mut response);
 
     Ok(response)

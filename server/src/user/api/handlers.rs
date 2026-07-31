@@ -4,8 +4,7 @@ use axum::{
     response::Response,
     routing::{get, patch, post},
 };
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     app::AppDeps,
@@ -15,35 +14,16 @@ use crate::{
         http::{
             error::{ApiError, codes},
             extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-            response::{self, ToJson},
+            response,
         },
         types::PatchField,
     },
-    user::{
-        db::user::User,
-        services::update::{UpdateUserError, update_user},
-    },
+    user::services::update::{UpdateUserError, update_user},
 };
 
-impl ToJson for User {
-    fn to_json(self) -> serde_json::Value {
-        json!({
-            "uid": self.uid,
-            "username": self.name,
-            "avatar_uid": self.avatar_uid,
-        })
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FileUploadResponse {
     pub uid: String,
-}
-
-impl ToJson for FileUploadResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({ "uid": self.uid })
-    }
 }
 
 async fn get_current_user(Extension(user): Extension<AuthenticatedUser>) -> Response {

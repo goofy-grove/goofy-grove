@@ -4,54 +4,32 @@ use axum::{
     response::Response,
     routing::{delete, get, patch, post},
 };
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 use tracing::error;
 
 use crate::{
     app::AppDeps,
     auth::public::AuthenticatedUser,
     file::public::{CreateFileInput, FileScope, create_file_for_user},
-    persona::{
-        db::persona::Persona,
-        services::{
-            self,
-            create::{CreatePersonaError, CreatePersonaInput},
-            delete::{DeletePersonaError, DeletePersonaInput},
-            update::{UpdatePersonaError, UpdatePersonaInput},
-        },
+    persona::services::{
+        self,
+        create::{CreatePersonaError, CreatePersonaInput},
+        delete::{DeletePersonaError, DeletePersonaInput},
+        update::{UpdatePersonaError, UpdatePersonaInput},
     },
     platform::{
         http::{
             error::{ApiError, codes},
             extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-            response::{self, ToJson},
+            response::{self, Empty},
         },
         types::PatchField,
     },
 };
 
-impl ToJson for Persona {
-    fn to_json(self) -> serde_json::Value {
-        json!({
-            "uid": self.uid,
-            "name": self.name,
-            "description": self.description,
-            "creator_uid": self.creator_uid,
-            "avatar_uid": self.avatar_uid,
-        })
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct FileUploadResponse {
     pub uid: String,
-}
-
-impl ToJson for FileUploadResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({ "uid": self.uid })
-    }
 }
 
 async fn get_all_user_personas(
@@ -119,15 +97,6 @@ pub struct PersonaUpdateRequest {
     name: Option<String>,
     description: Option<String>,
     avatar_uid: Option<Option<String>>,
-}
-
-#[derive(Debug, Clone)]
-pub struct DeletePersonaResponse;
-
-impl ToJson for DeletePersonaResponse {
-    fn to_json(self) -> serde_json::Value {
-        json!({})
-    }
 }
 
 async fn patch_persona(
@@ -258,7 +227,7 @@ async fn delete_persona(
             }
         })?;
 
-    Ok(response::ok(DeletePersonaResponse))
+    Ok(response::ok(Empty {}))
 }
 
 pub fn routes() -> Router<AppDeps> {

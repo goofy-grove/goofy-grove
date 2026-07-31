@@ -20,11 +20,11 @@ pub async fn authenticate(
     username: &str,
     password: &str,
 ) -> Result<User, AuthenticateError> {
-    let user = public::get_by_name(deps, username)
+    let (user, credentials) = public::get_by_name_db(&deps.db, username)
         .await
         .map_err(|_| AuthenticateError::InvalidCredentials)?;
 
-    let verified = crypto::verify_password(password, &user.password)
+    let verified = crypto::verify_password(password, &credentials.password_hash)
         .map_err(AuthenticateError::InternalError)?;
 
     if verified {

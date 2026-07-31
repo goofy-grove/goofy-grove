@@ -32,7 +32,7 @@ pub async fn update_user(
     avatar_uid: PatchField<String>,
     exclude_participants: Vec<String>,
 ) -> Result<User, UpdateUserError> {
-    let user = load_user_by_uid(&deps.db, user_uid)
+    let (user, credentials) = load_user_by_uid(&deps.db, user_uid)
         .await
         .map_err(|_| UpdateUserError::NotFound)?;
 
@@ -55,11 +55,10 @@ pub async fn update_user(
     let updated = User {
         uid: user.uid,
         name: user.name,
-        password: user.password,
         avatar_uid: next_avatar_uid,
     };
 
-    let saved = save_user(&deps.db, updated)
+    let saved = save_user(&deps.db, updated, credentials)
         .await
         .map_err(|err| UpdateUserError::InternalError(err.to_string()))?;
 

@@ -1,6 +1,5 @@
 use std::pin::Pin;
 
-use serde_json::json;
 use socketioxide::SocketIo;
 use tracing::info;
 
@@ -19,11 +18,7 @@ impl UserUpdatedEventHandler {
 impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
     fn handle(&self, event: &UserUpdatedEvent) -> Pin<Box<dyn Future<Output = ()> + Send>> {
         let user_uid = event.user.uid.clone();
-        let json = json!({
-            "uid": user_uid,
-            "username": event.user.name,
-            "avatar_uid": event.user.avatar_uid,
-        });
+        let user = event.user.clone();
         let socket = self.socket.clone();
         let exclude_participants = event.exclude_participants.clone();
 
@@ -35,7 +30,7 @@ impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
                 .unwrap()
                 .within(format!("user:{user_uid}"))
                 .except(exclude_participants)
-                .emit("user:updated", &json)
+                .emit("user:updated", &user)
                 .await
                 .ok();
         })

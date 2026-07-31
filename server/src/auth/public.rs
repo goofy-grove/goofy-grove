@@ -41,7 +41,7 @@ pub async fn resolve_user_with_token_expiry(
     token: &str,
 ) -> Option<(AuthenticatedUser, usize)> {
     let claims = validate_token(token, &state.config.jwt.access_token).ok()?;
-    let user = public::get_by_name_db(&state.db, &claims.sub).await.ok()?;
+    let (user, _) = public::get_by_name_db(&state.db, &claims.sub).await.ok()?;
 
     Some((user, claims.exp))
 }

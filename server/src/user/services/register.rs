@@ -4,7 +4,7 @@ use crate::{
     app::AppDeps,
     auth::services::crypto::hash_password,
     platform::util,
-    user::db::user::{LoadUserError, User, save_user},
+    user::db::user::{LoadUserError, User, UserCredentials, save_user},
 };
 
 #[derive(Debug, Clone, Error)]
@@ -28,13 +28,19 @@ pub async fn register(deps: &AppDeps, name: &str, password: &str) -> Result<User
     }
 
     let hashed = hash_password(password).map_err(RegisterError::Hash)?;
+    let uid = util::uid_generator::generate_uid("user");
 
     let user = User {
-        uid: util::uid_generator::generate_uid("user"),
+        uid: uid.clone(),
         name: name.to_owned(),
-        password: hashed,
         avatar_uid: None,
     };
+    let credentials = UserCredentials {
+        user_uid: uid,
+        password_hash: hashed,
+    };
 
-    save_user(&deps.db, user).await.map_err(RegisterError::Save)
+    save_user(&deps.db, user, credentials)
+        .await
+        .map_err(RegisterError::Save)
 }

@@ -4,5 +4,7 @@ use crate::{
 };
 
 pub async fn get_by_name(deps: &AppDeps, name: &str) -> Result<User, LoadUserError> {
-    load_user_by_name(&deps.db, name).await
+    load_user_by_name(&deps.db, name)
+        .await
+        .map(|(user, _)| user)
 }
