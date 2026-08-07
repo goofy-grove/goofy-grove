@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{
     app::AppDeps,
-    file::public::{OrphanAvatarError, orphan_avatar_if_present},
+    file::{OrphanAvatarError, orphan_avatar_if_present},
     persona::{
         db::persona::{self},
         events::types::PersonaDeletedEvent,

@@ -9,14 +9,14 @@ use tracing::error;
 
 use crate::{
     app::AppDeps,
-    auth::public::AuthenticatedUser,
+    auth::AuthenticatedUser,
     character::services::{
         self,
         create::{CreateCharacterError, CreateCharacterInput},
         delete::{DeleteCharacterError, DeleteCharacterInput},
         update::{UpdateCharacterError, UpdateCharacterInput},
     },
-    file::public::{CreateFileInput, FileScope, create_file_for_user},
+    file::{CreateFileInput, FileScope, create_file_for_user},
     platform::{
         http::{
             error::{ApiError, codes},

@@ -21,7 +21,7 @@ use crate::{
         extract::ValidatedJson,
         response::{self, Empty},
     },
-    user::public,
+    user,
 };
 
 #[derive(Debug, Clone, Deserialize)]
@@ -109,7 +109,7 @@ async fn refresh_token(
     let claims = validate_token(refresh_token, &deps.config.jwt.refresh_token)
         .map_err(|_| ApiError::unauthorized(codes::AUTH_TOKEN_INVALID))?;
 
-    let user = public::get_by_name(&deps, &claims.sub)
+    let user = user::get_by_name(&deps, &claims.sub)
         .await
         .map_err(|_| ApiError::unauthorized(codes::AUTH_USER_NOT_FOUND))?;
 

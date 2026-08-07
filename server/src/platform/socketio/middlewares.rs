@@ -8,9 +8,9 @@ use socketioxide::extract::{Data, SocketRef, State};
 use tracing::info;
 
 use crate::{
-    auth::public::{AuthMiddlewareState, resolve_user_with_token_expiry},
+    auth::{AuthMiddlewareState, resolve_user_with_token_expiry},
     platform::config::Config,
-    user::public,
+    user,
 };
 
 #[derive(Deserialize, Debug)]
@@ -81,7 +81,7 @@ pub async fn authentication_middleware(
         username_for_cache
     };
 
-    let user = public::get_by_name_db(&db, &username)
+    let user = user::get_by_name_db(&db, &username)
         .await
         .map_err(|_| AuthenticationError::Unknown)?;
 

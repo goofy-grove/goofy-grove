@@ -9,8 +9,8 @@ use tracing::error;
 
 use crate::{
     app::AppDeps,
-    auth::public::AuthenticatedUser,
-    file::public::{CreateFileInput, FileScope, create_file_for_user},
+    auth::AuthenticatedUser,
+    file::{CreateFileInput, FileScope, create_file_for_user},
     persona::services::{
         self,
         create::{CreatePersonaError, CreatePersonaInput},

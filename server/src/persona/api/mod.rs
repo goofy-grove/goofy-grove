@@ -2,7 +2,7 @@ mod handlers;
 
 use axum::Router;
 
-use crate::{app::AppDeps, auth::public::AuthLayerExt};
+use crate::{app::AppDeps, auth::AuthLayerExt};
 
 pub fn mount(router: Router, deps: &AppDeps) -> Router {
     router.nest(

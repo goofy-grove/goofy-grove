@@ -4,7 +4,7 @@ use std::sync::Arc;
 use thiserror::Error;
 use tokio::fs;
 
-use crate::file::db::file::FileMeta;
+use crate::file::FileMeta;
 
 #[derive(Debug, Clone, Error)]
 pub enum LoadStorageError {

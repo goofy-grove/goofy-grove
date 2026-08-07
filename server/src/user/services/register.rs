@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{
     app::AppDeps,
-    auth::services::crypto::hash_password,
+    auth::hash_password,
     platform::util,
     user::db::user::{LoadUserError, User, UserCredentials, save_user},
 };

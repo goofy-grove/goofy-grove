@@ -12,9 +12,9 @@ use crate::{
 };
 
 fn register_event_handlers(event_bus: &InMemoryEventBus, deps: &AppDeps) {
-    user::events::subscribe(event_bus, deps);
-    character::events::subscribe(event_bus, deps);
-    persona::events::subscribe(event_bus, deps);
+    user::subscribe(event_bus, deps);
+    character::subscribe(event_bus, deps);
+    persona::subscribe(event_bus, deps);
 }
 
 pub async fn start_server(
@@ -31,7 +31,7 @@ pub async fn start_server(
         socket: io,
     };
 
-    user::public::create_master_user(&deps).await;
+    user::create_master_user(&deps).await;
     register_event_handlers(&event_bus, &deps);
 
     let app = build_router(&deps, socketio_layer);

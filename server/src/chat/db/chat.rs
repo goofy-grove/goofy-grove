@@ -10,7 +10,7 @@ use thiserror::Error;
 use crate::platform::database::entities::{
     characters, chat_characters, chat_members, chats, users,
 };
-use crate::{character::public::Character, user::public::User};
+use crate::{character::Character, user::User};
 
 #[derive(Clone, Debug, Serialize)]
 pub struct ChatMember {

@@ -6,7 +6,7 @@ use crate::{
         device::{RegisterDeviceError, RegisterDeviceInput, register_device},
         jwt::{UserTokenInput, generate_token},
     },
-    user::public::User,
+    user::User,
 };
 
 #[derive(Debug, Clone, Error)]

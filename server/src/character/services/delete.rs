@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     app::AppDeps,
     character::{db::character, events::types::CharacterDeletedEvent},
-    file::public::{OrphanAvatarError, orphan_avatar_if_present},
+    file::{OrphanAvatarError, orphan_avatar_if_present},
     platform::events::EventPublisher,
 };
 

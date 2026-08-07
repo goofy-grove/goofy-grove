@@ -10,7 +10,7 @@ use tracing::error;
 
 use crate::{
     app::AppDeps,
-    auth::public::AuthenticatedUser,
+    auth::AuthenticatedUser,
     file::{
         db::file::{self, LoadFileError},
         services::get::{GetFileError, get_file as fetch_file_bytes},

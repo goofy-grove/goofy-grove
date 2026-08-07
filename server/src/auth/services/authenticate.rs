@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     app::AppDeps,
     auth::services::crypto,
-    user::public::{self, User},
+    user::{self, User},
 };
 
 #[derive(Debug, Clone, Error)]
@@ -20,7 +20,7 @@ pub async fn authenticate(
     username: &str,
     password: &str,
 ) -> Result<User, AuthenticateError> {
-    let (user, credentials) = public::get_by_name_db(&deps.db, username)
+    let (user, credentials) = user::get_by_name_db(&deps.db, username)
         .await
         .map_err(|_| AuthenticateError::InvalidCredentials)?;
 

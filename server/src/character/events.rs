@@ -6,7 +6,6 @@ use crate::{
     platform::events::{EventSubscriber, InMemoryEventBus},
 };
 
-// FIXME: Remove mod.rs file and move subscribe function into public.rs file
 pub fn subscribe(bus: &InMemoryEventBus, deps: &AppDeps) {
     bus.subscribe(handlers::CharacterCreatedEventHandler::new(
         deps.socket.clone(),

@@ -6,7 +6,7 @@ use crate::{
         db::character::{self, Character},
         events::types::CharacterUpdatedEvent,
     },
-    file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
+    file::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
     platform::{events::EventPublisher, types::PatchField},
 };
 

@@ -1,4 +1,96 @@
-pub mod api;
-pub mod db;
-pub mod public;
-pub mod services;
+mod api;
+mod db;
+mod services;
+
+pub use api::mount;
+pub use services::crypto::hash_password;
+
+use std::sync::Arc;
+
+use axum::{
+    Router,
+    extract::{Request, State},
+    http::header,
+    middleware::{self, Next},
+    response::Response,
+};
+use sea_orm::DatabaseConnection;
+
+use crate::{
+    app::AppDeps,
+    platform::{
+        config::Config,
+        http::error::{ApiError, codes},
+    },
+    user,
+};
+
+pub use crate::user::User as AuthenticatedUser;
+
+#[derive(Debug, Clone)]
+pub struct AuthMiddlewareState {
+    pub config: Arc<Config>,
+    pub db: DatabaseConnection,
+}
+
+impl From<&AppDeps> for AuthMiddlewareState {
+    fn from(deps: &AppDeps) -> Self {
+        Self {
+            config: deps.config.clone(),
+            db: deps.db.clone(),
+        }
+    }
+}
+
+pub async fn resolve_user_with_token_expiry(
+    state: &AuthMiddlewareState,
+    token: &str,
+) -> Option<(AuthenticatedUser, usize)> {
+    let claims = services::jwt::validate_token(token, &state.config.jwt.access_token).ok()?;
+    let (user, _) = user::get_by_name_db(&state.db, &claims.sub).await.ok()?;
+
+    Some((user, claims.exp))
+}
+
+pub trait AuthLayerExt {
+    fn with_auth(self, state: AuthMiddlewareState) -> Self;
+}
+
+impl<S> AuthLayerExt for Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+{
+    fn with_auth(self, state: AuthMiddlewareState) -> Self {
+        self.layer(middleware::from_fn_with_state(
+            state,
+            authentication_middleware,
+        ))
+    }
+}
+
+async fn authentication_middleware(
+    State(state): State<AuthMiddlewareState>,
+    mut req: Request,
+    next: Next,
+) -> Result<Response, ApiError> {
+    let auth_header = req
+        .headers()
+        .get(header::AUTHORIZATION)
+        .and_then(|header| header.to_str().ok());
+
+    let auth_header =
+        auth_header.ok_or_else(|| ApiError::unauthorized(codes::AUTH_TOKEN_NOT_FOUND))?;
+
+    let token = auth_header
+        .strip_prefix("Bearer ")
+        .ok_or_else(|| ApiError::unauthorized(codes::AUTH_AUTHENTICATION_FAILED))?;
+
+    let user = resolve_user_with_token_expiry(&state, token)
+        .await
+        .map(|(user, _)| user)
+        .ok_or_else(|| ApiError::unauthorized(codes::AUTH_AUTHENTICATION_FAILED))?;
+
+    req.extensions_mut().insert(user);
+
+    Ok(next.run(req).await)
+}

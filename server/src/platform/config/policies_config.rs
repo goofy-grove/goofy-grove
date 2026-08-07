@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::file::public::FileScope;
+use crate::file::FileScope;
 
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct PoliciesConfig {

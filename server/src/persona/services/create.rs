@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{
     app::AppDeps,
-    file::public::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
+    file::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
     persona::{
         db::persona::{self, Persona},
         events::types::PersonaCreatedEvent,
