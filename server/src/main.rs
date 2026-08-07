@@ -5,6 +5,7 @@ use env_logger::Env;
 mod app;
 mod auth;
 mod character;
+mod chat;
 mod file;
 mod persona;
 mod platform;

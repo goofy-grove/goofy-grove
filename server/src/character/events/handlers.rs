@@ -11,6 +11,8 @@ use crate::{
     platform::events::EventHandler,
 };
 
+// FIXME: Split into multiple files and move types and structs into their own files
+// See chat/events for an example
 pub struct CharacterCreatedEventHandler {
     socket: SocketIo,
 }

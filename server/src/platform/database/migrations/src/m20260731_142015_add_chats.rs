@@ -13,7 +13,7 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(string("uid").primary_key())
                     .col(string("name").not_null())
-                    .col(string("avatar_uid"))
+                    .col(string("avatar_uid").null())
                     .col(string("creator_uid").not_null())
                     .col(
                         timestamp("created_at")

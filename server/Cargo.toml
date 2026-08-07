@@ -36,6 +36,7 @@ blake3 = "1.8.3"
 keyv = "0.3.0"
 anyhow = "1.0.102"
 thiserror = "2.0.18"
+itertools = "0.15.0"
 
 [dependencies.uuid]
 version = "1.20.0"
