@@ -15,9 +15,6 @@ pub enum DeletePersonaError {
     #[error("Not found")]
     NotFound,
 
-    #[error("Access denied")]
-    AccessDenied,
-
     #[error("Internal error: {0}")]
     InternalError(String),
 }
@@ -41,10 +38,6 @@ pub async fn delete_persona(
                 DeletePersonaError::InternalError(message)
             }
         })?;
-
-    if persona.creator_uid != input.user_uid {
-        return Err(DeletePersonaError::AccessDenied);
-    }
 
     if let Err(OrphanAvatarError::InternalError(message)) =
         orphan_avatar_if_present(deps, persona.avatar_uid.clone()).await

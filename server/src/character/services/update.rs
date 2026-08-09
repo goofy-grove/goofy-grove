@@ -6,8 +6,7 @@ use crate::{
         db::character::{self, Character},
         events::types::CharacterUpdatedEvent,
     },
-    file::{ApplyAvatarPatchError, FileScope, apply_avatar_uid_patch},
-    platform::{events::EventPublisher, types::PatchField},
+    platform::events::EventPublisher,
 };
 
 #[derive(Debug, Clone, Error)]
@@ -17,18 +16,6 @@ pub enum UpdateCharacterError {
 
     #[error("Internal error: {0}")]
     InternalError(String),
-
-    #[error("Access denied")]
-    AccessDenied,
-
-    #[error("File not found")]
-    FileNotFound,
-
-    #[error("Invalid file status")]
-    InvalidFileStatus,
-
-    #[error("Invalid file scope")]
-    InvalidFileScope,
 }
 
 #[derive(Debug, Clone)]
@@ -37,7 +24,6 @@ pub struct UpdateCharacterInput {
     pub user_uid: String,
     pub name: Option<String>,
     pub description: Option<String>,
-    pub avatar_uid: PatchField<String>,
     pub exclude_participants: Vec<String>,
 }
 
@@ -54,37 +40,12 @@ pub async fn update_character(
             }
         })?;
 
-    if character.creator_uid != input.user_uid {
-        return Err(UpdateCharacterError::AccessDenied);
-    }
-
-    let expected_scope = FileScope::CharacterAvatar {
-        user_uid: input.user_uid.clone(),
-        character_uid: character.uid.clone(),
-    };
-
-    let next_avatar_uid = apply_avatar_uid_patch(
-        deps,
-        character.avatar_uid.clone(),
-        input.avatar_uid,
-        &expected_scope,
-    )
-    .await
-    .map_err(|err| match err {
-        ApplyAvatarPatchError::FileNotFound => UpdateCharacterError::FileNotFound,
-        ApplyAvatarPatchError::InvalidFileStatus => UpdateCharacterError::InvalidFileStatus,
-        ApplyAvatarPatchError::InvalidFileScope => UpdateCharacterError::InvalidFileScope,
-        ApplyAvatarPatchError::InternalError(message) => {
-            UpdateCharacterError::InternalError(message)
-        }
-    })?;
-
     let updated = Character {
         uid: character.uid,
         creator_uid: character.creator_uid,
         name: input.name.unwrap_or(character.name),
         description: input.description.unwrap_or(character.description),
-        avatar_uid: next_avatar_uid,
+        avatar_uid: character.avatar_uid,
     };
 
     let saved = character::save_character(&deps.db, updated)

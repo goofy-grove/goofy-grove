@@ -19,24 +19,18 @@ pub mod codes {
     pub const AUTH_TOKEN_GENERATION_FAILED: &str = "auth_token_generation_failed";
 
     pub const USER_NOT_FOUND: &str = "user_not_found";
-    pub const USER_AVATAR_NOT_FOUND: &str = "user_avatar_not_found";
-    pub const USER_NO_FIELDS_PROVIDED: &str = "user_no_fields_provided";
     pub const USER_UPDATE_FAILED: &str = "user_update_failed";
 
     pub const PERSONA_NOT_FOUND: &str = "persona_not_found";
-    pub const CHARACTER_ACCESS_DENIED: &str = "character_access_denied";
     pub const PERSONA_INVALID_NAME: &str = "persona_invalid_name";
     pub const PERSONA_INVALID_UID: &str = "persona_invalid_uid";
-    pub const PERSONA_AVATAR_NOT_FOUND: &str = "persona_avatar_not_found";
     pub const PERSONA_NO_FIELDS_PROVIDED: &str = "persona_no_fields_provided";
-    pub const PERSONA_ACCESS_DENIED: &str = "persona_access_denied";
     pub const PERSONA_LIST_FAILED: &str = "persona_list_failed";
     pub const PERSONA_CREATE_FAILED: &str = "persona_create_failed";
     pub const PERSONA_UPDATE_FAILED: &str = "persona_update_failed";
     pub const PERSONA_DELETE_FAILED: &str = "persona_delete_failed";
 
     pub const CHARACTER_NOT_FOUND: &str = "character_not_found";
-    pub const CHARACTER_AVATAR_NOT_FOUND: &str = "character_avatar_not_found";
     pub const CHARACTER_INVALID_NAME: &str = "character_invalid_name";
     pub const CHARACTER_INVALID_UID: &str = "character_invalid_uid";
     pub const CHARACTER_NO_FIELDS_PROVIDED: &str = "character_no_fields_provided";
@@ -55,8 +49,6 @@ pub mod codes {
     pub const FILE_GET_FAILED: &str = "file_get_failed";
     pub const FILE_UPLOAD_FAILED: &str = "file_upload_failed";
     pub const FILE_RESPONSE_BUILD_FAILED: &str = "file_response_build_failed";
-    pub const FILE_INVALID_STATUS: &str = "file_invalid_status";
-    pub const FILE_INVALID_SCOPE: &str = "file_invalid_scope";
 
     pub const COMMON_INVALID_SOCKET_ID_HEADER: &str = "common_invalid_socket_id_header";
     pub const COMMON_INVALID_REQUEST_BODY: &str = "common_invalid_request_body";

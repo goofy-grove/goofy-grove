@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use chrono::NaiveDateTime;
 use itertools::Itertools;
 use sea_orm::ActiveValue::{NotSet, Set};

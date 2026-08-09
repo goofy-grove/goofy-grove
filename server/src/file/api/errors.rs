@@ -1,7 +1,9 @@
 use serde_json::json;
 
 use crate::{
-    file::services::{create::CreateFileError, policy::PolicyViolationError},
+    file::services::{
+        avatar::ReplaceAvatarError, create::CreateFileError, policy::PolicyViolationError,
+    },
     platform::http::error::{ApiError, codes},
 };
 
@@ -32,6 +34,19 @@ impl From<CreateFileError> for ApiError {
                 ApiError::internal(codes::FILE_UPLOAD_POLICY_NOT_CONFIGURED)
             }
             CreateFileError::InternalError(_) => ApiError::internal(codes::FILE_UPLOAD_FAILED),
+        }
+    }
+}
+
+impl From<ReplaceAvatarError> for ApiError {
+    fn from(err: ReplaceAvatarError) -> Self {
+        match err {
+            ReplaceAvatarError::AccessDenied => ApiError::forbidden(codes::FILE_ACCESS_DENIED),
+            ReplaceAvatarError::PolicyViolation(violation) => violation.into(),
+            ReplaceAvatarError::PolicyForScopeNotFound => {
+                ApiError::internal(codes::FILE_UPLOAD_POLICY_NOT_CONFIGURED)
+            }
+            ReplaceAvatarError::InternalError(_) => ApiError::internal(codes::FILE_UPLOAD_FAILED),
         }
     }
 }

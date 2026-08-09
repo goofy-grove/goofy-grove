@@ -12,9 +12,6 @@ pub enum DeleteCharacterError {
     #[error("Not found")]
     NotFound,
 
-    #[error("Access denied")]
-    AccessDenied,
-
     #[error("Internal error: {0}")]
     InternalError(String),
 }
@@ -38,10 +35,6 @@ pub async fn delete_character(
                 DeleteCharacterError::InternalError(message)
             }
         })?;
-
-    if character.creator_uid != input.user_uid {
-        return Err(DeleteCharacterError::AccessDenied);
-    }
 
     if let Err(OrphanAvatarError::InternalError(message)) =
         orphan_avatar_if_present(deps, character.avatar_uid.clone()).await

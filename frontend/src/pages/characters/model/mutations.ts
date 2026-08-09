@@ -29,18 +29,7 @@ export const useCreateCharacterMutation = () =>
         return created;
       }
 
-      const uploaded = await api.characters.uploadAvatar(
-        created.data.uid,
-        avatarFile,
-      );
-
-      if (uploaded.error) {
-        return uploaded;
-      }
-
-      return api.characters.update(created.data.uid, {
-        avatar_uid: uploaded.data.uid,
-      });
+      return api.characters.putAvatar(created.data.uid, avatarFile);
     },
 
     onMutate: async ({ name, description }, context) => {
@@ -113,34 +102,29 @@ export const useUpdateCharacterMutation = () =>
       name,
       description,
       avatarFile,
-      avatarUid,
     }: {
       uid: string;
       name: string;
       description: string;
       avatarFile?: File | null;
-      avatarUid?: string | null;
     }) => {
-      let nextAvatarUid = avatarUid;
-
-      if (avatarFile) {
-        const uploaded = await api.characters.uploadAvatar(uid, avatarFile);
-
-        if (uploaded.error) {
-          return uploaded;
-        }
-
-        nextAvatarUid = uploaded.data.uid;
-      }
-
-      return api.characters.update(uid, {
+      const updated = await api.characters.update(uid, {
         name,
         description,
-        ...(nextAvatarUid !== undefined ? { avatar_uid: nextAvatarUid } : {}),
       });
+
+      if (updated.error) {
+        return updated;
+      }
+
+      if (!avatarFile) {
+        return updated;
+      }
+
+      return api.characters.putAvatar(uid, avatarFile);
     },
 
-    onMutate: async ({ uid, name, description, avatarUid }, context) => {
+    onMutate: async ({ uid, name, description }, context) => {
       await context.client.cancelQueries({ queryKey: [CHARACTERS_QUERY_KEY] });
 
       const previousCharacters =
@@ -156,7 +140,7 @@ export const useUpdateCharacterMutation = () =>
                   name,
                   description,
                   character.creatorUid,
-                  avatarUid === undefined ? character.avatarUid : avatarUid,
+                  character.avatarUid,
                 )
               : character,
           ) || [],

@@ -29,18 +29,7 @@ export const useCreatePersonaMutation = () =>
         return created;
       }
 
-      const uploaded = await api.personas.uploadAvatar(
-        created.data.uid,
-        avatarFile,
-      );
-
-      if (uploaded.error) {
-        return uploaded;
-      }
-
-      return api.personas.update(created.data.uid, {
-        avatar_uid: uploaded.data.uid,
-      });
+      return api.personas.putAvatar(created.data.uid, avatarFile);
     },
 
     onMutate: async ({ name, description }, context) => {
@@ -111,34 +100,29 @@ export const useUpdatePersonaMutation = () =>
       name,
       description,
       avatarFile,
-      avatarUid,
     }: {
       uid: string;
       name: string;
       description: string;
       avatarFile?: File | null;
-      avatarUid?: string | null;
     }) => {
-      let nextAvatarUid = avatarUid;
-
-      if (avatarFile) {
-        const uploaded = await api.personas.uploadAvatar(uid, avatarFile);
-
-        if (uploaded.error) {
-          return uploaded;
-        }
-
-        nextAvatarUid = uploaded.data.uid;
-      }
-
-      return api.personas.update(uid, {
+      const updated = await api.personas.update(uid, {
         name,
         description,
-        ...(nextAvatarUid !== undefined ? { avatar_uid: nextAvatarUid } : {}),
       });
+
+      if (updated.error) {
+        return updated;
+      }
+
+      if (!avatarFile) {
+        return updated;
+      }
+
+      return api.personas.putAvatar(uid, avatarFile);
     },
 
-    onMutate: async ({ uid, name, description, avatarUid }, context) => {
+    onMutate: async ({ uid, name, description }, context) => {
       await context.client.cancelQueries({ queryKey: [PERSONAS_QUERY_KEY] });
 
       const previousPersonas =
@@ -154,7 +138,7 @@ export const useUpdatePersonaMutation = () =>
                   name,
                   description,
                   persona.creatorUid,
-                  avatarUid === undefined ? persona.avatarUid : avatarUid,
+                  persona.avatarUid,
                 )
               : persona,
           ) || [],

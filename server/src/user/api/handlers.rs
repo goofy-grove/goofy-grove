@@ -2,72 +2,30 @@ use axum::{
     Extension,
     extract::{Multipart, State},
     response::Response,
-    routing::{get, patch, post},
+    routing::{delete, get, put},
 };
-use serde::{Deserialize, Serialize};
 
 use crate::{
     app::AppDeps,
     auth::AuthenticatedUser,
-    file::{CreateFileInput, FileScope, create_file_for_user},
-    platform::{
-        http::{
-            error::{ApiError, codes},
-            extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-            response,
-        },
-        types::PatchField,
+    platform::http::{
+        error::{ApiError, codes},
+        extract::{ExcludeSocketParticipants, read_multipart_file},
+        response,
     },
-    user::services::update::{UpdateUserError, update_user},
+    user::services::avatar::{
+        ClearUserAvatarError, SetUserAvatarError, SetUserAvatarInput, clear_user_avatar,
+        set_user_avatar,
+    },
 };
-
-#[derive(Debug, Clone, Serialize)]
-pub struct FileUploadResponse {
-    pub uid: String,
-}
 
 async fn get_current_user(Extension(user): Extension<AuthenticatedUser>) -> Response {
     response::ok(user)
 }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct UserUpdateRequest {
-    avatar_uid: Option<Option<String>>,
-}
-
-async fn patch_current_user(
+async fn put_user_avatar(
     Extension(user): Extension<AuthenticatedUser>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
-    State(deps): State<AppDeps>,
-    ValidatedJson(request): ValidatedJson<UserUpdateRequest>,
-) -> Result<Response, ApiError> {
-    if request.avatar_uid.is_none() {
-        return Err(ApiError::bad_request(codes::USER_NO_FIELDS_PROVIDED));
-    }
-
-    let avatar_uid = match request.avatar_uid {
-        None => PatchField::Unchanged,
-        Some(None) => PatchField::Clear,
-        Some(Some(value)) => PatchField::Set(value),
-    };
-
-    let exclude_participants: Vec<String> = exclude_participant.into_iter().collect();
-
-    let updated_user = update_user(&deps, &user.uid, avatar_uid, exclude_participants)
-        .await
-        .map_err(|err| match err {
-            UpdateUserError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
-            UpdateUserError::FileNotFound => ApiError::not_found(codes::USER_AVATAR_NOT_FOUND),
-            UpdateUserError::InvalidFileStatus => ApiError::bad_request(codes::FILE_INVALID_STATUS),
-            UpdateUserError::InvalidFileScope => ApiError::bad_request(codes::FILE_INVALID_SCOPE),
-            UpdateUserError::InternalError(_) => ApiError::internal(codes::USER_UPDATE_FAILED),
-        })?;
-
-    Ok(response::ok(updated_user))
-}
-
-async fn upload_user_avatar(
-    Extension(user): Extension<AuthenticatedUser>,
     State(deps): State<AppDeps>,
     multipart: Multipart,
 ) -> Result<Response, ApiError> {
@@ -82,25 +40,48 @@ async fn upload_user_avatar(
     let (original_name, content_type, content) =
         read_multipart_file(multipart, max_file_bytes).await?;
 
-    let input = CreateFileInput {
-        content_type,
-        original_name,
-        scope: FileScope::UserAvatar {
-            user_uid: user.uid.clone(),
+    let updated_user = set_user_avatar(
+        &deps,
+        &user.uid,
+        SetUserAvatarInput {
+            content_type,
+            original_name,
+            content,
+            exclude_participants: exclude_participant.into_iter().collect(),
         },
-        content,
-    };
+    )
+    .await
+    .map_err(|err| match err {
+        SetUserAvatarError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
+        SetUserAvatarError::Replace(replace_err) => ApiError::from(replace_err),
+        SetUserAvatarError::InternalError(_) => ApiError::internal(codes::USER_UPDATE_FAILED),
+    })?;
 
-    let file_uid = create_file_for_user(&deps, input, &user.uid)
-        .await
-        .map_err(ApiError::from)?;
+    Ok(response::ok(updated_user))
+}
 
-    Ok(response::created(FileUploadResponse { uid: file_uid }))
+async fn delete_user_avatar(
+    Extension(user): Extension<AuthenticatedUser>,
+    ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
+    State(deps): State<AppDeps>,
+) -> Result<Response, ApiError> {
+    let updated_user = clear_user_avatar(
+        &deps,
+        &user.uid,
+        exclude_participant.into_iter().collect(),
+    )
+    .await
+    .map_err(|err| match err {
+        ClearUserAvatarError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
+        ClearUserAvatarError::InternalError(_) => ApiError::internal(codes::USER_UPDATE_FAILED),
+    })?;
+
+    Ok(response::ok(updated_user))
 }
 
 pub fn routes() -> axum::Router<AppDeps> {
     axum::Router::new()
         .route("/me", get(get_current_user))
-        .route("/me", patch(patch_current_user))
-        .route("/me/avatar", post(upload_user_avatar))
+        .route("/me/avatar", put(put_user_avatar))
+        .route("/me/avatar", delete(delete_user_avatar))
 }

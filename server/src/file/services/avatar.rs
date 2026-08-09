@@ -5,25 +5,12 @@ use crate::{
     app::AppDeps,
     file::{
         db::file::{self, FileScope},
-        services::bind,
+        services::{
+            create::{self, CreateFileError, CreateFileInput},
+            policy,
+        },
     },
-    platform::types::PatchField,
 };
-
-#[derive(Debug, Clone, Error)]
-pub enum ApplyAvatarPatchError {
-    #[error("File not found")]
-    FileNotFound,
-
-    #[error("Invalid file status")]
-    InvalidFileStatus,
-
-    #[error("Invalid file scope")]
-    InvalidFileScope,
-
-    #[error("Internal error: {0}")]
-    InternalError(String),
-}
 
 #[derive(Debug, Clone, Error)]
 pub enum OrphanAvatarError {
@@ -34,94 +21,107 @@ pub enum OrphanAvatarError {
     InternalError(String),
 }
 
-pub async fn apply_avatar_uid_patch(
-    deps: &AppDeps,
-    current: Option<String>,
-    patch: PatchField<String>,
-    expected_scope: &FileScope,
-) -> Result<Option<String>, ApplyAvatarPatchError> {
-    match patch {
-        PatchField::Unchanged => Ok(current),
-        PatchField::Clear => {
-            if let Some(old_id) = current {
-                orphan_file_by_id(deps, &old_id)
-                    .await
-                    .map_err(|err| match err {
-                        OrphanAvatarError::FileNotFound => ApplyAvatarPatchError::FileNotFound,
-                        OrphanAvatarError::InternalError(message) => {
-                            ApplyAvatarPatchError::InternalError(message)
-                        }
-                    })?;
-            }
+#[derive(Debug, Clone, Error)]
+pub enum ReplaceAvatarError {
+    #[error("Access denied")]
+    AccessDenied,
 
-            Ok(None)
+    #[error("Policy violation")]
+    PolicyViolation(#[from] policy::PolicyViolationError),
+
+    #[error("Policy for scope not found")]
+    PolicyForScopeNotFound,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+impl From<CreateFileError> for ReplaceAvatarError {
+    fn from(err: CreateFileError) -> Self {
+        match err {
+            CreateFileError::AccessDenied => ReplaceAvatarError::AccessDenied,
+            CreateFileError::PolicyViolation(violation) => {
+                ReplaceAvatarError::PolicyViolation(violation)
+            }
+            CreateFileError::PolicyForScopeNotFound => ReplaceAvatarError::PolicyForScopeNotFound,
+            CreateFileError::InternalError(message) => ReplaceAvatarError::InternalError(message),
         }
-        PatchField::Set(new_id) => {
-            if current.as_ref() == Some(&new_id) {
-                return Ok(current);
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ReplaceAvatarInput {
+    pub content_type: String,
+    pub original_name: String,
+    pub scope: FileScope,
+    pub content: Vec<u8>,
+    pub current_avatar_uid: Option<String>,
+}
+
+pub async fn replace_avatar(
+    deps: &AppDeps,
+    input: ReplaceAvatarInput,
+    user_uid: &str,
+) -> Result<String, ReplaceAvatarError> {
+    let ReplaceAvatarInput {
+        content_type,
+        original_name,
+        scope,
+        content,
+        current_avatar_uid,
+    } = input;
+
+    let new_uid = create::create_file(
+        deps,
+        CreateFileInput {
+            content_type,
+            original_name,
+            scope,
+            content,
+        },
+        user_uid,
+    )
+    .await?;
+
+    let txn = deps
+        .db
+        .begin()
+        .await
+        .map_err(|err| ReplaceAvatarError::InternalError(err.to_string()))?;
+
+    file::activate_file(&txn, &new_uid)
+        .await
+        .map_err(|err| match err {
+            file::UpdateFileStatusError::InternalError(message) => {
+                ReplaceAvatarError::InternalError(message)
             }
+        })?;
 
-            let txn = deps
-                .db
-                .begin()
-                .await
-                .map_err(|err| ApplyAvatarPatchError::InternalError(err.to_string()))?;
-
-            let meta = file::load_file(&txn, &new_id)
-                .await
-                .map_err(|err| match err {
-                    file::LoadFileError::NotFound => ApplyAvatarPatchError::FileNotFound,
-                    file::LoadFileError::InternalError(message) => {
-                        ApplyAvatarPatchError::InternalError(message)
-                    }
-                })?;
-
-            match bind::can_bind_file_as_avatar(&meta, expected_scope) {
-                bind::BindAvatarCheck::Allowed => {}
-                bind::BindAvatarCheck::InvalidStatus => {
-                    return Err(ApplyAvatarPatchError::InvalidFileStatus);
-                }
-                bind::BindAvatarCheck::InvalidScope => {
-                    return Err(ApplyAvatarPatchError::InvalidFileScope);
-                }
-            }
-
-            file::activate_file(&txn, &new_id)
-                .await
-                .map_err(|err| match err {
-                    file::UpdateFileStatusError::InternalError(message) => {
-                        ApplyAvatarPatchError::InternalError(message)
-                    }
-                })?;
-
-            if let Some(old_id) = current
-                && old_id != new_id
-            {
-                file::load_file(&txn, &old_id)
-                    .await
-                    .map_err(|err| match err {
-                        file::LoadFileError::NotFound => ApplyAvatarPatchError::FileNotFound,
-                        file::LoadFileError::InternalError(message) => {
-                            ApplyAvatarPatchError::InternalError(message)
-                        }
-                    })?;
-
+    if let Some(old_id) = current_avatar_uid
+        && old_id != new_uid
+    {
+        match file::load_file(&txn, &old_id).await {
+            Ok(_) => {
                 file::orphan_file(&txn, &old_id)
                     .await
                     .map_err(|err| match err {
                         file::UpdateFileStatusError::InternalError(message) => {
-                            ApplyAvatarPatchError::InternalError(message)
+                            ReplaceAvatarError::InternalError(message)
                         }
                     })?;
             }
-
-            txn.commit()
-                .await
-                .map_err(|err| ApplyAvatarPatchError::InternalError(err.to_string()))?;
-
-            Ok(Some(new_id))
+            Err(file::LoadFileError::NotFound) => {}
+            Err(file::LoadFileError::InternalError(message)) => {
+                return Err(ReplaceAvatarError::InternalError(message));
+            }
         }
     }
+
+    txn.commit()
+        .await
+        .map_err(|err| ReplaceAvatarError::InternalError(err.to_string()))?;
+
+    Ok(new_uid)
 }
 
 pub async fn orphan_avatar_if_present(
