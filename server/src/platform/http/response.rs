@@ -11,11 +11,7 @@ use serde_json::json;
 pub struct Empty {}
 
 pub fn ok<T: Serialize>(data: T) -> Response<Body> {
-    (
-        StatusCode::OK,
-        Json(json!({"error": false, "data": data})),
-    )
-        .into_response()
+    (StatusCode::OK, Json(json!({"error": false, "data": data}))).into_response()
 }
 
 pub fn created<T: Serialize>(data: T) -> Response<Body> {

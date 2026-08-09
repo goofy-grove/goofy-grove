@@ -14,6 +14,7 @@ pub const STATUS_CREATED: &str = "created";
 pub const STATUS_ACTIVATED: &str = "activated";
 pub const STATUS_ORPHANED: &str = "orphaned";
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FileScope {
     UserAvatar {

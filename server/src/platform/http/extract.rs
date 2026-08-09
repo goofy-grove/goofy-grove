@@ -99,10 +99,12 @@ pub async fn read_multipart_file(
             let next_size = bytes.len().saturating_add(chunk.len());
 
             if next_size > max_file_bytes {
-                return Err(ApiError::bad_request(codes::FILE_INVALID_SIZE).with_params(json!({
-                    "max_size": max_file_bytes,
-                    "size": next_size,
-                })));
+                return Err(
+                    ApiError::bad_request(codes::FILE_INVALID_SIZE).with_params(json!({
+                        "max_size": max_file_bytes,
+                        "size": next_size,
+                    })),
+                );
             }
 
             bytes.extend_from_slice(&chunk);

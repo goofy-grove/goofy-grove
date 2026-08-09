@@ -20,12 +20,10 @@ use crate::{
         delete::{DeleteCharacterError, DeleteCharacterInput},
         update::{UpdateCharacterError, UpdateCharacterInput},
     },
-    platform::{
-        http::{
-            error::{ApiError, codes},
-            extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
-            response::{self, Empty},
-        },
+    platform::http::{
+        error::{ApiError, codes},
+        extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
+        response::{self, Empty},
     },
 };
 

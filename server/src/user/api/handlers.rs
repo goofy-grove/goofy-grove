@@ -65,16 +65,15 @@ async fn delete_user_avatar(
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
     State(deps): State<AppDeps>,
 ) -> Result<Response, ApiError> {
-    let updated_user = clear_user_avatar(
-        &deps,
-        &user.uid,
-        exclude_participant.into_iter().collect(),
-    )
-    .await
-    .map_err(|err| match err {
-        ClearUserAvatarError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
-        ClearUserAvatarError::InternalError(_) => ApiError::internal(codes::USER_UPDATE_FAILED),
-    })?;
+    let updated_user =
+        clear_user_avatar(&deps, &user.uid, exclude_participant.into_iter().collect())
+            .await
+            .map_err(|err| match err {
+                ClearUserAvatarError::NotFound => ApiError::not_found(codes::USER_NOT_FOUND),
+                ClearUserAvatarError::InternalError(_) => {
+                    ApiError::internal(codes::USER_UPDATE_FAILED)
+                }
+            })?;
 
     Ok(response::ok(updated_user))
 }
