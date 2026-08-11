@@ -97,10 +97,7 @@ pub fn scope_to_db(scope: &FileScope) -> (String, String, Option<String>) {
             user_uid.clone(),
             Some(character_uid.clone()),
         ),
-        FileScope::ChatAvatar {
-            user_uid,
-            chat_uid,
-        } => (
+        FileScope::ChatAvatar { user_uid, chat_uid } => (
             SCOPE_CHAT_AVATAR.to_string(),
             user_uid.clone(),
             Some(chat_uid.clone()),
