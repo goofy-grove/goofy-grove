@@ -1,6 +1,7 @@
 use std::{fmt::Display, sync::Arc};
 
 use chrono::Utc;
+use itertools::Itertools;
 use keyv::Keyv;
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
@@ -9,6 +10,7 @@ use tracing::info;
 
 use crate::{
     auth::{AuthMiddlewareState, resolve_user_with_token_expiry},
+    chat,
     platform::config::Config,
     user,
 };
@@ -84,9 +86,16 @@ pub async fn authentication_middleware(
     let user = user::get_by_name_db(&db, &username)
         .await
         .map_err(|_| AuthenticationError::Unknown)?;
+    let user_chats = chat::get_user_chats(&db, &user.0.uid)
+        .await
+        .map_err(|_| AuthenticationError::Unknown)?
+        .into_iter()
+        .map(|chat| format!("chat:{}", chat.uid))
+        .collect_vec();
 
     socket.extensions.insert(Arc::new(user));
     socket.join(socket.id);
+    socket.join(user_chats);
 
     Ok(())
 }

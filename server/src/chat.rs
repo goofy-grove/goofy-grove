@@ -4,6 +4,7 @@ mod db;
 mod events;
 mod services;
 
+pub use db::load_user_chats as get_user_chats;
 pub use events::subscribe;
 
 pub async fn is_owner(deps: &AppDeps, chat_uid: &str, user_uid: &str) -> bool {
