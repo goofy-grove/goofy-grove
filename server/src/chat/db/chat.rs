@@ -75,6 +75,15 @@ pub enum SaveChatError {
 }
 
 #[derive(Debug, Clone, Error)]
+pub enum LoadChatMemberError {
+    #[error("Chat member not found")]
+    NotFound,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+#[derive(Debug, Clone, Error)]
 pub enum LoadChatError {
     #[error("Chat not found")]
     NotFound,
@@ -189,6 +198,47 @@ fn map_to_chat(
         members,
         characters: vec![],
     }
+}
+
+pub async fn load_chat(
+    connection: &impl ConnectionTrait,
+    chat_uid: &str,
+) -> Result<Chat, LoadChatError> {
+    let mut chats = chats::Entity::find_by_id(chat_uid)
+        .find_also_related(chat_members::Entity)
+        .and_also_related(users::Entity)
+        .order_by_asc(chats::Column::CreatedAt)
+        .order_by_asc(chat_members::Column::JoinedAt)
+        .consolidate()
+        .all(connection)
+        .await
+        .map_err(|err| LoadChatError::InternalError(err.to_string()))?
+        .into_iter()
+        .map(map_to_chat)
+        .collect_vec();
+
+    let mut chat = chats.into_iter().next().ok_or(LoadChatError::NotFound)?;
+
+    let mut chat_characters = chat_characters::Entity::find()
+        .filter(chat_characters::Column::ChatUid.eq(chat_uid))
+        .find_also_related(characters::Entity)
+        .order_by_asc(chat_characters::Column::ConnectedAt)
+        .all(connection)
+        .await
+        .map_err(|err| LoadChatError::InternalError(err.to_string()))?
+        .into_iter()
+        .filter_map(|(chat_character, character)| {
+            Some(ChatCharacter {
+                character: character?.into(),
+                connected_at: chat_character.connected_at.naive_utc(),
+                chat_uid: chat_character.chat_uid,
+            })
+        })
+        .collect_vec();
+
+    chat.characters = chat_characters;
+
+    Ok(chat)
 }
 
 pub async fn load_user_chats(

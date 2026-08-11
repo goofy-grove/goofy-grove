@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::{
     app::AppDeps,
-    character,
+    character, chat,
     file::db::file::{FileMeta, FileScope},
     persona,
 };
@@ -18,6 +18,7 @@ fn scope_owner(scope: &FileScope) -> &str {
         FileScope::PersonaAvatar { user_uid, .. } => user_uid,
         FileScope::UserAvatar { user_uid } => user_uid,
         FileScope::CharacterAvatar { user_uid, .. } => user_uid,
+        FileScope::ChatAvatar { user_uid, .. } => user_uid,
     }
 }
 
@@ -52,6 +53,13 @@ pub async fn can_create_file(
                 Err(FileAccessError::AccessDenied)
             }
         }
+        FileScope::ChatAvatar { user_uid, chat_uid } => {
+            if chat::is_owner(deps, chat_uid, user_uid).await {
+                Ok(())
+            } else {
+                Err(FileAccessError::AccessDenied)
+            }
+        }
     }
 }
 
@@ -81,6 +89,13 @@ pub async fn can_access_file_meta(
             character_uid,
         } => {
             if character::is_owner(deps, character_uid, user_uid).await {
+                Ok(())
+            } else {
+                Err(FileAccessError::AccessDenied)
+            }
+        }
+        FileScope::ChatAvatar { user_uid, chat_uid } => {
+            if chat::is_member(deps, chat_uid, user_uid).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)

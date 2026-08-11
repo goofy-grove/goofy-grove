@@ -6,7 +6,7 @@ use tracing::info;
 
 use crate::{
     app::{deps::AppDeps, router::build_router},
-    character, persona,
+    character, chat, persona,
     platform::{config::Config, events::InMemoryEventBus, socketio::create_socketio_layer},
     user,
 };
@@ -15,6 +15,7 @@ fn register_event_handlers(event_bus: &InMemoryEventBus, deps: &AppDeps) {
     user::subscribe(event_bus, deps);
     character::subscribe(event_bus, deps);
     persona::subscribe(event_bus, deps);
+    chat::subscribe(event_bus, deps);
 }
 
 pub async fn start_server(
@@ -32,6 +33,7 @@ pub async fn start_server(
     };
 
     user::create_master_user(&deps).await;
+
     register_event_handlers(&event_bus, &deps);
 
     let app = build_router(&deps, socketio_layer);

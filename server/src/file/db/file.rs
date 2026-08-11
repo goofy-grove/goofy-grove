@@ -9,6 +9,7 @@ use crate::platform::database::entities::{files, prelude::Files};
 pub const SCOPE_USER_AVATAR: &str = "user_avatar";
 pub const SCOPE_PERSONA_AVATAR: &str = "persona_avatar";
 pub const SCOPE_CHARACTER_AVATAR: &str = "character_avatar";
+pub const SCOPE_CHAT_AVATAR: &str = "chat_avatar";
 
 pub const STATUS_CREATED: &str = "created";
 pub const STATUS_ACTIVATED: &str = "activated";
@@ -27,6 +28,10 @@ pub enum FileScope {
     CharacterAvatar {
         user_uid: String,
         character_uid: String,
+    },
+    ChatAvatar {
+        user_uid: String,
+        chat_uid: String,
     },
 }
 
@@ -91,6 +96,14 @@ pub fn scope_to_db(scope: &FileScope) -> (String, String, Option<String>) {
             SCOPE_CHARACTER_AVATAR.to_string(),
             user_uid.clone(),
             Some(character_uid.clone()),
+        ),
+        FileScope::ChatAvatar {
+            user_uid,
+            chat_uid,
+        } => (
+            SCOPE_CHAT_AVATAR.to_string(),
+            user_uid.clone(),
+            Some(chat_uid.clone()),
         ),
     }
 }

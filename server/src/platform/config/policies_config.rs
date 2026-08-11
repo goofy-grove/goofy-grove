@@ -16,6 +16,8 @@ pub struct FilesPoliciesConfig {
     pub persona_avatar: FilePolicyConfig,
     #[serde(default)]
     pub character_avatar: FilePolicyConfig,
+    #[serde(default)]
+    pub chat_avatar: FilePolicyConfig,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -49,6 +51,7 @@ impl FileSizeConfig {
             SizeUnit::MB => 1024 * 1024,
             SizeUnit::GB => 1024 * 1024 * 1024,
         };
+
         self.0.saturating_mul(multiplier)
     }
 }
@@ -96,6 +99,7 @@ impl FilesPoliciesConfig {
             FileScope::UserAvatar { .. } => &self.user_avatar,
             FileScope::PersonaAvatar { .. } => &self.persona_avatar,
             FileScope::CharacterAvatar { .. } => &self.character_avatar,
+            FileScope::ChatAvatar { .. } => &self.chat_avatar,
         };
 
         if config.allowed_content_types.is_empty() && config.max_file_size.0 == 0 {

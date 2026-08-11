@@ -43,6 +43,9 @@ policies:
     character_avatar:
       max_file_size: [5, "MB"]
       allowed_content_types: ["image/jpeg", "image/png", "image/gif"]
+    chat_avatar:
+      max_file_size: [5, "MB"]
+      allowed_content_types: ["image/jpeg", "image/png", "image/gif"]
 
 storage:
   files_dir: "./data"

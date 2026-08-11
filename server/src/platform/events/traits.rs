@@ -1,13 +1,13 @@
 use std::pin::Pin;
 
-pub trait Event: Send + Sync + 'static {}
+pub trait Event: Clone + Send + Sync + 'static {}
 
 pub trait EventPublisher: Send + Sync {
     fn publish<E: Event>(&self, event: E) -> Pin<Box<dyn Future<Output = ()> + Send>>;
 }
 
 pub trait EventHandler<E: Event>: Send + Sync {
-    fn handle(&self, event: &E) -> Pin<Box<dyn Future<Output = ()> + Send>>;
+    fn handle(&self, event: E) -> Pin<Box<dyn Future<Output = ()> + Send>>;
 }
 
 pub trait EventSubscriber: Send + Sync {

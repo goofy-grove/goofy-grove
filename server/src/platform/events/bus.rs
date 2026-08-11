@@ -45,7 +45,7 @@ impl EventSubscriber for InMemoryEventBus {
 
         entry.push(Arc::new(move |event: &dyn Any| {
             let event = event.downcast_ref::<E>().unwrap();
-            handler.handle(event)
+            handler.handle(event.clone())
         }));
     }
 }
