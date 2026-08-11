@@ -45,6 +45,16 @@ impl From<users::Model> for (User, UserCredentials) {
     }
 }
 
+impl From<users::Model> for User {
+    fn from(model: users::Model) -> Self {
+        User {
+            uid: model.uid,
+            name: model.name,
+            avatar_uid: model.avatar_uid,
+        }
+    }
+}
+
 pub async fn load_user_by_name(
     connection: &impl ConnectionTrait,
     name: &str,

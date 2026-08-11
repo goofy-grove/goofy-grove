@@ -12,6 +12,7 @@ use thiserror::Error;
 use crate::platform::database::entities::{
     characters, chat_characters, chat_members, chats, users,
 };
+use crate::user;
 use crate::{character::Character, user::User};
 
 #[derive(Clone, Debug, Serialize)]
@@ -352,17 +353,25 @@ pub async fn join_user_to_chat(
     connection: &impl ConnectionTrait,
     chat_uid: &str,
     user_uid: &str,
-) -> Result<(), JoinUserToChatError> {
+) -> Result<ChatMember, JoinUserToChatError> {
     let result = chat_members::Entity::insert(chat_members::ActiveModel {
         chat_uid: Set(chat_uid.to_string()),
         joined_at: NotSet,
         user_uid: Set(user_uid.to_string()),
     })
-    .exec(connection)
+    .exec_with_returning(connection)
     .await;
 
+    let (user, _) = user::get_by_uid(connection, user_uid)
+        .await
+        .map_err(|err| JoinUserToChatError::InternalError(err.to_string()))?;
+
     match result {
-        Ok(_) => Ok(()),
+        Ok(model) => Ok(ChatMember {
+            user,
+            joined_at: model.joined_at.naive_utc(),
+            chat_uid: model.chat_uid,
+        }),
         Err(err) => match err.sql_err() {
             Some(SqlErr::UniqueConstraintViolation(_)) => {
                 Err(JoinUserToChatError::UserAlreadyInChat)

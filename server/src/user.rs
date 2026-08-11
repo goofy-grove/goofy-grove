@@ -4,7 +4,7 @@ mod events;
 mod services;
 
 pub use api::mount;
-pub use db::user::{User, load_user_by_name as get_by_name_db};
+pub use db::user::{User, load_user_by_name as get_by_name_db, load_user_by_uid as get_by_uid};
 pub use events::subscribe;
 pub use services::get::get_by_name;
 
