@@ -2,10 +2,7 @@
 
 use crate::{
     app::AppDeps,
-    chat::{
-        db::chat::{self, Chat, SaveChatPayload},
-        events::chat_update_event::ChatUpdatedEvent,
-    },
+    chat::{db, events::updated::ChatUpdatedEvent},
     file::{
         FileScope, ReplaceAvatarError, ReplaceAvatarInput, orphan_avatar_if_present, replace_avatar,
     },
@@ -55,14 +52,12 @@ pub struct ClearChatAvatarInput {
 pub async fn set_chat_avatar(
     deps: &AppDeps,
     input: SetChatAvatarInput,
-) -> Result<Chat, SetChatAvatarError> {
-    let mut chat = chat::load_chat(&deps.db, &input.chat_uid)
+) -> Result<db::Chat, SetChatAvatarError> {
+    let mut chat = db::load_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            chat::LoadChatError::NotFound => SetChatAvatarError::NotFound,
-            chat::LoadChatError::InternalError(message) => {
-                SetChatAvatarError::InternalError(message)
-            }
+            db::LoadChatError::NotFound => SetChatAvatarError::NotFound,
+            db::LoadChatError::InternalError(message) => SetChatAvatarError::InternalError(message),
         })?;
 
     let new_avatar_uid = replace_avatar(
@@ -83,9 +78,9 @@ pub async fn set_chat_avatar(
 
     chat.avatar_uid = Some(new_avatar_uid);
 
-    let saved = chat::save_chat(
+    let saved = db::save_chat(
         &deps.db,
-        SaveChatPayload {
+        db::SaveChatPayload {
             uid: chat.uid,
             name: chat.name,
             created_at: chat.created_at,
@@ -109,12 +104,12 @@ pub async fn set_chat_avatar(
 pub async fn clear_chat_avatar(
     deps: &AppDeps,
     input: ClearChatAvatarInput,
-) -> Result<Chat, ClearChatAvatarError> {
-    let mut chat = chat::load_chat(&deps.db, &input.chat_uid)
+) -> Result<db::Chat, ClearChatAvatarError> {
+    let mut chat = db::load_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            chat::LoadChatError::NotFound => ClearChatAvatarError::NotFound,
-            chat::LoadChatError::InternalError(message) => {
+            db::LoadChatError::NotFound => ClearChatAvatarError::NotFound,
+            db::LoadChatError::InternalError(message) => {
                 ClearChatAvatarError::InternalError(message)
             }
         })?;
@@ -125,9 +120,9 @@ pub async fn clear_chat_avatar(
 
     chat.avatar_uid = None;
 
-    let saved = chat::save_chat(
+    let saved = db::save_chat(
         &deps.db,
-        SaveChatPayload {
+        db::SaveChatPayload {
             uid: chat.uid,
             name: chat.name,
             created_at: chat.created_at,

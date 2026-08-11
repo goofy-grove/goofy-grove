@@ -4,7 +4,7 @@ use socketioxide::SocketIo;
 use tracing::info;
 
 use crate::{
-    chat::db::chat::Chat,
+    chat::db::Chat,
     platform::events::{Event, EventHandler},
 };
 
@@ -31,10 +31,10 @@ impl EventHandler<ChatUpdatedEvent> for ChatUpdatedEventHandler {
         let socket = self.socket.clone();
 
         Box::pin(async move {
-            let creator_uid = event.chat.creator_uid.clone();
+            let chat_uid = event.chat.uid.clone();
             let exclude_participants = event.exclude_participants;
 
-            info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting chat:updated event");
+            info!(target: "application::event_bus", ?chat_uid, ?exclude_participants, "Emitting chat:updated event");
 
             socket
                 .of("/v1")
