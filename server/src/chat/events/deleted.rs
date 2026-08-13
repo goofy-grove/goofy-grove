@@ -39,11 +39,20 @@ impl EventHandler<ChatDeletedEvent> for ChatDeletedEventHandler {
             info!(target: "application::event_bus", ?chat_uid, ?exclude_participants, "Emitting chat:deleted event");
 
             socket
+                .clone()
                 .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("chat:{}", event.chat_uid))
                 .except(exclude_participants)
                 .emit("chat:deleted", &payload)
+                .await
+                .ok();
+
+            socket
+                .of(SOCKET_NAMESPACE)
+                .unwrap()
+                .within(format!("chat:{}", event.chat_uid))
+                .leave(format!("chat:{}", event.chat_uid))
                 .await
                 .ok();
         })
