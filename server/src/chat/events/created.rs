@@ -5,7 +5,10 @@ use tracing::info;
 
 use crate::{
     chat::db::Chat,
-    platform::events::{Event, EventHandler},
+    platform::{
+        events::{Event, EventHandler},
+        socketio::SOCKET_NAMESPACE,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -40,7 +43,7 @@ impl EventHandler<ChatCreatedEvent> for ChatCreatedEventHandler {
 
             socket
                 .clone()
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(rooms.clone())
                 .join(format!("chat:{}", event.chat.uid))
@@ -53,7 +56,7 @@ impl EventHandler<ChatCreatedEvent> for ChatCreatedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting chat:created event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(rooms)
                 .except(exclude_participants)

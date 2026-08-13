@@ -3,7 +3,10 @@ use std::pin::Pin;
 use socketioxide::SocketIo;
 use tracing::info;
 
-use crate::{platform::events::EventHandler, user::events::types::UserUpdatedEvent};
+use crate::{
+    platform::{events::EventHandler, socketio::SOCKET_NAMESPACE},
+    user::events::types::UserUpdatedEvent,
+};
 
 pub struct UserUpdatedEventHandler {
     socket: SocketIo,
@@ -26,7 +29,7 @@ impl EventHandler<UserUpdatedEvent> for UserUpdatedEventHandler {
             info!(target: "application::event_bus", ?user_uid, ?exclude_participants, "Emitting user:updated event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{user_uid}"))
                 .except(exclude_participants)

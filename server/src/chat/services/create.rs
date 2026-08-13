@@ -47,7 +47,7 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
     .await
     .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
 
-    let member = db::join_user_to_chat(&transaction, &saved.uid, &saved.creator_uid)
+    let member = db::add_user_to_chat(&transaction, &saved.uid, &saved.creator_uid)
         .await
         .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
 

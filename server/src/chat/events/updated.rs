@@ -5,7 +5,10 @@ use tracing::info;
 
 use crate::{
     chat::db::Chat,
-    platform::events::{Event, EventHandler},
+    platform::{
+        events::{Event, EventHandler},
+        socketio::SOCKET_NAMESPACE,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -37,7 +40,7 @@ impl EventHandler<ChatUpdatedEvent> for ChatUpdatedEventHandler {
             info!(target: "application::event_bus", ?chat_uid, ?exclude_participants, "Emitting chat:updated event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("chat:{}", event.chat.uid))
                 .except(exclude_participants)

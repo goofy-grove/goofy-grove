@@ -14,6 +14,8 @@ use tracing::info;
 
 use crate::platform::config::Config;
 
+pub const SOCKET_NAMESPACE: &str = "/v1";
+
 pub async fn on_connect(socket: SocketRef) {
     info!(target: "application::socketio", id = ?socket.id, "Socket.IO connected");
 
@@ -41,7 +43,7 @@ pub fn create_socketio_layer(
         .build_layer();
 
     io.ns(
-        "/v1",
+        SOCKET_NAMESPACE,
         on_connect.with(middlewares::authentication_middleware),
     );
 

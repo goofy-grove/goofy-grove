@@ -1,18 +1,19 @@
 #![allow(unused)]
 
+use sea_orm::TransactionTrait;
 use thiserror::Error;
 
 use crate::{
     app::AppDeps,
     chat::{
-        db::{self, Chat},
-        events::invite::InviteToChatEvent,
+        db::{self, Chat, ChatMember},
+        events::member_added::MemberAddedEvent,
     },
     platform::events::EventPublisher,
 };
 
 #[derive(Debug, Clone, Error)]
-pub enum InviteUserError {
+pub enum AddMemberError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -27,44 +28,47 @@ pub enum InviteUserError {
 }
 
 #[derive(Debug, Clone)]
-pub struct InviteUserInput {
+pub struct AddMemberInput {
     pub chat_uid: String,
     pub user_uid: String,
     pub initiator_uid: String,
     pub exclude_participants: Vec<String>,
 }
 
-pub async fn invite_user(deps: &AppDeps, input: InviteUserInput) -> Result<Chat, InviteUserError> {
+pub async fn add_member(
+    deps: &AppDeps,
+    input: AddMemberInput,
+) -> Result<ChatMember, AddMemberError> {
     let mut chat = db::load_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            db::LoadChatError::InternalError(err) => InviteUserError::InternalError(err),
-            db::LoadChatError::NotFound => InviteUserError::UserOrChatNotFound,
+            db::LoadChatError::InternalError(err) => AddMemberError::InternalError(err),
+            db::LoadChatError::NotFound => AddMemberError::UserOrChatNotFound,
         })?;
 
     // NOTE: replace by acl in the future
     if chat.creator_uid != input.initiator_uid {
-        return Err(InviteUserError::Forbidden);
+        return Err(AddMemberError::Forbidden);
     }
 
-    let chat_member = db::join_user_to_chat(&deps.db, &input.chat_uid, &input.user_uid)
+    let chat_member = db::add_user_to_chat(&deps.db, &input.chat_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
-            db::JoinUserToChatError::ChatOrUserNotFound => InviteUserError::UserOrChatNotFound,
-            db::JoinUserToChatError::UserAlreadyInChat => InviteUserError::UserAlreadyInChat,
-            db::JoinUserToChatError::InternalError(err) => InviteUserError::InternalError(err),
+            db::AddUserToChatError::ChatOrUserNotFound => AddMemberError::UserOrChatNotFound,
+            db::AddUserToChatError::UserAlreadyInChat => AddMemberError::UserAlreadyInChat,
+            db::AddUserToChatError::InternalError(err) => AddMemberError::InternalError(err),
         })?;
 
     chat.members.push(chat_member.clone());
     chat.members.sort_by_key(|chat| chat.joined_at);
 
     deps.event_bus
-        .publish(InviteToChatEvent {
+        .publish(MemberAddedEvent {
             chat: chat.clone(),
-            user: chat_member.user,
+            member: chat_member.clone(),
             exclude_participants: input.exclude_participants,
         })
         .await;
 
-    Ok(chat)
+    Ok(chat_member)
 }

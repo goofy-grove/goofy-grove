@@ -20,8 +20,6 @@ pub struct ChatMember {
     #[serde(flatten)]
     pub user: User,
     pub joined_at: NaiveDateTime,
-
-    #[serde(skip)]
     pub chat_uid: String,
 }
 
@@ -30,8 +28,6 @@ pub struct ChatCharacter {
     #[serde(flatten)]
     pub character: Character,
     pub connected_at: NaiveDateTime,
-
-    #[serde(skip)]
     pub chat_uid: String,
 }
 
@@ -115,7 +111,7 @@ pub enum DisconnectCharacterFromChatError {
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum JoinUserToChatError {
+pub enum AddUserToChatError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -127,7 +123,7 @@ pub enum JoinUserToChatError {
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum LeaveUserFromChatError {
+pub enum RemoveUserFromChatError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -349,11 +345,11 @@ pub async fn disconnect_character_from_chat(
     Ok(())
 }
 
-pub async fn join_user_to_chat(
+pub async fn add_user_to_chat(
     connection: &impl ConnectionTrait,
     chat_uid: &str,
     user_uid: &str,
-) -> Result<ChatMember, JoinUserToChatError> {
+) -> Result<ChatMember, AddUserToChatError> {
     let result = chat_members::Entity::insert(chat_members::ActiveModel {
         chat_uid: Set(chat_uid.to_string()),
         joined_at: NotSet,
@@ -364,7 +360,7 @@ pub async fn join_user_to_chat(
 
     let (user, _) = user::get_by_uid(connection, user_uid)
         .await
-        .map_err(|err| JoinUserToChatError::InternalError(err.to_string()))?;
+        .map_err(|err| AddUserToChatError::InternalError(err.to_string()))?;
 
     match result {
         Ok(model) => Ok(ChatMember {
@@ -374,28 +370,28 @@ pub async fn join_user_to_chat(
         }),
         Err(err) => match err.sql_err() {
             Some(SqlErr::UniqueConstraintViolation(_)) => {
-                Err(JoinUserToChatError::UserAlreadyInChat)
+                Err(AddUserToChatError::UserAlreadyInChat)
             }
             Some(SqlErr::ForeignKeyConstraintViolation(_)) => {
-                Err(JoinUserToChatError::ChatOrUserNotFound)
+                Err(AddUserToChatError::ChatOrUserNotFound)
             }
-            _ => Err(JoinUserToChatError::InternalError(err.to_string())),
+            _ => Err(AddUserToChatError::InternalError(err.to_string())),
         },
     }
 }
 
-pub async fn leave_user_from_chat(
+pub async fn remove_user_from_chat(
     connection: &impl ConnectionTrait,
     chat_uid: &str,
     user_uid: &str,
-) -> Result<(), LeaveUserFromChatError> {
+) -> Result<(), RemoveUserFromChatError> {
     let result = chat_members::Entity::delete_by_id((chat_uid.to_string(), user_uid.to_string()))
         .exec(connection)
         .await
-        .map_err(|err| LeaveUserFromChatError::InternalError(err.to_string()))?;
+        .map_err(|err| RemoveUserFromChatError::InternalError(err.to_string()))?;
 
     if result.rows_affected != 1 {
-        return Err(LeaveUserFromChatError::ChatOrUserNotFound);
+        return Err(RemoveUserFromChatError::ChatOrUserNotFound);
     }
 
     Ok(())

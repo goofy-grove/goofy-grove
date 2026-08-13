@@ -6,7 +6,7 @@ use tracing::info;
 
 use crate::{
     persona::events::types::{PersonaCreatedEvent, PersonaDeletedEvent, PersonaUpdatedEvent},
-    platform::events::EventHandler,
+    platform::{events::EventHandler, socketio::SOCKET_NAMESPACE},
 };
 
 pub struct PersonaCreatedEventHandler {
@@ -30,7 +30,7 @@ impl EventHandler<PersonaCreatedEvent> for PersonaCreatedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting persona:created event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
@@ -62,7 +62,7 @@ impl EventHandler<PersonaUpdatedEvent> for PersonaUpdatedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting persona:updated event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
@@ -95,7 +95,7 @@ impl EventHandler<PersonaDeletedEvent> for PersonaDeletedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting persona:deleted event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)

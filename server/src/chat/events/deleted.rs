@@ -4,7 +4,10 @@ use serde_json::json;
 use socketioxide::SocketIo;
 use tracing::info;
 
-use crate::platform::events::{Event, EventHandler};
+use crate::platform::{
+    events::{Event, EventHandler},
+    socketio::SOCKET_NAMESPACE,
+};
 
 #[derive(Debug, Clone)]
 pub struct ChatDeletedEvent {
@@ -36,7 +39,7 @@ impl EventHandler<ChatDeletedEvent> for ChatDeletedEventHandler {
             info!(target: "application::event_bus", ?chat_uid, ?exclude_participants, "Emitting chat:deleted event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("chat:{}", event.chat_uid))
                 .except(exclude_participants)

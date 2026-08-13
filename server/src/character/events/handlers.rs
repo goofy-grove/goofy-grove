@@ -8,7 +8,7 @@ use crate::{
     character::events::types::{
         CharacterCreatedEvent, CharacterDeletedEvent, CharacterUpdatedEvent,
     },
-    platform::events::EventHandler,
+    platform::{events::EventHandler, socketio::SOCKET_NAMESPACE},
 };
 
 // FIXME: Split into multiple files and move types and structs into their own files
@@ -34,7 +34,7 @@ impl EventHandler<CharacterCreatedEvent> for CharacterCreatedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:created event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
@@ -66,7 +66,7 @@ impl EventHandler<CharacterUpdatedEvent> for CharacterUpdatedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:updated event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
@@ -99,7 +99,7 @@ impl EventHandler<CharacterDeletedEvent> for CharacterDeletedEventHandler {
             info!(target: "application::event_bus", ?creator_uid, ?exclude_participants, "Emitting character:deleted event");
 
             socket
-                .of("/v1")
+                .of(SOCKET_NAMESPACE)
                 .unwrap()
                 .within(format!("user:{creator_uid}"))
                 .except(exclude_participants)
