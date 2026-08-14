@@ -102,7 +102,7 @@ pub enum AddCharacterToChatError {
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum DisconnectCharacterFromChatError {
+pub enum RemoveCharacterFromChatError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -330,19 +330,19 @@ pub async fn add_character_to_chat(
     })
 }
 
-pub async fn disconnect_character_from_chat(
+pub async fn remove_character_from_chat(
     connection: &impl ConnectionTrait,
     chat_uid: &str,
     character_uid: &str,
-) -> Result<(), DisconnectCharacterFromChatError> {
+) -> Result<(), RemoveCharacterFromChatError> {
     let result =
         chat_characters::Entity::delete_by_id((chat_uid.to_string(), character_uid.to_string()))
             .exec(connection)
             .await
-            .map_err(|err| DisconnectCharacterFromChatError::InternalError(err.to_string()))?;
+            .map_err(|err| RemoveCharacterFromChatError::InternalError(err.to_string()))?;
 
     if result.rows_affected != 1 {
-        return Err(DisconnectCharacterFromChatError::CharacterOrChatNotFound);
+        return Err(RemoveCharacterFromChatError::CharacterOrChatNotFound);
     }
 
     Ok(())
