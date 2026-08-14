@@ -14,13 +14,10 @@ use crate::{
 #[derive(Debug, Clone, Error)]
 pub enum RemoveMemberFromChatError {
     #[error("Internal error: {0}")]
-    InternalError(String),
-
-    #[error("Forbidden")]
-    Forbidden,
+    Internal(String),
 
     #[error("User or chat not found")]
-    UserOrChatNotFound,
+    NotFound,
 }
 
 #[derive(Debug, Clone)]
@@ -38,30 +35,28 @@ pub async fn remove_member_from_chat(
     let mut chat = db::load_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            db::LoadChatError::InternalError(err) => RemoveMemberFromChatError::InternalError(err),
-            db::LoadChatError::NotFound => RemoveMemberFromChatError::UserOrChatNotFound,
+            db::LoadChatError::InternalError(err) => RemoveMemberFromChatError::Internal(err),
+            db::LoadChatError::NotFound => RemoveMemberFromChatError::NotFound,
         })?;
 
     // NOTE: replace by acl in the future
     if chat.creator_uid != input.initiator_uid || chat.creator_uid == input.user_uid {
-        return Err(RemoveMemberFromChatError::Forbidden);
+        return Err(RemoveMemberFromChatError::NotFound);
     }
 
     let member = chat
         .members
         .extract_if(.., |member| member.user.uid == input.user_uid)
         .next()
-        .ok_or(RemoveMemberFromChatError::UserOrChatNotFound)?;
+        .ok_or(RemoveMemberFromChatError::NotFound)?;
 
     db::remove_user_from_chat(&deps.db, &input.chat_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
             db::RemoveUserFromChatError::InternalError(err) => {
-                RemoveMemberFromChatError::InternalError(err)
+                RemoveMemberFromChatError::Internal(err)
             }
-            db::RemoveUserFromChatError::ChatOrUserNotFound => {
-                RemoveMemberFromChatError::UserOrChatNotFound
-            }
+            db::RemoveUserFromChatError::ChatOrUserNotFound => RemoveMemberFromChatError::NotFound,
         })?;
 
     deps.event_bus

@@ -1,4 +1,5 @@
 pub mod avatar;
+pub mod character_add;
 pub mod create;
 pub mod delete;
 pub mod member_add;

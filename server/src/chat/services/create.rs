@@ -15,7 +15,7 @@ use crate::{
 #[derive(Debug, Clone, Error)]
 pub enum CreateChatError {
     #[error("Internal error: {0}")]
-    InternalError(String),
+    Internal(String),
 }
 
 #[derive(Debug, Clone)]
@@ -32,7 +32,7 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
         .db
         .begin()
         .await
-        .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
+        .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
     let mut saved = db::save_chat(
         &transaction,
@@ -45,16 +45,16 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
         },
     )
     .await
-    .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
+    .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
     let member = db::add_user_to_chat(&transaction, &saved.uid, &saved.creator_uid)
         .await
-        .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
+        .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
     transaction
         .commit()
         .await
-        .map_err(|err| CreateChatError::InternalError(err.to_string()))?;
+        .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
     saved.members.push(member);
 

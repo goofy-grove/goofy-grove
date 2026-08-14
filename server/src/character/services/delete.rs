@@ -27,7 +27,7 @@ pub async fn delete_character(
     deps: &AppDeps,
     input: DeleteCharacterInput,
 ) -> Result<(), DeleteCharacterError> {
-    let character = character::load_character(&deps.db, &input.character_uid, &input.user_uid)
+    let character = character::load_character(&deps.db, &input.character_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::NotFound => DeleteCharacterError::NotFound,
@@ -35,6 +35,10 @@ pub async fn delete_character(
                 DeleteCharacterError::InternalError(message)
             }
         })?;
+
+    if character.creator_uid != input.user_uid {
+        return Err(DeleteCharacterError::NotFound);
+    }
 
     if let Err(OrphanAvatarError::InternalError(message)) =
         orphan_avatar_if_present(deps, character.avatar_uid.clone()).await

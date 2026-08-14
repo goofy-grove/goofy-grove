@@ -31,7 +31,7 @@ pub async fn update_character(
     deps: &AppDeps,
     input: UpdateCharacterInput,
 ) -> Result<Character, UpdateCharacterError> {
-    let character = character::load_character(&deps.db, &input.character_uid, &input.user_uid)
+    let character = character::load_character(&deps.db, &input.character_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::NotFound => UpdateCharacterError::NotFound,
@@ -39,6 +39,10 @@ pub async fn update_character(
                 UpdateCharacterError::InternalError(message)
             }
         })?;
+
+    if character.creator_uid != input.user_uid {
+        return Err(UpdateCharacterError::NotFound);
+    }
 
     let updated = Character {
         uid: character.uid,

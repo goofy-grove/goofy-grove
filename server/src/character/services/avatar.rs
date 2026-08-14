@@ -55,7 +55,7 @@ pub async fn set_character_avatar(
     deps: &AppDeps,
     input: SetCharacterAvatarInput,
 ) -> Result<Character, SetCharacterAvatarError> {
-    let character = character::load_character(&deps.db, &input.character_uid, &input.user_uid)
+    let character = character::load_character(&deps.db, &input.character_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::NotFound => SetCharacterAvatarError::NotFound,
@@ -63,6 +63,10 @@ pub async fn set_character_avatar(
                 SetCharacterAvatarError::InternalError(message)
             }
         })?;
+
+    if character.creator_uid != input.user_uid {
+        return Err(SetCharacterAvatarError::NotFound);
+    }
 
     let new_avatar_uid = replace_avatar(
         deps,
@@ -106,7 +110,7 @@ pub async fn clear_character_avatar(
     deps: &AppDeps,
     input: ClearCharacterAvatarInput,
 ) -> Result<Character, ClearCharacterAvatarError> {
-    let character = character::load_character(&deps.db, &input.character_uid, &input.user_uid)
+    let character = character::load_character(&deps.db, &input.character_uid)
         .await
         .map_err(|err| match err {
             character::LoadCharacterError::NotFound => ClearCharacterAvatarError::NotFound,
@@ -114,6 +118,10 @@ pub async fn clear_character_avatar(
                 ClearCharacterAvatarError::InternalError(message)
             }
         })?;
+
+    if character.creator_uid != input.user_uid {
+        return Err(ClearCharacterAvatarError::NotFound);
+    }
 
     orphan_avatar_if_present(deps, character.avatar_uid.clone())
         .await

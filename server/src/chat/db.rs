@@ -90,7 +90,7 @@ pub enum LoadChatError {
 }
 
 #[derive(Debug, Clone, Error)]
-pub enum ConnectCharacterToChatError {
+pub enum AddCharacterToChatError {
     #[error("Internal error: {0}")]
     InternalError(String),
 
@@ -301,30 +301,33 @@ pub async fn load_user_chats(
     Ok(chats)
 }
 
-pub async fn connect_character_to_chat(
+pub async fn add_character_to_chat(
     connection: &impl ConnectionTrait,
-    character: ChatCharacter,
-) -> Result<(), ConnectCharacterToChatError> {
-    let result = chat_characters::Entity::insert(chat_characters::ActiveModel {
-        chat_uid: Set(character.chat_uid),
-        connected_at: Set(character.connected_at.and_utc()),
-        character_uid: Set(character.character.uid),
+    character: Character,
+    chat_uid: &str,
+) -> Result<ChatCharacter, AddCharacterToChatError> {
+    let model = chat_characters::Entity::insert(chat_characters::ActiveModel {
+        chat_uid: Set(chat_uid.to_string()),
+        connected_at: NotSet,
+        character_uid: Set(character.uid.to_string()),
     })
-    .exec(connection)
-    .await;
+    .exec_with_returning(connection)
+    .await
+    .map_err(|err| match err.sql_err() {
+        Some(SqlErr::UniqueConstraintViolation(_)) => {
+            AddCharacterToChatError::CharacterAlreadyInChat
+        }
+        Some(SqlErr::ForeignKeyConstraintViolation(_)) => {
+            AddCharacterToChatError::CharacterOrChatNotFound
+        }
+        _ => AddCharacterToChatError::InternalError(err.to_string()),
+    })?;
 
-    match result {
-        Ok(_) => Ok(()),
-        Err(err) => match err.sql_err() {
-            Some(SqlErr::UniqueConstraintViolation(_)) => {
-                Err(ConnectCharacterToChatError::CharacterAlreadyInChat)
-            }
-            Some(SqlErr::ForeignKeyConstraintViolation(_)) => {
-                Err(ConnectCharacterToChatError::CharacterOrChatNotFound)
-            }
-            _ => Err(ConnectCharacterToChatError::InternalError(err.to_string())),
-        },
-    }
+    Ok(ChatCharacter {
+        character,
+        connected_at: model.connected_at.naive_utc(),
+        chat_uid: model.chat_uid,
+    })
 }
 
 pub async fn disconnect_character_from_chat(

@@ -15,7 +15,7 @@ pub enum DeleteChatError {
     NotFound,
 
     #[error("Internal error: {0}")]
-    InternalError(String),
+    Internal(String),
 }
 
 #[derive(Debug, Clone)]
@@ -30,7 +30,7 @@ pub async fn delete_chat(deps: &AppDeps, input: DeleteChatInput) -> Result<(), D
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => DeleteChatError::NotFound,
-            db::LoadChatError::InternalError(message) => DeleteChatError::InternalError(message),
+            db::LoadChatError::InternalError(message) => DeleteChatError::Internal(message),
         })?;
 
     if chat.creator_uid != input.user_uid {
@@ -40,13 +40,13 @@ pub async fn delete_chat(deps: &AppDeps, input: DeleteChatInput) -> Result<(), D
     if let Err(OrphanAvatarError::InternalError(message)) =
         orphan_avatar_if_present(deps, chat.avatar_uid.clone()).await
     {
-        return Err(DeleteChatError::InternalError(message));
+        return Err(DeleteChatError::Internal(message));
     }
 
     db::delete_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            db::DeleteChatError::InternalError(message) => DeleteChatError::InternalError(message),
+            db::DeleteChatError::InternalError(message) => DeleteChatError::Internal(message),
             db::DeleteChatError::NotFound => DeleteChatError::NotFound,
         })?;
 

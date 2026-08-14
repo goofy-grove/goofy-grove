@@ -15,16 +15,13 @@ use crate::{
 #[derive(Debug, Clone, Error)]
 pub enum AddMemberError {
     #[error("Internal error: {0}")]
-    InternalError(String),
+    Internal(String),
 
     #[error("User already in chat")]
-    UserAlreadyInChat,
+    AlreadyInChat,
 
     #[error("User or chat not found")]
-    UserOrChatNotFound,
-
-    #[error("Forbidden")]
-    Forbidden,
+    NotFound,
 }
 
 #[derive(Debug, Clone)]
@@ -42,21 +39,21 @@ pub async fn add_member(
     let mut chat = db::load_chat(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
-            db::LoadChatError::InternalError(err) => AddMemberError::InternalError(err),
-            db::LoadChatError::NotFound => AddMemberError::UserOrChatNotFound,
+            db::LoadChatError::InternalError(err) => AddMemberError::Internal(err),
+            db::LoadChatError::NotFound => AddMemberError::NotFound,
         })?;
 
     // NOTE: replace by acl in the future
     if chat.creator_uid != input.initiator_uid {
-        return Err(AddMemberError::Forbidden);
+        return Err(AddMemberError::NotFound);
     }
 
     let chat_member = db::add_user_to_chat(&deps.db, &input.chat_uid, &input.user_uid)
         .await
         .map_err(|err| match err {
-            db::AddUserToChatError::ChatOrUserNotFound => AddMemberError::UserOrChatNotFound,
-            db::AddUserToChatError::UserAlreadyInChat => AddMemberError::UserAlreadyInChat,
-            db::AddUserToChatError::InternalError(err) => AddMemberError::InternalError(err),
+            db::AddUserToChatError::ChatOrUserNotFound => AddMemberError::NotFound,
+            db::AddUserToChatError::UserAlreadyInChat => AddMemberError::AlreadyInChat,
+            db::AddUserToChatError::InternalError(err) => AddMemberError::Internal(err),
         })?;
 
     chat.members.push(chat_member.clone());

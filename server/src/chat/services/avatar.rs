@@ -20,7 +20,7 @@ pub enum SetChatAvatarError {
     ReplaceAvatar(#[from] ReplaceAvatarError),
 
     #[error("Internal error: {0}")]
-    InternalError(String),
+    Internal(String),
 }
 
 #[derive(Debug, Clone, Error)]
@@ -29,7 +29,7 @@ pub enum ClearChatAvatarError {
     NotFound,
 
     #[error("Internal error: {0}")]
-    InternalError(String),
+    Internal(String),
 }
 
 #[derive(Debug, Clone)]
@@ -57,7 +57,7 @@ pub async fn set_chat_avatar(
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => SetChatAvatarError::NotFound,
-            db::LoadChatError::InternalError(message) => SetChatAvatarError::InternalError(message),
+            db::LoadChatError::InternalError(message) => SetChatAvatarError::Internal(message),
         })?;
 
     let new_avatar_uid = replace_avatar(
@@ -89,7 +89,7 @@ pub async fn set_chat_avatar(
         },
     )
     .await
-    .map_err(|err| SetChatAvatarError::InternalError(err.to_string()))?;
+    .map_err(|err| SetChatAvatarError::Internal(err.to_string()))?;
 
     deps.event_bus
         .publish(ChatUpdatedEvent {
@@ -109,14 +109,12 @@ pub async fn clear_chat_avatar(
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => ClearChatAvatarError::NotFound,
-            db::LoadChatError::InternalError(message) => {
-                ClearChatAvatarError::InternalError(message)
-            }
+            db::LoadChatError::InternalError(message) => ClearChatAvatarError::Internal(message),
         })?;
 
     orphan_avatar_if_present(deps, chat.avatar_uid.clone())
         .await
-        .map_err(|err| ClearChatAvatarError::InternalError(err.to_string()))?;
+        .map_err(|err| ClearChatAvatarError::Internal(err.to_string()))?;
 
     chat.avatar_uid = None;
 
@@ -131,7 +129,7 @@ pub async fn clear_chat_avatar(
         },
     )
     .await
-    .map_err(|err| ClearChatAvatarError::InternalError(err.to_string()))?;
+    .map_err(|err| ClearChatAvatarError::Internal(err.to_string()))?;
 
     deps.event_bus
         .publish(ChatUpdatedEvent {

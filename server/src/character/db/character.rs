@@ -67,11 +67,9 @@ pub async fn load_characters(
 pub async fn load_character(
     connection: &impl ConnectionTrait,
     character_uid: &str,
-    user_uid: &str,
 ) -> Result<Character, LoadCharacterError> {
     let model = Characters::find()
         .filter(characters::Column::Uid.eq(character_uid))
-        .filter(characters::Column::CreatorUid.eq(user_uid))
         .one(connection)
         .await
         .map_err(|err| LoadCharacterError::InternalError(err.to_string()))?

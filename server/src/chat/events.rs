@@ -1,13 +1,14 @@
 use crate::{
     app::AppDeps,
     chat::events::{
-        created::ChatCreatedEventHandler, deleted::ChatDeletedEventHandler,
-        member_added::MemberAddedEventHandler, member_removed::MemberRemovedEventHandler,
-        updated::ChatUpdatedEventHandler,
+        character_added::CharacterAddedEventHandler, created::ChatCreatedEventHandler,
+        deleted::ChatDeletedEventHandler, member_added::MemberAddedEventHandler,
+        member_removed::MemberRemovedEventHandler, updated::ChatUpdatedEventHandler,
     },
     platform::events::{EventSubscriber, InMemoryEventBus},
 };
 
+pub mod character_added;
 pub mod created;
 pub mod deleted;
 pub mod member_added;
@@ -20,4 +21,5 @@ pub fn subscribe(bus: &InMemoryEventBus, deps: &AppDeps) {
     bus.subscribe(ChatDeletedEventHandler::new(deps.socket.clone()));
     bus.subscribe(MemberAddedEventHandler::new(deps.socket.clone()));
     bus.subscribe(MemberRemovedEventHandler::new(deps.socket.clone()));
+    bus.subscribe(CharacterAddedEventHandler::new(deps.socket.clone()));
 }
