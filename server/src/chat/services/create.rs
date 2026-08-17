@@ -6,7 +6,7 @@ use thiserror::Error;
 use crate::{
     app::AppDeps,
     chat::{
-        db::{self, Chat, SaveChatPayload},
+        db::{self, Chat, ChatInfo},
         events::created::ChatCreatedEvent,
     },
     platform::{events::EventPublisher, util},
@@ -34,9 +34,9 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
         .await
         .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
-    let mut saved = db::save_chat(
+    let saved = db::save_chat(
         &transaction,
-        SaveChatPayload {
+        ChatInfo {
             uid,
             name: input.name,
             created_at: chrono::Utc::now().naive_utc(),
@@ -56,14 +56,22 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
         .await
         .map_err(|err| CreateChatError::Internal(err.to_string()))?;
 
-    saved.members.push(member);
+    let chat = Chat {
+        uid: saved.uid,
+        name: saved.name,
+        creator_uid: saved.creator_uid,
+        created_at: saved.created_at,
+        avatar_uid: saved.avatar_uid,
+        members: vec![member],
+        characters: vec![],
+    };
 
     deps.event_bus
         .publish(ChatCreatedEvent {
-            chat: saved.clone(),
+            chat: chat.clone(),
             exclude_participants: input.exclude_participants,
         })
         .await;
 
-    Ok(saved)
+    Ok(chat)
 }

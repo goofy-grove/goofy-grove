@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use chrono::NaiveDateTime;
+use combine_structs::{Fields, combine_fields};
 use itertools::Itertools;
 use sea_orm::ActiveValue::{NotSet, Set};
 use sea_orm::{
@@ -31,38 +32,32 @@ pub struct ChatCharacter {
     pub chat_uid: String,
 }
 
-#[derive(Clone, Debug, Serialize)]
-pub struct Chat {
+#[derive(Clone, Debug, Serialize, Fields)]
+pub struct ChatInfo {
     pub uid: String,
     pub name: String,
     pub created_at: NaiveDateTime,
     pub creator_uid: String,
     pub avatar_uid: Option<String>,
+}
+
+#[combine_fields(ChatInfo)]
+#[derive(Clone, Debug, Serialize)]
+pub struct Chat {
     pub members: Vec<ChatMember>,
     pub characters: Vec<ChatCharacter>,
 }
 
-impl From<chats::Model> for Chat {
+impl From<chats::Model> for ChatInfo {
     fn from(model: chats::Model) -> Self {
-        Chat {
+        ChatInfo {
             uid: model.uid,
             name: model.name,
             created_at: model.created_at.naive_utc(),
             creator_uid: model.creator_uid,
             avatar_uid: model.avatar_uid,
-            members: vec![],
-            characters: vec![],
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct SaveChatPayload {
-    pub uid: String,
-    pub name: String,
-    pub created_at: NaiveDateTime,
-    pub creator_uid: String,
-    pub avatar_uid: Option<String>,
 }
 
 #[derive(Debug, Clone, Error)]
@@ -148,9 +143,9 @@ pub enum DeleteChatError {
 
 pub async fn save_chat(
     connection: &impl ConnectionTrait,
-    chat: SaveChatPayload,
-) -> Result<Chat, SaveChatError> {
-    let SaveChatPayload {
+    chat: ChatInfo,
+) -> Result<ChatInfo, SaveChatError> {
+    let ChatInfo {
         uid,
         name,
         created_at,
@@ -251,6 +246,18 @@ pub async fn load_chat(
     chat.characters = chat_characters;
 
     Ok(chat)
+}
+
+pub async fn load_chat_info(
+    connection: &impl ConnectionTrait,
+    chat_uid: &str,
+) -> Result<ChatInfo, LoadChatError> {
+    Ok(chats::Entity::find_by_id(chat_uid)
+        .one(connection)
+        .await
+        .map_err(|err| LoadChatError::InternalError(err.to_string()))?
+        .ok_or(LoadChatError::NotFound)?
+        .into())
 }
 
 pub async fn load_user_chats(

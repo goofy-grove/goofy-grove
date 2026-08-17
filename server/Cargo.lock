@@ -732,6 +732,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
+name = "combine-structs"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "661516a1b75ccbf0fdd9e2357b20f7eaa6b30771ca43d0d634438e047a03658c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1330,6 +1341,7 @@ dependencies = [
  "axum-extra",
  "blake3",
  "chrono",
+ "combine-structs",
  "env_logger",
  "itertools 0.15.0",
  "jsonwebtoken",

@@ -6,3 +6,4 @@ pub mod delete;
 pub mod get;
 pub mod member_add;
 pub mod member_remove;
+pub mod update;

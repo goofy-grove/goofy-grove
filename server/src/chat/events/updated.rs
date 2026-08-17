@@ -4,7 +4,7 @@ use socketioxide::SocketIo;
 use tracing::info;
 
 use crate::{
-    chat::db::Chat,
+    chat::db::ChatInfo,
     platform::{
         events::{Event, EventHandler},
         socketio::SOCKET_NAMESPACE,
@@ -13,7 +13,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct ChatUpdatedEvent {
-    pub chat: Chat,
+    pub chat: ChatInfo,
     pub exclude_participants: Vec<String>,
 }
 

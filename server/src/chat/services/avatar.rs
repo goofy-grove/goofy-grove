@@ -2,7 +2,10 @@
 
 use crate::{
     app::AppDeps,
-    chat::{db, events::updated::ChatUpdatedEvent},
+    chat::{
+        db::{self, ChatInfo},
+        events::updated::ChatUpdatedEvent,
+    },
     file::{
         FileScope, ReplaceAvatarError, ReplaceAvatarInput, orphan_avatar_if_present, replace_avatar,
     },
@@ -35,7 +38,7 @@ pub enum ClearChatAvatarError {
 #[derive(Debug, Clone)]
 pub struct SetChatAvatarInput {
     pub chat_uid: String,
-    pub user_uid: String,
+    pub initiator_uid: String,
     pub content_type: String,
     pub original_name: String,
     pub content: Vec<u8>,
@@ -45,20 +48,24 @@ pub struct SetChatAvatarInput {
 #[derive(Debug, Clone)]
 pub struct ClearChatAvatarInput {
     pub chat_uid: String,
-    pub user_uid: String,
+    pub initiator_uid: String,
     pub exclude_participants: Vec<String>,
 }
 
 pub async fn set_chat_avatar(
     deps: &AppDeps,
     input: SetChatAvatarInput,
-) -> Result<db::Chat, SetChatAvatarError> {
-    let mut chat = db::load_chat(&deps.db, &input.chat_uid)
+) -> Result<ChatInfo, SetChatAvatarError> {
+    let mut chat = db::load_chat_info(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => SetChatAvatarError::NotFound,
             db::LoadChatError::InternalError(message) => SetChatAvatarError::Internal(message),
         })?;
+
+    if chat.creator_uid != input.initiator_uid {
+        return Err(SetChatAvatarError::NotFound);
+    }
 
     let new_avatar_uid = replace_avatar(
         deps,
@@ -66,30 +73,21 @@ pub async fn set_chat_avatar(
             content_type: input.content_type,
             original_name: input.original_name,
             scope: FileScope::ChatAvatar {
-                user_uid: input.user_uid.clone(),
+                user_uid: input.initiator_uid.clone(),
                 chat_uid: input.chat_uid,
             },
             content: input.content,
             current_avatar_uid: chat.avatar_uid.clone(),
         },
-        &input.user_uid,
+        &input.initiator_uid,
     )
     .await?;
 
     chat.avatar_uid = Some(new_avatar_uid);
 
-    let saved = db::save_chat(
-        &deps.db,
-        db::SaveChatPayload {
-            uid: chat.uid,
-            name: chat.name,
-            created_at: chat.created_at,
-            creator_uid: chat.creator_uid,
-            avatar_uid: chat.avatar_uid,
-        },
-    )
-    .await
-    .map_err(|err| SetChatAvatarError::Internal(err.to_string()))?;
+    let saved = db::save_chat(&deps.db, chat)
+        .await
+        .map_err(|err| SetChatAvatarError::Internal(err.to_string()))?;
 
     deps.event_bus
         .publish(ChatUpdatedEvent {
@@ -104,13 +102,17 @@ pub async fn set_chat_avatar(
 pub async fn clear_chat_avatar(
     deps: &AppDeps,
     input: ClearChatAvatarInput,
-) -> Result<db::Chat, ClearChatAvatarError> {
-    let mut chat = db::load_chat(&deps.db, &input.chat_uid)
+) -> Result<ChatInfo, ClearChatAvatarError> {
+    let mut chat = db::load_chat_info(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => ClearChatAvatarError::NotFound,
             db::LoadChatError::InternalError(message) => ClearChatAvatarError::Internal(message),
         })?;
+
+    if chat.creator_uid != input.initiator_uid {
+        return Err(ClearChatAvatarError::NotFound);
+    }
 
     orphan_avatar_if_present(deps, chat.avatar_uid.clone())
         .await
@@ -118,18 +120,9 @@ pub async fn clear_chat_avatar(
 
     chat.avatar_uid = None;
 
-    let saved = db::save_chat(
-        &deps.db,
-        db::SaveChatPayload {
-            uid: chat.uid,
-            name: chat.name,
-            created_at: chat.created_at,
-            creator_uid: chat.creator_uid,
-            avatar_uid: chat.avatar_uid,
-        },
-    )
-    .await
-    .map_err(|err| ClearChatAvatarError::Internal(err.to_string()))?;
+    let saved = db::save_chat(&deps.db, chat)
+        .await
+        .map_err(|err| ClearChatAvatarError::Internal(err.to_string()))?;
 
     deps.event_bus
         .publish(ChatUpdatedEvent {
