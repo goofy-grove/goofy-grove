@@ -21,6 +21,7 @@ pub async fn get_characters(
             character::LoadCharacterError::InternalError(message) => {
                 GetCharactersError::InternalError(message)
             }
+            // FIXME: remove one error type for different functions
             character::LoadCharacterError::NotFound => {
                 GetCharactersError::InternalError("unexpected character not found".into())
             }

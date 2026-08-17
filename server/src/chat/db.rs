@@ -90,6 +90,12 @@ pub enum LoadChatError {
 }
 
 #[derive(Debug, Clone, Error)]
+pub enum LoadUserChatsError {
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+#[derive(Debug, Clone, Error)]
 pub enum AddCharacterToChatError {
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -250,7 +256,7 @@ pub async fn load_chat(
 pub async fn load_user_chats(
     connection: &impl ConnectionTrait,
     user_uid: &str,
-) -> Result<Vec<Chat>, LoadChatError> {
+) -> Result<Vec<Chat>, LoadUserChatsError> {
     let mut chats = chats::Entity::find()
         .has_related(
             chat_members::Entity,
@@ -263,7 +269,7 @@ pub async fn load_user_chats(
         .consolidate()
         .all(connection)
         .await
-        .map_err(|err| LoadChatError::InternalError(err.to_string()))?
+        .map_err(|err| LoadUserChatsError::InternalError(err.to_string()))?
         .into_iter()
         .map(map_to_chat)
         .collect_vec();
@@ -280,7 +286,7 @@ pub async fn load_user_chats(
         .order_by_asc(chat_characters::Column::ConnectedAt)
         .all(connection)
         .await
-        .map_err(|err| LoadChatError::InternalError(err.to_string()))?
+        .map_err(|err| LoadUserChatsError::InternalError(err.to_string()))?
         .into_iter()
         .filter_map(|(chat_character, character)| {
             Some((
