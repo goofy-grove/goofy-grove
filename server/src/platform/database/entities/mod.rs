@@ -7,6 +7,7 @@ pub mod chat_characters;
 pub mod chat_members;
 pub mod chats;
 pub mod files;
+pub mod messages;
 pub mod personas;
 pub mod tokens;
 pub mod users;

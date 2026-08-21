@@ -11,6 +11,7 @@ mod m20260611_162629_update_uid_naming_conventions;
 mod m20260731_142015_add_chats;
 mod m20260731_142806_add_chats_members;
 mod m20260731_150107_add_chats_characters;
+mod m20260821_213734_add_messages;
 
 pub struct Migrator;
 
@@ -29,6 +30,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260731_142015_add_chats::Migration),
             Box::new(m20260731_142806_add_chats_members::Migration),
             Box::new(m20260731_150107_add_chats_characters::Migration),
+            Box::new(m20260821_213734_add_messages::Migration),
         ]
     }
 }

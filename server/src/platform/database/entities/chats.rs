@@ -27,6 +27,8 @@ pub enum Relation {
         on_delete = "SetNull"
     )]
     Files,
+    #[sea_orm(has_many = "super::messages::Entity")]
+    Messages,
     #[sea_orm(
         belongs_to = "super::users::Entity",
         from = "Column::CreatorUid",
@@ -52,6 +54,12 @@ impl Related<super::chat_members::Entity> for Entity {
 impl Related<super::files::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Files.def()
+    }
+}
+
+impl Related<super::messages::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Messages.def()
     }
 }
 
