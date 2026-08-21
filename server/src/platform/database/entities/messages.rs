@@ -9,10 +9,10 @@ pub struct Model {
     pub uid: String,
     #[sea_orm(column_type = "Text")]
     pub content: String,
-    pub author_persona_uid: String,
-    pub author_character_uid: String,
+    pub author_persona_uid: Option<String>,
+    pub author_character_uid: Option<String>,
     pub chat_uid: String,
-    pub reply_to_message_uid: String,
+    pub reply_to_message_uid: Option<String>,
     pub is_removed: bool,
     pub created_at: DateTimeUtc,
 }
