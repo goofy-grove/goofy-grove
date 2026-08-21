@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use sea_orm::TransactionTrait;
 use thiserror::Error;
 
@@ -21,7 +19,6 @@ pub enum CreateChatError {
 #[derive(Debug, Clone)]
 pub struct CreateChatInput {
     pub name: String,
-    pub description: String,
     pub creator_uid: String,
     pub exclude_participants: Vec<String>,
 }

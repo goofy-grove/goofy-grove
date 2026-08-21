@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use thiserror::Error;
 
 use crate::{

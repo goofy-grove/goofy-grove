@@ -1,9 +1,11 @@
 use crate::app::AppDeps;
 
+mod api;
 mod db;
 mod events;
 mod services;
 
+pub use api::mount;
 pub use db::load_user_chats as get_user_chats;
 pub use events::subscribe;
 

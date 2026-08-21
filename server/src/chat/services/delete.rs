@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use thiserror::Error;
 
 use crate::{
@@ -26,7 +24,7 @@ pub struct DeleteChatInput {
 }
 
 pub async fn delete_chat(deps: &AppDeps, input: DeleteChatInput) -> Result<(), DeleteChatError> {
-    let chat = db::load_chat(&deps.db, &input.chat_uid)
+    let chat = db::load_chat_info(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => DeleteChatError::NotFound,

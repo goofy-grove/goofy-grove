@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use thiserror::Error;
 
 use crate::{
@@ -36,7 +34,7 @@ pub async fn add_character(
     deps: &AppDeps,
     input: AddCharacterInput,
 ) -> Result<ChatCharacter, AddCharacterError> {
-    let chat = db::load_chat(&deps.db, &input.chat_uid)
+    let chat = db::load_chat_info(&deps.db, &input.chat_uid)
         .await
         .map_err(|err| match err {
             db::LoadChatError::NotFound => AddCharacterError::NotFound,
@@ -53,10 +51,6 @@ pub async fn add_character(
             LoadCharacterError::NotFound => AddCharacterError::NotFound,
             LoadCharacterError::InternalError(err) => AddCharacterError::Internal(err),
         })?;
-
-    if character.creator_uid != input.initiator_uid {
-        return Err(AddCharacterError::NotFound);
-    }
 
     let character = db::add_character_to_chat(&deps.db, character, &input.chat_uid)
         .await

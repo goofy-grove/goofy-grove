@@ -1,12 +1,9 @@
-#![allow(unused)]
-
-use sea_orm::TransactionTrait;
 use thiserror::Error;
 
 use crate::{
     app::AppDeps,
     chat::{
-        db::{self, Chat, ChatMember},
+        db::{self, ChatMember},
         events::member_added::MemberAddedEvent,
     },
     platform::events::EventPublisher,

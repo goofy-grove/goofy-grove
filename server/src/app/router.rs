@@ -2,7 +2,7 @@ use axum::{Router, extract::DefaultBodyLimit};
 use socketioxide::layer::SocketIoLayer;
 use tower_http::cors::CorsLayer;
 
-use crate::{app::AppDeps, auth, character, file, persona, user};
+use crate::{app::AppDeps, auth, character, chat, file, persona, user};
 
 pub fn build_router(deps: &AppDeps, socketio_layer: SocketIoLayer) -> Router {
     let body_limit = deps.config.policies.max_upload_body_limit();
@@ -14,6 +14,7 @@ pub fn build_router(deps: &AppDeps, socketio_layer: SocketIoLayer) -> Router {
     let router = file::mount(router, deps);
     let router = character::mount(router, deps);
     let router = persona::mount(router, deps);
+    let router = chat::mount(router, deps);
 
     router
         .layer(DefaultBodyLimit::max(body_limit))

@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use chrono::NaiveDateTime;
 use combine_structs::{Fields, combine_fields};
 use itertools::Itertools;
@@ -62,15 +60,6 @@ impl From<chats::Model> for ChatInfo {
 
 #[derive(Debug, Clone, Error)]
 pub enum SaveChatError {
-    #[error("Internal error: {0}")]
-    InternalError(String),
-}
-
-#[derive(Debug, Clone, Error)]
-pub enum LoadChatMemberError {
-    #[error("Chat member not found")]
-    NotFound,
-
     #[error("Internal error: {0}")]
     InternalError(String),
 }
@@ -211,7 +200,7 @@ pub async fn load_chat(
     connection: &impl ConnectionTrait,
     chat_uid: &str,
 ) -> Result<Chat, LoadChatError> {
-    let mut chats = chats::Entity::find_by_id(chat_uid)
+    let chats = chats::Entity::find_by_id(chat_uid)
         .find_also_related(chat_members::Entity)
         .and_also_related(users::Entity)
         .order_by_asc(chats::Column::CreatedAt)
@@ -226,7 +215,7 @@ pub async fn load_chat(
 
     let mut chat = chats.into_iter().next().ok_or(LoadChatError::NotFound)?;
 
-    let mut chat_characters = chat_characters::Entity::find()
+    let chat_characters = chat_characters::Entity::find()
         .filter(chat_characters::Column::ChatUid.eq(chat_uid))
         .find_also_related(characters::Entity)
         .order_by_asc(chat_characters::Column::ConnectedAt)
@@ -372,28 +361,22 @@ pub async fn add_user_to_chat(
         user_uid: Set(user_uid.to_string()),
     })
     .exec_with_returning(connection)
-    .await;
+    .await
+    .map_err(|err| match err.sql_err() {
+        Some(SqlErr::UniqueConstraintViolation(_)) => AddUserToChatError::UserAlreadyInChat,
+        Some(SqlErr::ForeignKeyConstraintViolation(_)) => AddUserToChatError::ChatOrUserNotFound,
+        _ => AddUserToChatError::InternalError(err.to_string()),
+    })?;
 
     let (user, _) = user::get_by_uid(connection, user_uid)
         .await
         .map_err(|err| AddUserToChatError::InternalError(err.to_string()))?;
 
-    match result {
-        Ok(model) => Ok(ChatMember {
-            user,
-            joined_at: model.joined_at.naive_utc(),
-            chat_uid: model.chat_uid,
-        }),
-        Err(err) => match err.sql_err() {
-            Some(SqlErr::UniqueConstraintViolation(_)) => {
-                Err(AddUserToChatError::UserAlreadyInChat)
-            }
-            Some(SqlErr::ForeignKeyConstraintViolation(_)) => {
-                Err(AddUserToChatError::ChatOrUserNotFound)
-            }
-            _ => Err(AddUserToChatError::InternalError(err.to_string())),
-        },
-    }
+    Ok(ChatMember {
+        user,
+        joined_at: result.joined_at.naive_utc(),
+        chat_uid: result.chat_uid,
+    })
 }
 
 pub async fn remove_user_from_chat(

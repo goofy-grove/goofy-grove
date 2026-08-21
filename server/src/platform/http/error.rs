@@ -50,6 +50,25 @@ pub mod codes {
     pub const FILE_UPLOAD_FAILED: &str = "file_upload_failed";
     pub const FILE_RESPONSE_BUILD_FAILED: &str = "file_response_build_failed";
 
+    pub const CHAT_LIST_FAILED: &str = "chat_list_failed";
+    pub const CHAT_INVALID_UID: &str = "chat_invalid_uid";
+    pub const CHAT_INVALID_NAME: &str = "chat_invalid_name";
+    pub const CHAT_CREATE_FAILED: &str = "chat_create_failed";
+    pub const CHAT_UPDATE_FAILED: &str = "chat_update_failed";
+    pub const CHAT_NOT_FOUND: &str = "chat_not_found";
+    pub const CHAT_DELETE_FAILED: &str = "chat_delete_failed";
+    pub const CHAT_INVALID_USER_UID: &str = "chat_invalid_user_uid";
+    pub const CHAT_USER_ALREADY_IN_CHAT: &str = "chat_user_already_in_chat";
+    pub const CHAT_OR_USER_NOT_FOUND: &str = "chat_or_user_not_found";
+    pub const CHAT_MEMBER_ADD_FAILED: &str = "chat_member_add_failed";
+    pub const CHAT_MEMBER_REMOVE_FAILED: &str = "chat_member_remove_failed";
+    pub const CHAT_CHARACTER_ADD_FAILED: &str = "chat_character_add_failed";
+    pub const CHAT_CHARACTER_REMOVE_FAILED: &str = "chat_character_remove_failed";
+    pub const CHAT_INVALID_CHARACTER_UID: &str = "chat_invalid_character_uid";
+    pub const CHAT_OR_CHARACTER_NOT_FOUND: &str = "chat_or_character_not_found";
+    pub const CHAT_CHARACTER_ALREADY_IN_CHAT: &str = "chat_character_already_in_chat";
+    pub const CHAT_NO_FIELDS_PROVIDED: &str = "chat_no_fields_provided";
+
     pub const COMMON_INVALID_SOCKET_ID_HEADER: &str = "common_invalid_socket_id_header";
     pub const COMMON_INVALID_REQUEST_BODY: &str = "common_invalid_request_body";
 }
@@ -95,6 +114,10 @@ impl ApiError {
 
     pub fn internal(code: &'static str) -> Self {
         Self::new(StatusCode::INTERNAL_SERVER_ERROR, code)
+    }
+
+    pub fn conflict(code: &'static str) -> Self {
+        Self::new(StatusCode::CONFLICT, code)
     }
 
     pub fn with_params(mut self, params: Value) -> Self {

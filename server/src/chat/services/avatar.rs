@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use crate::{
     app::AppDeps,
     chat::{
