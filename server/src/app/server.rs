@@ -6,16 +6,17 @@ use tracing::info;
 
 use crate::{
     app::{deps::AppDeps, router::build_router},
-    character, chat, persona,
+    character, chat, messages, persona,
     platform::{config::Config, events::InMemoryEventBus, socketio::create_socketio_layer},
     user,
 };
 
-fn register_event_handlers(event_bus: &InMemoryEventBus, deps: &AppDeps) {
-    user::subscribe(event_bus, deps);
-    character::subscribe(event_bus, deps);
-    persona::subscribe(event_bus, deps);
-    chat::subscribe(event_bus, deps);
+fn register_event_handlers(deps: &AppDeps) {
+    user::subscribe(deps);
+    character::subscribe(deps);
+    persona::subscribe(deps);
+    chat::subscribe(deps);
+    messages::subscribe(deps);
 }
 
 pub async fn start_server(
@@ -28,13 +29,13 @@ pub async fn start_server(
     let deps = AppDeps {
         config: config.clone(),
         db: connection.clone(),
-        event_bus: event_bus.clone(),
+        event_bus,
         socket: io,
     };
 
     user::create_master_user(&deps).await;
 
-    register_event_handlers(&event_bus, &deps);
+    register_event_handlers(&deps);
 
     let app = build_router(&deps, socketio_layer);
 

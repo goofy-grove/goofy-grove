@@ -7,6 +7,7 @@ mod auth;
 mod character;
 mod chat;
 mod file;
+mod messages;
 mod persona;
 mod platform;
 mod user;

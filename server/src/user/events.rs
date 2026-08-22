@@ -2,11 +2,11 @@ pub mod handlers;
 pub mod types;
 
 use crate::{
-    app::AppDeps,
-    platform::events::{EventSubscriber, InMemoryEventBus},
+    app::AppDeps, platform::events::EventSubscriber,
     user::events::handlers::UserUpdatedEventHandler,
 };
 
-pub fn subscribe(bus: &InMemoryEventBus, deps: &AppDeps) {
-    bus.subscribe(UserUpdatedEventHandler::new(deps.socket.clone()));
+pub fn subscribe(deps: &AppDeps) {
+    deps.event_bus
+        .subscribe(UserUpdatedEventHandler::new(deps.socket.clone()));
 }

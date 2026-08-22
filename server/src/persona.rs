@@ -4,6 +4,7 @@ mod events;
 mod services;
 
 pub use api::mount;
+pub use db::persona::Persona;
 pub use events::subscribe;
 
 use crate::app::AppDeps;

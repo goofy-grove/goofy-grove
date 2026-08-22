@@ -69,8 +69,14 @@ pub mod codes {
     pub const CHAT_CHARACTER_ALREADY_IN_CHAT: &str = "chat_character_already_in_chat";
     pub const CHAT_NO_FIELDS_PROVIDED: &str = "chat_no_fields_provided";
 
+    pub const MESSAGES_GET_FAILED: &str = "messages_get_failed";
+    pub const MESSAGES_CHAT_OR_AUTHOR_OR_MESSAGE_NOT_FOUND: &str =
+        "messages_chat_or_author_or_message_not_found";
+    pub const MESSAGES_SEND_FAILED: &str = "messages_send_failed";
+
     pub const COMMON_INVALID_SOCKET_ID_HEADER: &str = "common_invalid_socket_id_header";
     pub const COMMON_INVALID_REQUEST_BODY: &str = "common_invalid_request_body";
+    pub const COMMON_INVALID_PAGE_DATA: &str = "common_invalid_page_data";
 }
 
 #[derive(Debug, Clone, Serialize)]
