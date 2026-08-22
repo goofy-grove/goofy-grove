@@ -1,5 +1,5 @@
 use axum::{
-    Extension, Router,
+    Router,
     extract::{Path, Query, State},
     response::Response,
     routing::{get, post},
@@ -9,7 +9,7 @@ use tracing::error;
 
 use crate::{
     app::AppDeps,
-    auth::{AuthLayerExt, AuthenticatedUser},
+    auth::AuthLayerExt,
     messages::{
         db::MessageAuthorUid,
         services::{
@@ -39,7 +39,6 @@ pub struct SendMessageRequest {
 }
 
 async fn get_paginated_messages(
-    Extension(_): Extension<AuthenticatedUser>,
     Path(chat_uid): Path<String>,
     Query(query): Query<GetMessagesQuery>,
     State(deps): State<AppDeps>,
@@ -65,7 +64,6 @@ async fn get_paginated_messages(
 }
 
 async fn send_message(
-    Extension(_): Extension<AuthenticatedUser>,
     Path(chat_uid): Path<String>,
     State(deps): State<AppDeps>,
     ExcludeSocketParticipants(exclude_participant): ExcludeSocketParticipants,
