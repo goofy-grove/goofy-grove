@@ -11,6 +11,8 @@ tags:
   - name: Users
   - name: Personas
   - name: Characters
+  - name: Chats
+  - name: Messages
   - name: Files
 paths:
   /personas:
@@ -116,7 +118,7 @@ paths:
           $ref: '#/components/responses/InternalError'
 
   /personas/{uid}/avatar:
-    post:
+    put:
       tags: [Personas]
       summary: Upload persona avatar
       parameters:
@@ -126,6 +128,7 @@ paths:
           description: Persona Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -139,18 +142,39 @@ paths:
                   format: binary
                   description: Avatar image file
       responses:
-        201:
-          description: Created
+        200:
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+                $ref: '#/components/schemas/PersonaResponse'
         400:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Personas]
+      summary: Remove persona avatar
+      parameters:
+        - $ref: '#/components/parameters/PersonaUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonaResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -194,6 +218,315 @@ paths:
         default:
           $ref: '#/components/responses/InternalError'
 
+  /chats:
+    get:
+      tags: [Chats]
+      summary: List chats available to the current user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatsResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Chats]
+      summary: Create a chat
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCreateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}:
+    patch:
+      tags: [Chats]
+      summary: Rename a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatUpdateRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInfoResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Chats]
+      summary: Delete a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/avatar:
+    put:
+      tags: [Chats]
+      summary: Set chat avatar
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AvatarUploadRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInfoResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Chats]
+      summary: Remove chat avatar
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInfoResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/members:
+    post:
+      tags: [Chats]
+      summary: Add a member to a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMemberAddRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMemberResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/members/{user_uid}:
+    delete:
+      tags: [Chats]
+      summary: Remove a member from a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/UserUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMemberResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/characters:
+    post:
+      tags: [Chats]
+      summary: Add a character to a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatCharacterAddRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCharacterResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/characters/{character_uid}:
+    delete:
+      tags: [Chats]
+      summary: Remove a character from a chat
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/ChatCharacterUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatCharacterResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
+
+  /chats/{chat_uid}/messages:
+    get:
+      tags: [Messages]
+      summary: Get messages by cursor
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: uint64
+            minimum: 1
+        - name: page
+          in: query
+          required: false
+          description: URL-safe Base64 cursor returned as `next_page`.
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMessagesResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Messages]
+      summary: Send a message
+      parameters:
+        - $ref: '#/components/parameters/ChatUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/InternalError'
   /characters:
     get:
       tags: [Characters]
@@ -297,7 +630,7 @@ paths:
           $ref: '#/components/responses/InternalError'
 
   /characters/{uid}/avatar:
-    post:
+    put:
       tags: [Characters]
       summary: Upload character avatar
       description: |
@@ -311,6 +644,7 @@ paths:
           description: Character Unique ID
           schema:
             type: string
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -324,18 +658,39 @@ paths:
                   format: binary
                   description: Avatar image file
       responses:
-        201:
-          description: Created
+        200:
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+                $ref: '#/components/schemas/CharacterResponse'
         400:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Characters]
+      summary: Remove character avatar
+      parameters:
+        - $ref: '#/components/parameters/CharacterUid'
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -351,39 +706,13 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         401:
           $ref: '#/components/responses/UnauthorizedError'
-    patch:
-      tags: [Users]
-      summary: Update current user
-      parameters:
-        - $ref: '#/components/parameters/SocketIdHeader'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserUpdateRequest'
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        400:
-          $ref: '#/components/responses/BadRequestError'
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        403:
-          $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        default:
-          $ref: '#/components/responses/InternalError'
 
   /users/me/avatar:
-    post:
+    put:
       tags: [Users]
       summary: Upload user avatar
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
       requestBody:
         required: true
         content:
@@ -397,18 +726,36 @@ paths:
                   format: binary
                   description: Avatar image file
       responses:
-        201:
-          description: Created
+        200:
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+                $ref: '#/components/schemas/UserResponse'
         400:
           $ref: '#/components/responses/BadRequestError'
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
+        default:
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Users]
+      summary: Remove current user avatar
+      parameters:
+        - $ref: '#/components/parameters/SocketIdHeader'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/InternalError'
 
@@ -480,6 +827,27 @@ paths:
         default:
           $ref: '#/components/responses/InternalError'
 
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Logout
+      description: Invalidates the refresh token when present and clears its cookie.
+      responses:
+        200:
+          description: OK
+          headers:
+            Set-Cookie:
+              description: Clears the `refresh_token` HttpOnly cookie.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+        default:
+          $ref: '#/components/responses/InternalError'
+
 components:
   securitySchemes:
     JwtToken:
@@ -496,6 +864,41 @@ components:
       description: |
         Optional Socket.IO socket id. When provided, that participant is excluded
         from the broadcast of the mutation event.
+      schema:
+        type: string
+    PersonaUid:
+      name: uid
+      in: path
+      required: true
+      description: Persona unique ID
+      schema:
+        type: string
+    CharacterUid:
+      name: uid
+      in: path
+      required: true
+      description: Character unique ID
+      schema:
+        type: string
+    ChatUid:
+      name: chat_uid
+      in: path
+      required: true
+      description: Chat unique ID
+      schema:
+        type: string
+    UserUid:
+      name: user_uid
+      in: path
+      required: true
+      description: User unique ID
+      schema:
+        type: string
+    ChatCharacterUid:
+      name: character_uid
+      in: path
+      required: true
+      description: Character unique ID
       schema:
         type: string
 
@@ -555,6 +958,17 @@ components:
             data:
               code: file_access_denied
 
+    ConflictError:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: true
+            data:
+              code: chat_user_already_in_chat
+
   schemas:
     # Requests
     PersonaCreateRequest:
@@ -567,12 +981,9 @@ components:
         description:
           type: string
           description: Persona Description
-        avatar_uid:
-          type: string
-          description: Optional file uid to bind as avatar on create
     PersonaUpdateRequest:
       type: object
-      description: At least one of `name`, `description`, or `avatar_uid` must be provided
+      description: At least one of `name` or `description` must be provided
       minProperties: 1
       properties:
         name:
@@ -581,33 +992,6 @@ components:
         description:
           type: string
           description: Persona Description
-        avatar_uid:
-          oneOf:
-            - type: string
-            - type: 'null'
-          description: File uid to bind as avatar, or null to clear
-    UserUpdateRequest:
-      type: object
-      required: [avatar_uid]
-      properties:
-        avatar_uid:
-          oneOf:
-            - type: string
-            - type: 'null'
-          description: File uid to bind as avatar, or null to clear
-    FileUploadResponse:
-      type: object
-      properties:
-        error:
-          type: boolean
-          const: false
-        data:
-          type: object
-          required: [uid]
-          properties:
-            uid:
-              type: string
-              description: Uploaded file uid (status Created until bound via PATCH)
     CharacterCreateRequest:
       type: object
       required: [name, description]
@@ -618,12 +1002,9 @@ components:
         description:
           type: string
           description: Character Description
-        avatar_uid:
-          type: string
-          description: Optional file uid to bind as avatar on create
     CharacterUpdateRequest:
       type: object
-      description: At least one of `name`, `description`, or `avatar_uid` must be provided
+      description: At least one of `name` or `description` must be provided
       minProperties: 1
       properties:
         name:
@@ -632,11 +1013,6 @@ components:
         description:
           type: string
           description: Character Description
-        avatar_uid:
-          oneOf:
-            - type: string
-            - type: 'null'
-          description: File uid to bind as avatar, or null to clear
     AuthenticationRequest:
       type: object
       required: [username, password]
@@ -645,6 +1021,48 @@ components:
           type: string
         password:
           type: string
+    AvatarUploadRequest:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Avatar image file
+    ChatCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    ChatUpdateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    ChatMemberAddRequest:
+      type: object
+      required: [user_uid]
+      properties:
+        user_uid:
+          type: string
+    ChatCharacterAddRequest:
+      type: object
+      required: [character_uid]
+      properties:
+        character_uid:
+          type: string
+    SendMessageRequest:
+      type: object
+      required: [content, author]
+      properties:
+        content:
+          type: string
+        author:
+          $ref: '#/components/schemas/MessageAuthorUid'
+        reply_to_message_uid:
+          type: [string, 'null']
 
     # Responses
     ErrorResponse:
@@ -691,6 +1109,81 @@ components:
           const: false
         data:
           $ref: '#/components/schemas/User'
+    EmptyResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: object
+          additionalProperties: false
+    ChatResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Chat'
+    ChatsResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chat'
+    ChatInfoResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/ChatInfo'
+    ChatMemberResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/ChatMember'
+    ChatCharacterResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/ChatCharacter'
+    MessageResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Message'
+    PaginatedMessagesResponse:
+      type: object
+      required: [error, data]
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/PaginatedMessages'
     PersonasResponse:
       type: object
       properties:
@@ -703,6 +1196,15 @@ components:
             $ref: '#/components/schemas/Persona'
     PersonaCreateResponse:
       type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Persona'
+    PersonaResponse:
+      type: object
+      required: [error, data]
       properties:
         error:
           type: boolean
@@ -729,6 +1231,15 @@ components:
             $ref: '#/components/schemas/Character'
     CharacterCreateResponse:
       type: object
+      properties:
+        error:
+          type: boolean
+          const: false
+        data:
+          $ref: '#/components/schemas/Character'
+    CharacterResponse:
+      type: object
+      required: [error, data]
       properties:
         error:
           type: boolean
@@ -802,3 +1313,144 @@ components:
             - type: string
             - type: 'null'
           description: Current avatar file uid
+    ChatInfo:
+      type: object
+      required: [uid, name, created_at, creator_uid]
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        creator_uid:
+          type: string
+        avatar_uid:
+          type: [string, 'null']
+    ChatMember:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [joined_at, chat_uid]
+          properties:
+            joined_at:
+              type: string
+              format: date-time
+            chat_uid:
+              type: string
+    ChatCharacter:
+      allOf:
+        - $ref: '#/components/schemas/Character'
+        - type: object
+          required: [connected_at, chat_uid]
+          properties:
+            connected_at:
+              type: string
+              format: date-time
+            chat_uid:
+              type: string
+    Chat:
+      allOf:
+        - $ref: '#/components/schemas/ChatInfo'
+        - type: object
+          required: [members, characters]
+          properties:
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMember'
+            characters:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatCharacter'
+    MessageAuthorUid:
+      oneOf:
+        - type: object
+          required: [kind, uid]
+          properties:
+            kind:
+              type: string
+              const: persona
+            uid:
+              type: string
+        - type: object
+          required: [kind, uid]
+          properties:
+            kind:
+              type: string
+              const: character
+            uid:
+              type: string
+    MessageAuthor:
+      oneOf:
+        - allOf:
+            - $ref: '#/components/schemas/Persona'
+            - type: object
+              required: [kind]
+              properties:
+                kind:
+                  type: string
+                  const: persona
+        - allOf:
+            - $ref: '#/components/schemas/Character'
+            - type: object
+              required: [kind]
+              properties:
+                kind:
+                  type: string
+                  const: character
+    MessageInfo:
+      type: object
+      required: [uid, content, created_at, chat_uid, is_removed]
+      properties:
+        uid:
+          type: string
+        author_uid:
+          oneOf:
+            - $ref: '#/components/schemas/MessageAuthorUid'
+            - type: 'null'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        chat_uid:
+          type: string
+        reply_to_message_uid:
+          type: [string, 'null']
+        is_removed:
+          type: boolean
+    Message:
+      type: object
+      required: [uid, content, created_at, chat_uid, is_removed]
+      properties:
+        uid:
+          type: string
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/MessageAuthor'
+            - type: 'null'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        chat_uid:
+          type: string
+        reply_to_message:
+          oneOf:
+            - $ref: '#/components/schemas/MessageInfo'
+            - type: 'null'
+        is_removed:
+          type: boolean
+    PaginatedMessages:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        next_page:
+          type: [string, 'null']
