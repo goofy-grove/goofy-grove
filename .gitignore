@@ -1,3 +1,5 @@
 .*
+!docs/.prettierrc
+!docs/.prettierignore
 !.gitignore
 !.vscode

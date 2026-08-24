@@ -1,0 +1,32 @@
+---
+title: Realtime API
+---
+
+Goofy Grove publishes realtime updates through Socket.IO. The complete machine-readable
+contract is available as <a href="/asyncapi.yml">AsyncAPI 3.0 YAML</a>.
+
+## Connection
+
+Connect to the `/v1` Socket.IO namespace. Native WebSocket clients are not supported;
+use a Socket.IO client and pass the access token from the HTTP authentication API in
+the `auth` payload.
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('ws://127.0.0.1:3003/v1', {
+  auth: { token },
+  transports: ['websocket'],
+});
+```
+
+All documented application events currently travel from server to client. A request
+that changes state may include the HTTP `x-socket-id` header; the server then excludes
+that socket from the matching broadcast, because it already has the HTTP response.
+
+## Event delivery
+
+The server authorizes a connection and automatically assigns it to private rooms for
+the user and their chats. Clients must treat every event payload as an update to local
+state and should refresh from the HTTP API after reconnecting, because missed events
+are not replayed.

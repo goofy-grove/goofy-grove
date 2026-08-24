@@ -1,0 +1,477 @@
+asyncapi: 3.0.0
+info:
+  title: Goofy Grove Realtime API
+  version: 0.1.0
+  description: |
+    Server-to-client Socket.IO events emitted by Goofy Grove.
+
+    The server uses Socket.IO, not the native WebSocket message protocol. Connect to
+    the `/v1` namespace with a bearer access token in the Socket.IO `auth` payload.
+defaultContentType: application/json
+servers:
+  development:
+    host: 127.0.0.1:3003
+    pathname: /v1
+    protocol: ws
+    description: Local Socket.IO server. Use `wss` in production.
+    x-socketio:
+      namespace: /v1
+      transports:
+        - websocket
+      auth:
+        payload:
+          token: Bearer access token returned by the HTTP authentication API.
+channels:
+  userUpdated:
+    address: user:updated
+    messages:
+      userUpdated:
+        $ref: '#/components/messages/UserUpdated'
+  personaCreated:
+    address: persona:created
+    messages:
+      personaCreated:
+        $ref: '#/components/messages/PersonaCreated'
+  personaUpdated:
+    address: persona:updated
+    messages:
+      personaUpdated:
+        $ref: '#/components/messages/PersonaUpdated'
+  personaDeleted:
+    address: persona:deleted
+    messages:
+      personaDeleted:
+        $ref: '#/components/messages/PersonaDeleted'
+  characterCreated:
+    address: character:created
+    messages:
+      characterCreated:
+        $ref: '#/components/messages/CharacterCreated'
+  characterUpdated:
+    address: character:updated
+    messages:
+      characterUpdated:
+        $ref: '#/components/messages/CharacterUpdated'
+  characterDeleted:
+    address: character:deleted
+    messages:
+      characterDeleted:
+        $ref: '#/components/messages/CharacterDeleted'
+  chatCreated:
+    address: chat:created
+    messages:
+      chatCreated:
+        $ref: '#/components/messages/ChatCreated'
+  chatUpdated:
+    address: chat:updated
+    messages:
+      chatUpdated:
+        $ref: '#/components/messages/ChatUpdated'
+  chatDeleted:
+    address: chat:deleted
+    messages:
+      chatDeleted:
+        $ref: '#/components/messages/ChatDeleted'
+  chatAdded:
+    address: chat:added
+    messages:
+      chatAdded:
+        $ref: '#/components/messages/ChatAdded'
+  chatRemoved:
+    address: chat:removed
+    messages:
+      chatRemoved:
+        $ref: '#/components/messages/ChatRemoved'
+  chatMemberAdded:
+    address: chat:member_added
+    messages:
+      chatMemberAdded:
+        $ref: '#/components/messages/ChatMemberAdded'
+  chatMemberRemoved:
+    address: chat:member_removed
+    messages:
+      chatMemberRemoved:
+        $ref: '#/components/messages/ChatMemberRemoved'
+  chatCharacterAdded:
+    address: chat:character_added
+    messages:
+      chatCharacterAdded:
+        $ref: '#/components/messages/ChatCharacterAdded'
+  chatCharacterRemoved:
+    address: chat:character_removed
+    messages:
+      chatCharacterRemoved:
+        $ref: '#/components/messages/ChatCharacterRemoved'
+  chatMessageAdded:
+    address: chat:message_added
+    messages:
+      chatMessageAdded:
+        $ref: '#/components/messages/ChatMessageAdded'
+operations:
+  sendUserUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/userUpdated'
+    summary: Notify the updated user.
+    description: Sent to all active sockets owned by the updated user, except the socket supplied in the corresponding HTTP request.
+    messages:
+      - $ref: '#/channels/userUpdated/messages/userUpdated'
+  sendPersonaCreated:
+    action: send
+    channel:
+      $ref: '#/channels/personaCreated'
+    description: Sent to the persona creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/personaCreated/messages/personaCreated'
+  sendPersonaUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/personaUpdated'
+    description: Sent to the persona creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/personaUpdated/messages/personaUpdated'
+  sendPersonaDeleted:
+    action: send
+    channel:
+      $ref: '#/channels/personaDeleted'
+    description: Sent to the persona creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/personaDeleted/messages/personaDeleted'
+  sendCharacterCreated:
+    action: send
+    channel:
+      $ref: '#/channels/characterCreated'
+    description: Sent to the character creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/characterCreated/messages/characterCreated'
+  sendCharacterUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/characterUpdated'
+    description: Sent to the character creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/characterUpdated/messages/characterUpdated'
+  sendCharacterDeleted:
+    action: send
+    channel:
+      $ref: '#/channels/characterDeleted'
+    description: Sent to the character creator's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/characterDeleted/messages/characterDeleted'
+  sendChatCreated:
+    action: send
+    channel:
+      $ref: '#/channels/chatCreated'
+    description: Sent to every member's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatCreated/messages/chatCreated'
+  sendChatUpdated:
+    action: send
+    channel:
+      $ref: '#/channels/chatUpdated'
+    description: Sent to active sockets in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatUpdated/messages/chatUpdated'
+  sendChatDeleted:
+    action: send
+    channel:
+      $ref: '#/channels/chatDeleted'
+    description: Sent to active sockets in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatDeleted/messages/chatDeleted'
+  sendChatAdded:
+    action: send
+    channel:
+      $ref: '#/channels/chatAdded'
+    description: Sent to all active sockets of the newly added member.
+    messages:
+      - $ref: '#/channels/chatAdded/messages/chatAdded'
+  sendChatRemoved:
+    action: send
+    channel:
+      $ref: '#/channels/chatRemoved'
+    description: Sent to the removed member's active sockets, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatRemoved/messages/chatRemoved'
+  sendChatMemberAdded:
+    action: send
+    channel:
+      $ref: '#/channels/chatMemberAdded'
+    description: Sent to active sockets already in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatMemberAdded/messages/chatMemberAdded'
+  sendChatMemberRemoved:
+    action: send
+    channel:
+      $ref: '#/channels/chatMemberRemoved'
+    description: Sent to active sockets remaining in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatMemberRemoved/messages/chatMemberRemoved'
+  sendChatCharacterAdded:
+    action: send
+    channel:
+      $ref: '#/channels/chatCharacterAdded'
+    description: Sent to active sockets in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatCharacterAdded/messages/chatCharacterAdded'
+  sendChatCharacterRemoved:
+    action: send
+    channel:
+      $ref: '#/channels/chatCharacterRemoved'
+    description: Sent to active sockets in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatCharacterRemoved/messages/chatCharacterRemoved'
+  sendChatMessageAdded:
+    action: send
+    channel:
+      $ref: '#/channels/chatMessageAdded'
+    description: Sent to active sockets in the chat, except the initiating socket.
+    messages:
+      - $ref: '#/channels/chatMessageAdded/messages/chatMessageAdded'
+components:
+  messages:
+    UserUpdated:
+      name: 'user:updated'
+      payload:
+        $ref: '#/components/schemas/User'
+    PersonaCreated:
+      name: 'persona:created'
+      payload:
+        $ref: '#/components/schemas/Persona'
+    PersonaUpdated:
+      name: 'persona:updated'
+      payload:
+        $ref: '#/components/schemas/Persona'
+    PersonaDeleted:
+      name: 'persona:deleted'
+      payload:
+        $ref: '#/components/schemas/UidPayload'
+    CharacterCreated:
+      name: 'character:created'
+      payload:
+        $ref: '#/components/schemas/Character'
+    CharacterUpdated:
+      name: 'character:updated'
+      payload:
+        $ref: '#/components/schemas/Character'
+    CharacterDeleted:
+      name: 'character:deleted'
+      payload:
+        $ref: '#/components/schemas/UidPayload'
+    ChatCreated:
+      name: 'chat:created'
+      payload:
+        $ref: '#/components/schemas/Chat'
+    ChatUpdated:
+      name: 'chat:updated'
+      payload:
+        $ref: '#/components/schemas/ChatInfo'
+    ChatDeleted:
+      name: 'chat:deleted'
+      payload:
+        $ref: '#/components/schemas/UidPayload'
+    ChatAdded:
+      name: 'chat:added'
+      payload:
+        $ref: '#/components/schemas/Chat'
+    ChatRemoved:
+      name: 'chat:removed'
+      payload:
+        $ref: '#/components/schemas/UidPayload'
+    ChatMemberAdded:
+      name: 'chat:member_added'
+      payload:
+        $ref: '#/components/schemas/ChatMember'
+    ChatMemberRemoved:
+      name: 'chat:member_removed'
+      payload:
+        $ref: '#/components/schemas/ChatMember'
+    ChatCharacterAdded:
+      name: 'chat:character_added'
+      payload:
+        $ref: '#/components/schemas/ChatCharacter'
+    ChatCharacterRemoved:
+      name: 'chat:character_removed'
+      payload:
+        $ref: '#/components/schemas/ChatCharacter'
+    ChatMessageAdded:
+      name: 'chat:message_added'
+      payload:
+        $ref: '#/components/schemas/Message'
+  schemas:
+    UidPayload:
+      type: object
+      required: [uid]
+      additionalProperties: false
+      properties:
+        uid:
+          type: string
+    Persona:
+      type: object
+      required: [uid, name, description, creator_uid]
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        creator_uid:
+          type: string
+        avatar_uid:
+          type: [string, 'null']
+    Character:
+      type: object
+      required: [uid, name, description, creator_uid]
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        creator_uid:
+          type: string
+        avatar_uid:
+          type: [string, 'null']
+    User:
+      type: object
+      required: [uid, username]
+      properties:
+        uid:
+          type: string
+        username:
+          type: string
+        avatar_uid:
+          type: [string, 'null']
+    ChatInfo:
+      type: object
+      required: [uid, name, created_at, creator_uid]
+      properties:
+        uid:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        creator_uid:
+          type: string
+        avatar_uid:
+          type: [string, 'null']
+    ChatMember:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          required: [joined_at, chat_uid]
+          properties:
+            joined_at:
+              type: string
+              format: date-time
+            chat_uid:
+              type: string
+    ChatCharacter:
+      allOf:
+        - $ref: '#/components/schemas/Character'
+        - type: object
+          required: [connected_at, chat_uid]
+          properties:
+            connected_at:
+              type: string
+              format: date-time
+            chat_uid:
+              type: string
+    Chat:
+      allOf:
+        - $ref: '#/components/schemas/ChatInfo'
+        - type: object
+          required: [members, characters]
+          properties:
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatMember'
+            characters:
+              type: array
+              items:
+                $ref: '#/components/schemas/ChatCharacter'
+    MessageAuthorUid:
+      oneOf:
+        - type: object
+          required: [kind, uid]
+          properties:
+            kind:
+              type: string
+              const: persona
+            uid:
+              type: string
+        - type: object
+          required: [kind, uid]
+          properties:
+            kind:
+              type: string
+              const: character
+            uid:
+              type: string
+    MessageAuthor:
+      oneOf:
+        - allOf:
+            - $ref: '#/components/schemas/Persona'
+            - type: object
+              required: [kind]
+              properties:
+                kind:
+                  type: string
+                  const: persona
+        - allOf:
+            - $ref: '#/components/schemas/Character'
+            - type: object
+              required: [kind]
+              properties:
+                kind:
+                  type: string
+                  const: character
+    MessageInfo:
+      type: object
+      required: [uid, content, created_at, chat_uid, is_removed]
+      properties:
+        uid:
+          type: string
+        author_uid:
+          oneOf:
+            - $ref: '#/components/schemas/MessageAuthorUid'
+            - type: 'null'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        chat_uid:
+          type: string
+        reply_to_message_uid:
+          type: [string, 'null']
+        is_removed:
+          type: boolean
+    Message:
+      type: object
+      required: [uid, content, created_at, chat_uid, is_removed]
+      properties:
+        uid:
+          type: string
+        author:
+          oneOf:
+            - $ref: '#/components/schemas/MessageAuthor'
+            - type: 'null'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        chat_uid:
+          type: string
+        reply_to_message:
+          oneOf:
+            - $ref: '#/components/schemas/MessageInfo'
+            - type: 'null'
+        is_removed:
+          type: boolean
