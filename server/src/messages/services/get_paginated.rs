@@ -67,7 +67,7 @@ pub async fn get_paginated(
         .map_err(|err| GetPaginatedError::Internal(err.to_string()))?;
     let next_page = messages
         .last()
-        .map(|message| stringify_page_data(message.created_at.clone(), message.uid.clone()))
+        .map(|message| stringify_page_data(message.created_at, message.uid.clone()))
         .transpose()?;
 
     Ok(GetPaginatedResult {
