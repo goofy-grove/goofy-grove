@@ -2,7 +2,7 @@ pub mod entities;
 
 use std::fmt::Debug;
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use migration::{Migrator, MigratorTrait};
 use sea_orm::{Database, DatabaseConnection};
 use serde::Deserialize;
@@ -13,7 +13,7 @@ use crate::platform::config::Config;
 #[derive(Debug, Clone, Deserialize)]
 pub struct PageData {
     pub limit: u64,
-    pub next_page: Option<(NaiveDateTime, String)>,
+    pub next_page: Option<(DateTime<Utc>, String)>,
 }
 pub async fn init_db(config: &Config) -> DatabaseConnection {
     info!(target: "application::db", "Initializing database connection...");

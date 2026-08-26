@@ -38,6 +38,10 @@ async fn get_file(
         Ok(content) => Response::builder()
             .status(StatusCode::OK)
             .header(header::CONTENT_TYPE, content_type)
+            .header(
+                header::CACHE_CONTROL,
+                "private, max-age=31536000, immutable",
+            )
             .body(Body::from(content))
             .map_err(|_| ApiError::internal(codes::FILE_RESPONSE_BUILD_FAILED)),
         Err(GetFileError::NotFound) => Err(ApiError::not_found(codes::FILE_NOT_FOUND)),

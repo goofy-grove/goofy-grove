@@ -36,7 +36,7 @@ pub async fn create_chat(deps: &AppDeps, input: CreateChatInput) -> Result<Chat,
         ChatInfo {
             uid,
             name: input.name,
-            created_at: chrono::Utc::now().naive_utc(),
+            created_at: chrono::Utc::now(),
             creator_uid: input.creator_uid,
             avatar_uid: None,
         },

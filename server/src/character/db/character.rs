@@ -1,10 +1,13 @@
 use sea_orm::{
-    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, sea_query,
+    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, JoinType, QueryFilter,
+    QuerySelect, RelationTrait, sea_query,
 };
 use serde::Serialize;
 use thiserror::Error;
 
-use crate::platform::database::entities::{characters, prelude::Characters};
+use crate::platform::database::entities::{
+    characters, chat_characters, chat_members, chats, prelude::Characters,
+};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Character {
@@ -76,6 +79,22 @@ pub async fn load_character(
         .ok_or(LoadCharacterError::NotFound)?;
 
     Ok(model.into())
+}
+
+pub async fn is_visible_to_user(
+    connection: &impl ConnectionTrait,
+    character_uid: &str,
+    user_uid: &str,
+) -> Result<bool, LoadCharacterError> {
+    chat_members::Entity::find()
+        .filter(chat_members::Column::UserUid.eq(user_uid))
+        .join(JoinType::InnerJoin, chat_members::Relation::Chats.def())
+        .join(JoinType::InnerJoin, chats::Relation::ChatCharacters.def())
+        .filter(chat_characters::Column::CharacterUid.eq(character_uid))
+        .one(connection)
+        .await
+        .map(|record| record.is_some())
+        .map_err(|err| LoadCharacterError::InternalError(err.to_string()))
 }
 
 pub async fn save_character(

@@ -68,17 +68,21 @@ pub async fn can_access_file_meta(
     actor_uid: &str,
     meta: &FileMeta,
 ) -> Result<(), FileAccessError> {
-    if actor_uid != scope_owner(&meta.scope) {
-        return Err(FileAccessError::AccessDenied);
-    }
-
     match &meta.scope {
-        FileScope::UserAvatar { .. } => Ok(()),
+        FileScope::UserAvatar { user_uid } => {
+            if actor_uid == user_uid {
+                Ok(())
+            } else {
+                Err(FileAccessError::AccessDenied)
+            }
+        }
         FileScope::PersonaAvatar {
             persona_uid,
             user_uid,
         } => {
-            if persona::is_owner(deps, persona_uid, user_uid).await {
+            if actor_uid == user_uid && persona::is_owner(deps, persona_uid, user_uid).await {
+                Ok(())
+            } else if persona::is_visible_to_user(deps, persona_uid, actor_uid).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)
@@ -88,14 +92,16 @@ pub async fn can_access_file_meta(
             user_uid,
             character_uid,
         } => {
-            if character::is_owner(deps, character_uid, user_uid).await {
+            if actor_uid == user_uid && character::is_owner(deps, character_uid, user_uid).await {
+                Ok(())
+            } else if character::is_visible_to_user(deps, character_uid, actor_uid).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)
             }
         }
         FileScope::ChatAvatar { user_uid, chat_uid } => {
-            if chat::is_member(deps, chat_uid, user_uid).await {
+            if actor_uid == user_uid && chat::is_member(deps, chat_uid, user_uid).await {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)

@@ -1,5 +1,5 @@
 use base64::{Engine, engine::general_purpose::URL_SAFE};
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use thiserror::Error;
 
@@ -30,12 +30,12 @@ fn parse_page_data(page: Option<String>, limit: u64) -> Result<PageData, GetPagi
             .decode(page)
             .map_err(|_| GetPaginatedError::InvalidPageData)?;
 
-        let next_page =
+        let (created_at, uid): (DateTime<Utc>, String) =
             serde_json::from_slice(&decoded).map_err(|_| GetPaginatedError::InvalidPageData)?;
 
         Ok(PageData {
             limit,
-            next_page: Some(next_page),
+            next_page: Some((created_at, uid)),
         })
     } else {
         Ok(PageData {
@@ -46,7 +46,7 @@ fn parse_page_data(page: Option<String>, limit: u64) -> Result<PageData, GetPagi
 }
 
 fn stringify_page_data(
-    created_at: NaiveDateTime,
+    created_at: DateTime<Utc>,
     uid: String,
 ) -> Result<String, GetPaginatedError> {
     let serialized = serde_json::to_string(&(created_at, uid))

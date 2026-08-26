@@ -14,3 +14,9 @@ pub async fn is_owner(deps: &AppDeps, persona_uid: &str, user_uid: &str) -> bool
         .await
         .is_ok()
 }
+
+pub async fn is_visible_to_user(deps: &AppDeps, persona_uid: &str, user_uid: &str) -> bool {
+    db::persona::is_visible_to_user(&deps.db, persona_uid, user_uid)
+        .await
+        .unwrap_or(false)
+}

@@ -14,3 +14,9 @@ pub async fn is_owner(deps: &AppDeps, character_uid: &str, user_uid: &str) -> bo
         .await
         .is_ok_and(|character| character.creator_uid == user_uid)
 }
+
+pub async fn is_visible_to_user(deps: &AppDeps, character_uid: &str, user_uid: &str) -> bool {
+    db::character::is_visible_to_user(&deps.db, character_uid, user_uid)
+        .await
+        .unwrap_or(false)
+}

@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use combine_structs::{Fields, combine_fields};
 use itertools::Itertools;
 use sea_orm::ActiveValue::{NotSet, Set};
@@ -18,7 +18,7 @@ use crate::{character::Character, user::User};
 pub struct ChatMember {
     #[serde(flatten)]
     pub user: User,
-    pub joined_at: NaiveDateTime,
+    pub joined_at: DateTime<Utc>,
     pub chat_uid: String,
 }
 
@@ -26,7 +26,7 @@ pub struct ChatMember {
 pub struct ChatCharacter {
     #[serde(flatten)]
     pub character: Character,
-    pub connected_at: NaiveDateTime,
+    pub connected_at: DateTime<Utc>,
     pub chat_uid: String,
 }
 
@@ -34,7 +34,7 @@ pub struct ChatCharacter {
 pub struct ChatInfo {
     pub uid: String,
     pub name: String,
-    pub created_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
     pub creator_uid: String,
     pub avatar_uid: Option<String>,
 }
@@ -51,7 +51,7 @@ impl From<chats::Model> for ChatInfo {
         ChatInfo {
             uid: model.uid,
             name: model.name,
-            created_at: model.created_at.naive_utc(),
+            created_at: model.created_at,
             creator_uid: model.creator_uid,
             avatar_uid: model.avatar_uid,
         }
@@ -145,7 +145,7 @@ pub async fn save_chat(
     let chat = chats::ActiveModel {
         uid: Set(uid.clone()),
         name: Set(name),
-        created_at: Set(created_at.and_utc()),
+        created_at: Set(created_at),
         creator_uid: Set(creator_uid),
         avatar_uid: Set(avatar_uid),
     };
@@ -179,7 +179,7 @@ fn map_to_chat(
 
             Some(ChatMember {
                 user,
-                joined_at: member.joined_at.naive_utc(),
+                joined_at: member.joined_at,
                 chat_uid: chat.uid.clone(),
             })
         })
@@ -190,7 +190,7 @@ fn map_to_chat(
         name: chat.name,
         creator_uid: chat.creator_uid,
         avatar_uid: chat.avatar_uid,
-        created_at: chat.created_at.naive_utc(),
+        created_at: chat.created_at,
         members,
         characters: vec![],
     }
@@ -226,7 +226,7 @@ pub async fn load_chat(
         .filter_map(|(chat_character, character)| {
             Some(ChatCharacter {
                 character: character?.into(),
-                connected_at: chat_character.connected_at.naive_utc(),
+                connected_at: chat_character.connected_at,
                 chat_uid: chat_character.chat_uid,
             })
         })
@@ -289,7 +289,7 @@ pub async fn load_user_chats(
                 chat_character.chat_uid.clone(),
                 ChatCharacter {
                     character: character?.into(),
-                    connected_at: chat_character.connected_at.naive_utc(),
+                    connected_at: chat_character.connected_at,
                     chat_uid: chat_character.chat_uid,
                 },
             ))
@@ -327,7 +327,7 @@ pub async fn add_character_to_chat(
 
     Ok(ChatCharacter {
         character,
-        connected_at: model.connected_at.naive_utc(),
+        connected_at: model.connected_at,
         chat_uid: model.chat_uid,
     })
 }
@@ -374,7 +374,7 @@ pub async fn add_user_to_chat(
 
     Ok(ChatMember {
         user,
-        joined_at: result.joined_at.naive_utc(),
+        joined_at: result.joined_at,
         chat_uid: result.chat_uid,
     })
 }

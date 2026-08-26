@@ -1,10 +1,13 @@
 use sea_orm::{
-    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, sea_query,
+    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, JoinType, QueryFilter,
+    QuerySelect, RelationTrait, sea_query,
 };
 use serde::Serialize;
 use thiserror::Error;
 
-use crate::platform::database::entities::{personas, prelude::Personas};
+use crate::platform::database::entities::{
+    chat_members, chats, messages, personas, prelude::Personas,
+};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Persona {
@@ -77,6 +80,22 @@ pub async fn load_persona(
         .map_err(|err| LoadPersonaError::InternalError(err.to_string()))?
         .map(Into::into)
         .ok_or(LoadPersonaError::NotFound)
+}
+
+pub async fn is_visible_to_user(
+    connection: &impl ConnectionTrait,
+    persona_uid: &str,
+    user_uid: &str,
+) -> Result<bool, LoadPersonaError> {
+    chat_members::Entity::find()
+        .filter(chat_members::Column::UserUid.eq(user_uid))
+        .join(JoinType::InnerJoin, chat_members::Relation::Chats.def())
+        .join(JoinType::InnerJoin, chats::Relation::Messages.def())
+        .filter(messages::Column::AuthorPersonaUid.eq(persona_uid))
+        .one(connection)
+        .await
+        .map(|record| record.is_some())
+        .map_err(|err| LoadPersonaError::InternalError(err.to_string()))
 }
 
 pub async fn save_persona(

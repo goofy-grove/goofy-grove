@@ -35,7 +35,7 @@ pub async fn send(deps: &AppDeps, input: SendInput) -> Result<Message, SendMessa
             content: input.content,
             author_uid: Some(input.author_uid),
             chat_uid: input.chat_uid,
-            created_at: chrono::Utc::now().naive_utc(),
+            created_at: chrono::Utc::now(),
             is_removed: false,
             reply_to_message_uid: input.reply_to_message_uid,
         },

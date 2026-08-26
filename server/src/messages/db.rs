@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use migration::OnConflict;
 use sea_orm::{ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, SqlErr};
@@ -21,7 +21,7 @@ pub struct MessageInfo {
     pub uid: String,
     pub author_uid: Option<MessageAuthorUid>,
     pub content: String,
-    pub created_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
     pub chat_uid: String,
     pub reply_to_message_uid: Option<String>,
     pub is_removed: bool,
@@ -41,7 +41,7 @@ impl From<messages::Model> for MessageInfo {
             uid: message.uid,
             author_uid,
             content: message.content,
-            created_at: message.created_at.naive_utc(),
+            created_at: message.created_at,
             chat_uid: message.chat_uid,
             reply_to_message_uid: message.reply_to_message_uid,
             is_removed: message.is_removed,
@@ -61,7 +61,7 @@ pub struct Message {
     pub uid: String,
     pub author: Option<MessageAuthor>,
     pub content: String,
-    pub created_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
     pub chat_uid: String,
     pub reply_to_message: Option<MessageInfo>,
     pub is_removed: bool,
@@ -95,7 +95,7 @@ impl
             uid: message.uid,
             author,
             content: message.content,
-            created_at: message.created_at.naive_utc(),
+            created_at: message.created_at,
             chat_uid: message.chat_uid,
             reply_to_message,
             is_removed: message.is_removed,
@@ -246,7 +246,7 @@ pub async fn save_message(
     let model = messages::ActiveModel {
         uid: Set(message.uid),
         content: Set(message.content),
-        created_at: Set(message.created_at.and_utc()),
+        created_at: Set(message.created_at),
         author_persona_uid: Set(author_persona_uid),
         author_character_uid: Set(author_character_uid),
         chat_uid: Set(message.chat_uid),
