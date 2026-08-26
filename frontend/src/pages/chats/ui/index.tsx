@@ -12,6 +12,7 @@ export const ChatsPage: FC = () => {
   return (
     <div className="chats-page">
       <Text tag="h2">{t('menu.chats')}</Text>
+
       <Text>{t('common.coming_soon')}</Text>
     </div>
   );

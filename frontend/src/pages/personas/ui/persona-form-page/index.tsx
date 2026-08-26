@@ -72,6 +72,7 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
         <Text tag="h2">
           {isEditMode ? t('persona.edit_title') : t('persona.create_title')}
         </Text>
+
         <Button
           variant="ghost"
           onClick={() => void navigate({ to: '/personas' })}
@@ -118,6 +119,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
     return (
       <div className="persona-form-page">
         <Text>{t('persona.not_found')}</Text>
+
         <Button onClick={() => void navigate({ to: '/personas' })}>
           {t('common.back')}
         </Button>

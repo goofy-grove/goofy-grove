@@ -5,11 +5,14 @@ import tsParser from '@typescript-eslint/parser';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+import logicalBlockSpacing from './eslint-rules/logical-block-spacing.mjs';
 
 export default defineConfig(
   globalIgnores(['dist']),
@@ -46,6 +49,8 @@ export default defineConfig(
       '@dword-design/import-alias/prefer-alias': {
         shouldReadTsConfig: false,
       },
+      local: logicalBlockSpacing,
+      react,
     },
     languageOptions: {
       ecmaVersion: 2023,
@@ -69,6 +74,9 @@ export default defineConfig(
     },
     rules: {
       'prettier/prettier': 'error',
+      'react/jsx-newline': ['error', { prevent: false }],
+      'local/logical-block-spacing': 'error',
+      'no-multiple-empty-lines': ['error', { max: 1, maxBOF: 0, maxEOF: 0 }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
       '@dword-design/import-alias/prefer-alias': [

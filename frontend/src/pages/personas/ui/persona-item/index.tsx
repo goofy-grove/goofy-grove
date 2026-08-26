@@ -45,6 +45,7 @@ export const PersonaItem: FC<PersonaItemProps> = ({
         <Text className="persona-item__info__name" tag="h3">
           {name}
         </Text>
+
         <Text className="persona-item__info__description">{description}</Text>
       </div>
 
@@ -64,6 +65,7 @@ export const PersonaItem: FC<PersonaItemProps> = ({
             >
               {t('persona.actions.edit')}
             </Button>
+
             <Button
               variant="ghost"
               color="error"

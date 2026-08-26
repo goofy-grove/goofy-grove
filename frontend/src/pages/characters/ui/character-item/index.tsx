@@ -45,6 +45,7 @@ export const CharacterItem: FC<CharacterItemProps> = ({
         <Text className="character-item__info__name" tag="h3">
           {name}
         </Text>
+
         <Text className="character-item__info__description">{description}</Text>
       </div>
 
@@ -64,6 +65,7 @@ export const CharacterItem: FC<CharacterItemProps> = ({
             >
               {t('character.actions.edit')}
             </Button>
+
             <Button
               variant="ghost"
               color="error"

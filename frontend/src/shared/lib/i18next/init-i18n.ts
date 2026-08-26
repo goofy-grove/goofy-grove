@@ -14,6 +14,7 @@ export const initI18n = async (): Promise<void> => {
 
   initPromise = (async () => {
     const localeSettings = await getAvailableLocales();
+
     setLocaleSettings(localeSettings);
 
     // eslint-disable-next-line import-x/no-named-as-default-member

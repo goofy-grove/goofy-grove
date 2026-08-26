@@ -25,6 +25,7 @@ export const PersonaForm: FC<PersonaFormProps> = ({
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
+
     onAvatarChange(file);
   };
 
@@ -39,6 +40,7 @@ export const PersonaForm: FC<PersonaFormProps> = ({
             fileUid={avatarUid}
             previewUrl={avatarPreviewUrl}
           />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -47,6 +49,7 @@ export const PersonaForm: FC<PersonaFormProps> = ({
             disabled={isPending}
             onChange={handleFileChange}
           />
+
           <Button
             variant="ghost"
             disabled={isPending}

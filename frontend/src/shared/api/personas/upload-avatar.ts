@@ -7,6 +7,7 @@ export const putAvatar = withValidation(
   PersonaSchema,
   async (uid: string, file: File) => {
     const formData = new FormData();
+
     formData.append('file', file);
 
     const response = await api.put(`/personas/${uid}/avatar`, formData, {

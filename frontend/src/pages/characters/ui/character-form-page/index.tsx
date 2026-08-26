@@ -72,6 +72,7 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
         <Text tag="h2">
           {isEditMode ? t('character.edit_title') : t('character.create_title')}
         </Text>
+
         <Button
           variant="ghost"
           onClick={() => void navigate({ to: '/characters' })}
@@ -123,6 +124,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
     return (
       <div className="character-form-page">
         <Text>{t('character.not_found')}</Text>
+
         <Button onClick={() => void navigate({ to: '/characters' })}>
           {t('common.back')}
         </Button>

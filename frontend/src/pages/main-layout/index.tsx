@@ -8,6 +8,7 @@ export const MainLayout = () => {
   return (
     <div className="main-layout">
       <Sidebar />
+
       <div className="main-layout__content">
         <Outlet />
       </div>

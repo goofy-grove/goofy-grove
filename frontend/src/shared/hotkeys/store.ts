@@ -16,6 +16,7 @@ export const useHotkeysStore = create<HotkeysStore>((set) => ({
   resetOverride: (id: HotkeyId) =>
     set((state) => {
       const rest = { ...state.overrides };
+
       delete rest[id];
 
       return { overrides: rest };

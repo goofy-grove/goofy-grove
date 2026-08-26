@@ -11,5 +11,11 @@ export default {
     'max-nesting-depth': null,
     'selector-no-qualifying-type': null,
     'selector-max-id': 1,
+    'selector-class-pattern': [
+      '^[a-z0-9]+(?:-[a-z0-9]+)*(?:__[a-z0-9]+(?:-[a-z0-9]+)*)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$',
+      {
+        message: 'Selector should use kebab-case with optional BEM suffixes.',
+      },
+    ],
   },
 };
