@@ -1,0 +1,13 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-default);
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+  }
+}

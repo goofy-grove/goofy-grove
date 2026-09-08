@@ -5,6 +5,7 @@ export * from './card';
 export * from './confirm-modal';
 export * from './dropdown';
 export * from './file-avatar';
+export * from './header';
 export * from './hooks';
 export * from './icons/icon-loader';
 export * from './input';

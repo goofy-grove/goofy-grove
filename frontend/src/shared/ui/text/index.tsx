@@ -8,11 +8,15 @@ export const Text: FC<TextProps> = ({
   children,
   variant,
   className,
+  ellipsis,
   tag = 'p',
   ...rest
 }) =>
   createElement(
     tag,
-    { className: `text ${variant ?? ''} ${className ?? ''}`, ...rest },
+    {
+      className: `text ${variant ?? ''} ${className ?? ''} ${ellipsis ? 'ellipsis' : ''}`,
+      ...rest,
+    },
     children,
   );

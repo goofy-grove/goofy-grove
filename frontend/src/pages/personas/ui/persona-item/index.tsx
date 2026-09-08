@@ -38,15 +38,21 @@ export const PersonaItem: FC<PersonaItemProps> = ({
   };
 
   return (
-    <div className="persona-item" key={uid}>
-      <FileAvatar className="persona-item__avatar" fileUid={avatarUid} />
+    <div className="persona-item" key={uid} onClick={handleEdit}>
+      <FileAvatar
+        className="persona-item__avatar"
+        variant="unbordered"
+        fileUid={avatarUid}
+      />
 
       <div className="persona-item__info">
-        <Text className="persona-item__info__name" tag="h3">
+        <Text className="persona-item__info__name" tag="h3" ellipsis>
           {name}
         </Text>
 
-        <Text className="persona-item__info__description">{description}</Text>
+        <Text className="persona-item__info__description" ellipsis>
+          {description}
+        </Text>
       </div>
 
       <div className="persona-item__actions">

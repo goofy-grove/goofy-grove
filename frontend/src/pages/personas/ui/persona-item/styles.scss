@@ -1,11 +1,15 @@
+@use '@shared/ui/styles/media' as media;
+
 .persona-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
 
   border-radius: var(--border-radius-base);
-
-  padding: 8px 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-panel);
 
   &:hover {
     cursor: pointer;
@@ -16,8 +20,31 @@
     opacity: 1;
   }
 
-  &__avatar {
-    flex-shrink: 0;
+  @include media.mobile-xs {
+    &__list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .persona-item {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+    }
+
+    .persona-item__avatar.avatar {
+      width: 56px;
+      height: 56px;
+      aspect-ratio: 1;
+      border-radius: var(--border-radius-base);
+    }
+
+    .persona-item__actions {
+      opacity: 1;
+    }
   }
 
   &__actions__menu {
@@ -34,9 +61,12 @@
   }
 
   &__info {
+    width: 100%;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 0 8px;
 
     &__name {
       max-width: 100%;
@@ -58,6 +88,6 @@
   &__actions {
     opacity: 0;
     flex-shrink: 0;
-    margin-left: auto;
+    margin: auto 0 0 auto;
   }
 }

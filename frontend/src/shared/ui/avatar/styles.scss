@@ -9,6 +9,15 @@
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
 
+  &.unbordered {
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
   &.small {
     width: 32px;
     height: 32px;

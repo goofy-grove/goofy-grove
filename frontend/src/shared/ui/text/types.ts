@@ -17,6 +17,7 @@ type TextOwnProps =
 
 export type TextProps = {
   children: ReactNode;
+  ellipsis?: boolean;
   variant?:
     | 'primary'
     | 'secondary'

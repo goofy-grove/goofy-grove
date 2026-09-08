@@ -27,9 +27,10 @@
   &__button {
     width: 100%;
     justify-content: flex-start;
+    border: none;
 
     &--active {
-      background-color: var(--bg-hover);
+      background: linear-gradient(90deg, var(--accent-glow), transparent);
       color: var(--accent-primary);
     }
   }

@@ -4,6 +4,12 @@
 
   margin: 0;
 
+  &.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &.secondary {
     color: var(--text-secondary);
   }

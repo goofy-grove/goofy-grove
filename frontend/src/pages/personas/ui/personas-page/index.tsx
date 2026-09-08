@@ -9,7 +9,7 @@ import {
 } from '@pages/personas/model';
 import { PersonaItem } from '@pages/personas/ui/persona-item';
 
-import { Button, ConfirmModal, IconLoader, Text } from '@shared/ui';
+import { Button, ConfirmModal, IconLoader, PageHeader, Text } from '@shared/ui';
 
 import './styles.scss';
 
@@ -41,17 +41,23 @@ export const PersonasPage: FC = () => {
 
     void deletePersona
       .mutateAsync({ uid: pendingDeleteUid })
-      .then(() => {
-        setPendingDeleteUid(null);
-      })
+      .then(() => setPendingDeleteUid(null))
       .catch(() => undefined);
   };
 
   return (
     <div className="personas-page">
-      <div className="personas-page__header">
-        <Text tag="h2">{t('persona.list_title')}</Text>
-      </div>
+      <PageHeader
+        className="personas-page__header"
+        title={t('persona.list_title')}
+      >
+        <Button
+          onClick={() => void navigate({ to: '/personas/new' })}
+          leftIcon={<IconPlusFilled />}
+        />
+      </PageHeader>
+
+      {/* Set as tooltip in the future <Text>{t('persona.actions.create')}</Text>*/}
 
       {isLoading && (
         <div className="personas-page__loader">
@@ -78,16 +84,6 @@ export const PersonasPage: FC = () => {
               onEdit={handleEdit}
             />
           ))}
-      </div>
-
-      <div className="personas-page__actions">
-        <Button
-          className="personas-page__actions__button"
-          leftIcon={<IconPlusFilled />}
-          onClick={() => void navigate({ to: '/personas/new' })}
-        >
-          {t('persona.actions.create')}
-        </Button>
       </div>
 
       <ConfirmModal
