@@ -72,7 +72,7 @@ export const CharactersPage: FC = () => {
               uid={character.uid}
               name={character.name}
               description={character.description}
-              avatarUid={character.avatarUid}
+              avatarUid={character.avatar_uid}
               key={character.uid}
               onDelete={handleDelete}
               onEdit={handleEdit}

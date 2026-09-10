@@ -1,27 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { api, socket } from '@shared/api';
+import type { Persona } from '@shared/api';
 import { queryClient } from '@shared/lib';
 
 import { PERSONAS_QUERY_KEY } from './constants';
-import { Persona } from './entity';
 
-import type { PersonaDeletedEventData, PersonaEventData } from './types';
-
-const toPersona = (persona: {
-  uid: string;
-  name: string;
-  description: string;
-  creator_uid: string;
-  avatar_uid?: string | null;
-}) =>
-  new Persona(
-    persona.uid,
-    persona.name,
-    persona.description,
-    persona.creator_uid,
-    persona.avatar_uid ?? null,
-  );
+import type { PersonaDeletedEventData } from './types';
 
 export const usePersonasQuery = () =>
   useQuery({
@@ -33,26 +18,21 @@ export const usePersonasQuery = () =>
         throw new Error('Failed to fetch personas');
       }
 
-      return response.data.map(toPersona);
+      return response.data;
     },
   });
 
-socket.on('persona:created', (persona: PersonaEventData) => {
-  const newPersona = toPersona(persona);
-
+socket.on('persona:created', (persona: Persona) => {
   queryClient.setQueryData<Persona[]>([PERSONAS_QUERY_KEY], (old) =>
-    old ? [...old, newPersona] : [newPersona],
+    old ? [...old, persona] : [persona],
   );
 });
 
-socket.on('persona:updated', (persona: PersonaEventData) => {
-  const updatedPersona = toPersona(persona);
-
+socket.on('persona:updated', (persona: Persona) => {
   queryClient.setQueryData<Persona[]>(
     [PERSONAS_QUERY_KEY],
     (old) =>
-      old?.map((item) => (item.uid !== persona.uid ? item : updatedPersona)) ||
-      [],
+      old?.map((item) => (item.uid !== persona.uid ? item : persona)) || [],
   );
 });
 

@@ -1,14 +1,14 @@
-import type { AuthenticatedUser } from './entity';
+import type { User } from '@shared/api';
 
 export interface AuthStore {
-  currentUser: AuthenticatedUser | null;
+  currentUser: User | null;
 
-  login: (user: AuthenticatedUser) => void;
+  login: (user: User) => void;
   logout: () => void;
 }
 
 export type AuthContextData = {
-  user: AuthenticatedUser | null;
+  user: User | null;
 
   login: (username: string, password: string) => Promise<void>;
   getMe: () => Promise<void>;

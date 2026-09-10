@@ -1,4 +1,3 @@
-export { Character } from './entity';
 export { useCharactersQuery } from './query';
 export {
   useCreateCharacterMutation,

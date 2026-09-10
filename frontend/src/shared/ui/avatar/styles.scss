@@ -10,7 +10,7 @@
   border: 1px solid var(--border-default);
 
   &.unbordered {
-    border: none;
+    border: 0;
     border-radius: 0;
     background-color: transparent;
     width: 100%;

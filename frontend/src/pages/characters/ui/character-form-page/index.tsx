@@ -150,7 +150,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
       uid={character!.uid}
       initialName={character!.name}
       initialDescription={character!.description}
-      avatarUid={character!.avatarUid}
+      avatarUid={character!.avatar_uid}
     />
   );
 };

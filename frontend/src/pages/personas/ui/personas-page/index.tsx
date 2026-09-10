@@ -78,7 +78,7 @@ export const PersonasPage: FC = () => {
               uid={persona.uid}
               name={persona.name}
               description={persona.description}
-              avatarUid={persona.avatarUid}
+              avatarUid={persona.avatar_uid}
               key={persona.uid}
               onDelete={handleDelete}
               onEdit={handleEdit}

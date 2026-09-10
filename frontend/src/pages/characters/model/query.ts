@@ -1,27 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { api, socket } from '@shared/api';
+import type { Character } from '@shared/api';
 import { queryClient } from '@shared/lib';
 
 import { CHARACTERS_QUERY_KEY } from './constants';
-import { Character } from './entity';
 
-import type { CharacterDeletedEventData, CharacterEventData } from './types';
-
-const toCharacter = (character: {
-  uid: string;
-  name: string;
-  description: string;
-  creator_uid: string;
-  avatar_uid?: string | null;
-}) =>
-  new Character(
-    character.uid,
-    character.name,
-    character.description,
-    character.creator_uid,
-    character.avatar_uid ?? null,
-  );
+import type { CharacterDeletedEventData } from './types';
 
 export const useCharactersQuery = () =>
   useQuery({
@@ -33,27 +18,21 @@ export const useCharactersQuery = () =>
         throw new Error('Failed to fetch characters');
       }
 
-      return response.data.map(toCharacter);
+      return response.data;
     },
   });
 
-socket.on('character:created', (character: CharacterEventData) => {
-  const newCharacter = toCharacter(character);
-
+socket.on('character:created', (character: Character) => {
   queryClient.setQueryData<Character[]>([CHARACTERS_QUERY_KEY], (old) =>
-    old ? [...old, newCharacter] : [newCharacter],
+    old ? [...old, character] : [character],
   );
 });
 
-socket.on('character:updated', (character: CharacterEventData) => {
-  const updatedCharacter = toCharacter(character);
-
+socket.on('character:updated', (character: Character) => {
   queryClient.setQueryData<Character[]>(
     [CHARACTERS_QUERY_KEY],
     (old) =>
-      old?.map((item) =>
-        item.uid !== character.uid ? item : updatedCharacter,
-      ) || [],
+      old?.map((item) => (item.uid !== character.uid ? item : character)) || [],
   );
 });
 

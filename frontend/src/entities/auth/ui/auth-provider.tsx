@@ -1,8 +1,4 @@
-import {
-  AuthContext,
-  AuthenticatedUser,
-  useAuthStore,
-} from '@entities/auth/model';
+import { AuthContext, useAuthStore } from '@entities/auth/model';
 
 import { api } from '@shared/api';
 
@@ -19,9 +15,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error(currentUser.data.code);
     }
 
-    loginUser(
-      new AuthenticatedUser(currentUser.data.uid, currentUser.data.username),
-    );
+    loginUser(currentUser.data);
   };
 
   const getMe = async () => {
@@ -33,9 +27,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error(currentUser.data.code);
     }
 
-    loginUser(
-      new AuthenticatedUser(currentUser.data.uid, currentUser.data.username),
-    );
+    loginUser(currentUser.data);
   };
 
   const logout = async () => {

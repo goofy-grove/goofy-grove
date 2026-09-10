@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const UserResponseSchema = z.object({
+export const UserSchema = z.object({
   uid: z.string(),
   username: z.string(),
 });

@@ -4,9 +4,9 @@ import { v4 } from 'uuid';
 import { useAuthStore } from '@entities/auth';
 
 import { api, ApiRequestError } from '@shared/api';
+import type { Character } from '@shared/api';
 
 import { CHARACTERS_QUERY_KEY } from './constants';
-import { Character } from './entity';
 
 export const useCreateCharacterMutation = () =>
   useMutation({
@@ -41,13 +41,13 @@ export const useCreateCharacterMutation = () =>
         throw new Error('User is not logged in');
       }
 
-      const optimisticResult = new Character(
-        v4(),
+      const optimisticResult: Character = {
+        uid: v4(),
         name,
         description,
-        currentUserId,
-        null,
-      );
+        creator_uid: currentUserId,
+        avatar_uid: null,
+      };
 
       context.client.setQueryData<Character[]>([CHARACTERS_QUERY_KEY], (old) =>
         old ? [...old, optimisticResult] : [optimisticResult],
@@ -77,20 +77,12 @@ export const useCreateCharacterMutation = () =>
         throw new ApiRequestError(result.data);
       }
 
-      const newCharacter = new Character(
-        result.data.uid,
-        result.data.name,
-        result.data.description,
-        result.data.creator_uid,
-        result.data.avatar_uid ?? null,
-      );
-
       context.client.setQueryData<Character[]>(
         [CHARACTERS_QUERY_KEY],
         (old) =>
           old?.map((character) =>
-            character.uid === onMutateResult.uid ? newCharacter : character,
-          ) || [newCharacter],
+            character.uid === onMutateResult.uid ? result.data : character,
+          ) || [result.data],
       );
     },
   });
@@ -135,13 +127,7 @@ export const useUpdateCharacterMutation = () =>
         (old) =>
           old?.map((character) =>
             character.uid === uid
-              ? new Character(
-                  character.uid,
-                  name,
-                  description,
-                  character.creatorUid,
-                  character.avatarUid,
-                )
+              ? { ...character, name, description }
               : character,
           ) || [],
       );
@@ -166,20 +152,12 @@ export const useUpdateCharacterMutation = () =>
         throw new ApiRequestError(result.data);
       }
 
-      const updatedCharacter = new Character(
-        result.data.uid,
-        result.data.name,
-        result.data.description,
-        result.data.creator_uid,
-        result.data.avatar_uid ?? null,
-      );
-
       context.client.setQueryData<Character[]>(
         [CHARACTERS_QUERY_KEY],
         (old) =>
           old?.map((character) =>
-            character.uid === uid ? updatedCharacter : character,
-          ) || [updatedCharacter],
+            character.uid === uid ? result.data : character,
+          ) || [result.data],
       );
     },
   });

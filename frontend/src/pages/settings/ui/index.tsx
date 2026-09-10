@@ -22,7 +22,9 @@ export const SettingsPage: FC = () => {
   return (
     <div className="settings-page">
       <Text tag="h2">{t('menu.settings')}</Text>
+
       <LocaleSwitcher />
+
       <Button color="error" onClick={() => void handleLogout()}>
         {t('auth.logout')}
       </Button>

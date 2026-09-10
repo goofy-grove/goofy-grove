@@ -4,9 +4,9 @@ import { v4 } from 'uuid';
 import { useAuthStore } from '@entities/auth';
 
 import { api, ApiRequestError } from '@shared/api';
+import type { Persona } from '@shared/api';
 
 import { PERSONAS_QUERY_KEY } from './constants';
-import { Persona } from './entity';
 
 export const useCreatePersonaMutation = () =>
   useMutation({
@@ -41,13 +41,13 @@ export const useCreatePersonaMutation = () =>
         throw new Error('User is not logged in');
       }
 
-      const optimisticResult = new Persona(
-        v4(),
+      const optimisticResult: Persona = {
+        uid: v4(),
         name,
         description,
-        currentUserId,
-        null,
-      );
+        creator_uid: currentUserId,
+        avatar_uid: null,
+      };
 
       context.client.setQueryData<Persona[]>([PERSONAS_QUERY_KEY], (old) =>
         old ? [...old, optimisticResult] : [optimisticResult],
@@ -75,20 +75,12 @@ export const useCreatePersonaMutation = () =>
         throw new ApiRequestError(result.data);
       }
 
-      const newPersona = new Persona(
-        result.data.uid,
-        result.data.name,
-        result.data.description,
-        result.data.creator_uid,
-        result.data.avatar_uid ?? null,
-      );
-
       context.client.setQueryData<Persona[]>(
         [PERSONAS_QUERY_KEY],
         (old) =>
           old?.map((persona) =>
-            persona.uid === onMutateResult.uid ? newPersona : persona,
-          ) || [newPersona],
+            persona.uid === onMutateResult.uid ? result.data : persona,
+          ) || [result.data],
       );
     },
   });
@@ -132,15 +124,7 @@ export const useUpdatePersonaMutation = () =>
         [PERSONAS_QUERY_KEY],
         (old) =>
           old?.map((persona) =>
-            persona.uid === uid
-              ? new Persona(
-                  persona.uid,
-                  name,
-                  description,
-                  persona.creatorUid,
-                  persona.avatarUid,
-                )
-              : persona,
+            persona.uid === uid ? { ...persona, name, description } : persona,
           ) || [],
       );
 
@@ -164,20 +148,12 @@ export const useUpdatePersonaMutation = () =>
         throw new ApiRequestError(result.data);
       }
 
-      const updatedPersona = new Persona(
-        result.data.uid,
-        result.data.name,
-        result.data.description,
-        result.data.creator_uid,
-        result.data.avatar_uid ?? null,
-      );
-
       context.client.setQueryData<Persona[]>(
         [PERSONAS_QUERY_KEY],
         (old) =>
           old?.map((persona) =>
-            persona.uid === uid ? updatedPersona : persona,
-          ) || [updatedPersona],
+            persona.uid === uid ? result.data : persona,
+          ) || [result.data],
       );
     },
   });

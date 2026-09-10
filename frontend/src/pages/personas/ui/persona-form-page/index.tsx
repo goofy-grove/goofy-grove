@@ -145,7 +145,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
       uid={persona!.uid}
       initialName={persona!.name}
       initialDescription={persona!.description}
-      avatarUid={persona!.avatarUid}
+      avatarUid={persona!.avatar_uid}
     />
   );
 };
