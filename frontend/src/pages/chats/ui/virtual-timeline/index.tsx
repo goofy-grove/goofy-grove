@@ -10,12 +10,12 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { CHAT_PAGE_SIZE } from '@pages/chats/model';
-import { ChatMessage } from '@pages/chats/ui/chat-view/components/chat-message';
+import { ChatMessage } from '@pages/chats/ui/chat-message';
 
 import { Button } from '@shared/ui';
 
-import type { FC } from 'react';
 import type { VirtualTimelineProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 

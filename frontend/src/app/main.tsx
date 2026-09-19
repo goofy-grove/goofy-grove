@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 
-import './assets/general.scss';
+import './styles/general.scss';
 
 import { initI18n } from '@shared/lib';
 

@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
-import { PersonaSelect } from '@pages/chats/ui/chat-view/components/persona-select';
-import { RichEditor } from '@pages/chats/ui/chat-view/components/rich-editor';
+import { ChatRole } from '@pages/chats/ui/chat-role';
+import { PersonaSelect } from '@pages/chats/ui/persona-select';
+import { RichEditor } from '@pages/chats/ui/rich-editor';
 
 import type { ChatComposerProps } from './types';
 import type { FC } from 'react';
 
-import '@pages/chats/ui/chat-view/components/role.scss';
 import './styles.scss';
 
 export const ChatComposer: FC<ChatComposerProps> = ({
@@ -34,7 +34,7 @@ export const ChatComposer: FC<ChatComposerProps> = ({
           onChange={onPersonaChange}
         />
 
-        <span className="chat-role chat-role--persona">{t('persona')}</span>
+        <ChatRole kind="persona" />
       </div>
 
       <RichEditor

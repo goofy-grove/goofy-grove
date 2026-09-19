@@ -34,13 +34,7 @@ export function ChatPreview({
   state = 'conversation',
   background = false,
 }: ChatPreviewProps) {
-  return (
-    <ChatScene
-      key={state}
-      state={state}
-      background={background}
-    />
-  );
+  return <ChatScene key={state} state={state} background={background} />;
 }
 
 function CharacterEditor({

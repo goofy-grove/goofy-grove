@@ -46,7 +46,11 @@ export const Select: FC<SelectProps> = ({
         '[role="option"]',
       ),
     );
-    if (!options.length) return;
+
+    if (!options.length) {
+      return;
+    }
+
     const index = options.indexOf(document.activeElement as HTMLButtonElement);
     let next: number;
 

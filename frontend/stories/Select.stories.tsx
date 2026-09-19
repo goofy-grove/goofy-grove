@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { expect, userEvent, within } from 'storybook/test';
 
 import { Select } from '@shared/ui/select';
-
 import type { SelectItem } from '@shared/ui/select/types';
+
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 function SelectPreview({

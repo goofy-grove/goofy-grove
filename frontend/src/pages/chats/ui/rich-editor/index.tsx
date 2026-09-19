@@ -11,19 +11,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { richTextExtensions } from '@pages/chats/lib';
+import { FormattingToolbar } from '@pages/chats/ui/formatting-toolbar';
 
 import { Button } from '@shared/ui';
-
-import { FormattingToolbar } from './components/formatting-toolbar';
 
 import type { SelectionMenuProps, RichEditorProps } from './types';
 import type { FC } from 'react';
 
-import '@pages/chats/ui/chat-view/components/rich-message/styles.scss';
+import '@pages/chats/ui/rich-message/styles.scss';
 import './styles.scss';
 
-// BubbleMenu dispatches a TipTap transaction when these props change.
-// Keep references stable so transaction-driven renders cannot feed that effect.
 const selectionMenuOptions: SelectionMenuProps['options'] = {
   placement: 'top',
   offset: 12,

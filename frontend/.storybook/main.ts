@@ -7,7 +7,7 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: { builder: { viteConfigPath: '.storybook/vite.config.ts' } },
   },
-  staticDirs: ['../public', { from: '../src/app/assets/fonts', to: '/fonts' }],
+  staticDirs: ['../public', { from: '../src/app/styles/fonts', to: '/fonts' }],
   core: { disableTelemetry: true },
 };
 

@@ -2,10 +2,10 @@ import { IconTrees, IconUsers } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { CharacterPanel } from './components/character-panel';
-import { CharacterThinking } from './components/character-thinking';
-import { ChatComposer } from './components/chat-composer';
-import { VirtualTimeline } from './components/virtual-timeline';
+import { CharacterPanel } from '@pages/chats/ui/character-panel';
+import { CharacterThinking } from '@pages/chats/ui/character-thinking';
+import { ChatComposer } from '@pages/chats/ui/chat-composer';
+import { VirtualTimeline } from '@pages/chats/ui/virtual-timeline';
 
 import type { ChatViewProps } from './types';
 import type { CSSProperties, FC } from 'react';

@@ -4,9 +4,10 @@ import {
   toChatMessage,
   toSendMessage,
 } from '@pages/chats/model';
-
 import type { ChatMessageData } from '@pages/chats/model';
+
 import type { MessageAuthorDto } from '@shared/api/messages';
+
 import type { JSONContent } from '@tiptap/react';
 
 export const text = (value: string, mark?: string): JSONContent => ({

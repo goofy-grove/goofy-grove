@@ -2,16 +2,16 @@ import { IconPencil, IconRefresh } from '@tabler/icons-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IdentityAvatar } from '@pages/chats/ui/chat-view/components/identity-avatar';
-import { RichEditor } from '@pages/chats/ui/chat-view/components/rich-editor';
-import { RichMessage } from '@pages/chats/ui/chat-view/components/rich-message';
+import { ChatRole } from '@pages/chats/ui/chat-role';
+import { IdentityAvatar } from '@pages/chats/ui/identity-avatar';
+import { RichEditor } from '@pages/chats/ui/rich-editor';
+import { RichMessage } from '@pages/chats/ui/rich-message';
 
 import { Button } from '@shared/ui';
 
 import type { ChatMessageProps } from './types';
 import type { FC } from 'react';
 
-import '@pages/chats/ui/chat-view/components/role.scss';
 import './styles.scss';
 
 export const ChatMessage: FC<ChatMessageProps> = ({
@@ -30,14 +30,6 @@ export const ChatMessage: FC<ChatMessageProps> = ({
     !message.removed &&
     message.status !== 'failed' &&
     !editing;
-
-  const getAuthorLabel = () => {
-    if (message.author) {
-      return message.author?.kind === 'persona' ? t('persona') : t('character');
-    }
-
-    return t('unknownAuthor');
-  };
 
   const getMessageOwner = () => {
     if (message.author?.kind == 'persona') {
@@ -62,11 +54,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
         <header className="chat-message__header">
           <h3 id={titleId}>{message.author?.name ?? t('unknownAuthor')}</h3>
 
-          <span
-            className={`chat-role chat-role--${message.author?.kind ?? 'unknown'}`}
-          >
-            {getAuthorLabel()}
-          </span>
+          <ChatRole kind={message.author?.kind} />
 
           <span className="chat-message__owner">{getMessageOwner()}</span>
 

@@ -1,6 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 
-import { Sidebar } from './ui/sidebar';
+import { Sidebar } from '@pages/main-layout/ui/sidebar';
 
 import './styles.scss';
 

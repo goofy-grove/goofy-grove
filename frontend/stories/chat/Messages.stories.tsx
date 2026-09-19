@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ChatMessage } from '@pages/chats/ui/chat-view/components/chat-message';
+import { ChatMessage } from '@pages/chats/ui/chat-message';
 
 import { createScene } from './model';
 

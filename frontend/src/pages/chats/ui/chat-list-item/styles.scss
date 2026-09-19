@@ -12,8 +12,8 @@
   border-radius: var(--radius-lg);
   background: var(--bg-panel);
   transition:
-  background var(--transition-smooth-params),
-  border-color var(--transition-smooth-params);
+    background var(--transition-smooth-params),
+    border-color var(--transition-smooth-params);
 
   &:hover {
     border-color: var(--border-active);
@@ -102,6 +102,7 @@
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
 
     &--generating {
       color: var(--grove-lilac);
@@ -247,6 +248,7 @@
 
     &__preview {
       -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
 
     &__cast {

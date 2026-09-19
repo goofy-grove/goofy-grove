@@ -8,9 +8,11 @@
   border: 1px solid var(--border-active);
   border-radius: var(--radius-xl);
 }
+
 .chat-demo-dialog::backdrop {
   background: #101d17bf;
 }
+
 .chat-demo-dialog h2 {
   margin-top: 0;
 }

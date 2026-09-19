@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { expect, userEvent, within } from 'storybook/test';
 
-import { ChatComposer } from '@pages/chats/ui/chat-view/components/chat-composer';
-import { RichMessage } from '@pages/chats/ui/chat-view/components/rich-message';
+import { ChatComposer } from '@pages/chats/ui/chat-composer';
+import { RichMessage } from '@pages/chats/ui/rich-message';
 
 import { createScene } from './model';
 

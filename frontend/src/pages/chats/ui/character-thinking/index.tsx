@@ -1,7 +1,7 @@
 import { IconPlayerStop } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-import { IdentityAvatar } from '@pages/chats/ui/chat-view/components/identity-avatar';
+import { IdentityAvatar } from '@pages/chats/ui/identity-avatar';
 
 import { Button } from '@shared/ui';
 
@@ -31,12 +31,7 @@ export const CharacterThinking: FC<CharacterThinkingProps> = ({
       </span>
 
       {onStop && (
-        <Button
-          size="compact"
-          variant="ghost"
-          type="button"
-          onClick={onStop}
-        >
+        <Button size="compact" variant="ghost" type="button" onClick={onStop}>
           <IconPlayerStop size={14} />
 
           {t('stop')}

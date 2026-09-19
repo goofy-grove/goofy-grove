@@ -10,5 +10,7 @@ export * from './socket';
 export type { Character } from './characters';
 export type { Persona } from './personas';
 export type { User } from './user';
+export type { Chat } from './chats';
+export type { MessageDto, SendMessageDto } from './messages';
 
 export const api = { auth, users, personas, characters, files, chats };

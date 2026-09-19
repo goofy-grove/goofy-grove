@@ -1,9 +1,12 @@
 import { parseMessageContent, serializeMessageContent } from '@pages/chats/lib';
 
-import type { Character } from '@shared/api/characters';
-import type { Chat } from '@shared/api/chats';
-import type { MessageDto, SendMessageDto } from '@shared/api/messages';
-import type { Persona } from '@shared/api/personas';
+import type {
+  Character,
+  Chat,
+  MessageDto,
+  SendMessageDto,
+  Persona,
+} from '@shared/api';
 
 import type {
   ChatAdapterContext,

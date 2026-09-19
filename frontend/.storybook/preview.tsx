@@ -6,7 +6,7 @@ import ru from '../public/locales/ru.json';
 
 import type { Preview } from '@storybook/react-vite';
 
-import '@app/assets/general.scss';
+import '@app/styles/general.scss';
 import './preview.scss';
 
 const i18n = createInstance();

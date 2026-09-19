@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { IdentityAvatar } from '@pages/chats/ui/chat-view/components/identity-avatar';
+import { IdentityAvatar } from '@pages/chats/ui/identity-avatar';
 
 import { Select } from '@shared/ui/select';
 
@@ -19,12 +19,14 @@ export const PersonaSelect: FC<PersonaSelectProps> = ({
   const renderPersona = (id: string) => {
     const persona = personas.find((item) => item.id === id);
 
-    return persona && (
-      <span className="chat-persona-select__value">
-        <IdentityAvatar identity={persona} small />
+    return (
+      persona && (
+        <span className="chat-persona-select__value">
+          <IdentityAvatar identity={persona} small />
 
-        <span>{persona.name}</span>
-      </span>
+          <span>{persona.name}</span>
+        </span>
+      )
     );
   };
 
