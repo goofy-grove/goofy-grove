@@ -1,28 +1,85 @@
 .login-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  margin: auto;
-
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
   align-items: center;
+  gap: clamp(32px, 6vw, 96px);
+  width: min(1080px, 100%);
+  margin: auto;
+  padding: 48px;
+  overflow-y: auto;
 
-  width: 768px;
+  &__welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-  @media (max-width: 768px) {
-    width: 100%;
-    padding: 16px;
+  &__brand {
+    font-size: 28px;
+    font-weight: var(--font-black);
+    letter-spacing: -1px;
+  }
+
+  &__welcome .grove-scene {
+    margin: 42px 0 16px;
+    transform: scale(1.15);
+    transform-origin: left bottom;
+  }
+
+  &__welcome h1 {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: var(--font-black);
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+    margin: 20px 0 16px;
+  }
+
+  &__welcome p {
+    color: var(--text-secondary);
+    max-width: 360px;
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+
+  &__entry {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+    padding: 24px;
+    gap: 28px;
+
+    &__welcome .grove-scene {
+      display: none;
+    }
+
+    &__welcome h1 {
+      font-size: 32px;
+    }
+
+    &__welcome p {
+      font-size: var(--text-base);
+    }
   }
 }
 
 .login-page-card {
   width: 100%;
-  height: max-content;
+  border-radius: var(--radius-xl);
+
+  .card__header {
+    padding: 24px 28px 8px;
+    border: 0;
+    background: transparent;
+    font-weight: var(--font-extrabold);
+  }
 
   &__form {
-    padding: 16px 20px;
+    padding: 24px 28px 28px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
 }

@@ -10,5 +10,6 @@ export type PersonaFormProps = {
   onNameChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onAvatarChange: (file: File | null) => void;
+  onCancel: () => void;
   onSubmit: () => void;
 };

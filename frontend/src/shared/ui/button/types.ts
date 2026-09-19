@@ -1,18 +1,11 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 export type ButtonColor = 'default' | 'error' | 'warning' | 'success' | 'info';
 
-export type ButtonProps = PropsWithChildren<{
+export type ButtonProps = Omit<ComponentPropsWithRef<'button'>, 'color'> & {
   rightIcon?: ReactNode;
   leftIcon?: ReactNode;
-
-  disabled?: boolean;
-  className?: string;
-
-  /** Filled surface vs transparent — independent from `color` */
   variant?: 'default' | 'ghost';
-  /** Semantic tint; `default` is the current neutral look */
   color?: ButtonColor;
-
-  onClick?: () => void;
-}>;
+  size?: 'default' | 'compact';
+};

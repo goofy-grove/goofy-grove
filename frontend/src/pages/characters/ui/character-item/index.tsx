@@ -1,12 +1,8 @@
-import {
-  IconDotsVerticalFilled,
-  IconPencil,
-  IconTrash,
-} from '@tabler/icons-react';
-import { useState, type FC } from 'react';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button, Dropdown, FileAvatar, Text } from '@shared/ui';
+import { Button, FileAvatar, Text } from '@shared/ui';
 
 import type { CharacterItemProps } from './types';
 
@@ -21,25 +17,15 @@ export const CharacterItem: FC<CharacterItemProps> = ({
   onDelete,
 }) => {
   const { t } = useTranslation();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const handleDropdownShow = () => {
-    setIsDropdownOpen(true);
-  };
-
-  const handleEdit = () => {
-    setIsDropdownOpen(false);
-    onEdit?.(uid);
-  };
-
-  const handleDelete = () => {
-    setIsDropdownOpen(false);
-    onDelete?.(uid);
-  };
 
   return (
-    <div className="character-item" key={uid}>
-      <FileAvatar className="character-item__avatar" fileUid={avatarUid} />
+    <article className="character-item">
+      <FileAvatar
+        className="character-item__avatar"
+        variant="unbordered"
+        fileUid={avatarUid}
+        alt={name}
+      />
 
       <div className="character-item__info">
         <Text className="character-item__info__name" tag="h3">
@@ -50,33 +36,23 @@ export const CharacterItem: FC<CharacterItemProps> = ({
       </div>
 
       <div className="character-item__actions">
-        <Dropdown
-          isOpen={isDropdownOpen}
-          onShow={handleDropdownShow}
-          trigger={
-            <Button variant="ghost" leftIcon={<IconDotsVerticalFilled />} />
-          }
+        <Button
+          variant="ghost"
+          leftIcon={<IconPencil size={17} />}
+          onClick={() => onEdit?.(uid)}
         >
-          <div className="character-item__actions__menu">
-            <Button
-              variant="ghost"
-              leftIcon={<IconPencil size={18} />}
-              onClick={handleEdit}
-            >
-              {t('character.actions.edit')}
-            </Button>
+          {t('character.actions.edit')}
+        </Button>
 
-            <Button
-              variant="ghost"
-              color="error"
-              leftIcon={<IconTrash size={18} />}
-              onClick={handleDelete}
-            >
-              {t('character.actions.delete')}
-            </Button>
-          </div>
-        </Dropdown>
+        <Button
+          variant="ghost"
+          color="error"
+          leftIcon={<IconTrash size={17} />}
+          onClick={() => onDelete?.(uid)}
+        >
+          {t('character.actions.delete')}
+        </Button>
       </div>
-    </div>
+    </article>
   );
 };

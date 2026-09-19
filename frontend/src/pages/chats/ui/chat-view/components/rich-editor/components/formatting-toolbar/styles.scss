@@ -1,0 +1,104 @@
+@use '@shared/ui/styles' as media;
+
+.chat-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 8px 12px 0;
+}
+
+.chat-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.chat-toolbar button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.chat-toolbar button[aria-pressed='true'] {
+  background: var(--accent-glow);
+  color: var(--accent-primary);
+}
+
+.chat-toolbar button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.chat-toolbar__separator {
+  width: 1px;
+  height: 16px;
+  background: var(--border-default);
+  margin: 0 6px;
+}
+
+.chat-link-editor {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  background: var(--bg-surface);
+}
+
+.chat-link-editor label {
+  flex: 1;
+  min-width: 160px;
+  font-size: var(--text-xs);
+}
+
+.chat-link-editor input {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-active);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.chat-link-editor button {
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: var(--text-xs);
+}
+
+.chat-link-editor p {
+  width: 100%;
+  margin: 0;
+  color: var(--error);
+  font-size: var(--text-xs);
+}
+
+@include media.mobile-sm {
+  .chat-toolbar {
+    padding: 6px 8px 0;
+    gap: 0;
+  }
+
+  .chat-toolbar button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .chat-toolbar__separator {
+    display: none;
+  }
+}

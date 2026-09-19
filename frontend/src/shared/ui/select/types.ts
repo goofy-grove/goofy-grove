@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export type SelectItem = {
   value: string;
   label: string;
@@ -26,5 +28,8 @@ export type SelectState = SingleSelect | MultiSelect;
 
 export type SelectProps = {
   items: SelectItem[];
+  className?: string;
+  renderOption?: (item: SelectItem) => ReactNode;
+  renderValue?: (items: SelectItem[]) => ReactNode;
   placeholder?: string;
 } & SelectState;

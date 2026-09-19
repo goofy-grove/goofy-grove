@@ -1,39 +1,56 @@
+import { IconTrees } from '@tabler/icons-react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
-import { Button, useBreakpoints } from '@shared/ui';
-
 import { SIDEBAR_ITEMS } from './constants';
-
-import type { FC } from 'react';
 
 import './styles.scss';
 
-export const Sidebar: FC = () => {
+export const Sidebar = () => {
   const { t } = useTranslation();
-  const { isTabletSm } = useBreakpoints();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
 
   return (
-    <nav className={`sidebar ${isTabletSm ? 'sidebar--collapsed' : ''}`}>
+    <nav className="sidebar" aria-label={t('grove.navigation')}>
+      <Link to="/characters" className="sidebar__brand">
+        <span className="sidebar__mark">
+          <IconTrees size={30} stroke={1.7} />
+        </span>
+
+        <span>
+          goofy<span className="sidebar__brand-second">grove.</span>
+        </span>
+      </Link>
+
+      <span className="sidebar__caption">{t('grove.workspace')}</span>
+
       <div className="sidebar__items">
         {SIDEBAR_ITEMS.map(({ title, to, icon: Icon }) => {
           const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
           return (
-            <Link key={to} to={to} className="sidebar__link">
-              <Button
-                className={`sidebar__button ${isActive ? 'sidebar__button--active' : ''}`}
-                variant="ghost"
-                leftIcon={<Icon size={isTabletSm ? 28 : 24} />}
-              >
-                {isTabletSm ? '' : t(title)}
-              </Button>
+            <Link
+              key={to}
+              to={to}
+              aria-label={t(title)}
+              title={t(title)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
+            >
+              <Icon size={23} stroke={1.7} />
+
+              <span>{t(title)}</span>
             </Link>
           );
         })}
+      </div>
+
+      <div className="sidebar__footer">
+        <IconTrees size={24} />
+
+        <span>{t('grove.tagline')}</span>
       </div>
     </nav>
   );

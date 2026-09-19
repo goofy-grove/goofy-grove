@@ -36,15 +36,15 @@ export default tseslint.config([
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from 'eslint-plugin-react-x';
+import reactDom from 'eslint-plugin-react-dom';
 
 export default tseslint.config([
   globalIgnores(['dist']),
@@ -65,5 +65,29 @@ export default tseslint.config([
       // other options...
     },
   },
-])
+]);
 ```
+
+## Storybook
+
+```sh
+npm run storybook        # http://127.0.0.1:6006
+npm run build-storybook  # static output in storybook-static/
+npm run check:storybook  # type-check stories and configuration
+```
+
+Stories cover Select (single/multiple selection, long lists), character and persona cards, fields, buttons, menus and form states. The preview uses the app's dark theme and Nunito. Switch RU/EN in the toolbar. Card actions are logged; no backend is needed. Deletion confirmation remains in the application page.
+
+Storybook uses its own Vite config so it does not run the application router generator. See the [official React/Vite integration](https://storybook.js.org/docs/get-started/frameworks/react-vite).
+
+## Frontend conventions
+
+Frontend components use shared typography/radius/transition tokens and responsive
+mixins. `Select` supports `renderOption`/`renderValue`; `Avatar` supports a custom
+`fallback`; `Button` forwards native button props/ref and supports `compact` size.
+Chat DTOs follow the server contract; see [chat previews](stories/chat/README.md)
+for adapters, content encoding, and deferred API integration.
+
+The existing format/lint/style commands include `src`, `stories`, and `.storybook`.
+Storybook source/configuration is included in TypeScript project configuration.
+These commands were not run as part of this refactor; validation is manual for now.

@@ -1,55 +1,63 @@
 @use 'fonts';
 
 :root {
-  --font-ui: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color-scheme: dark;
+  --font-ui:
+    'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace;
 
-  --bg-primary: #0d0f14;
-  --bg-panel: #14171f;
-  --bg-surface: #1b202a;
-  --bg-hover: #242a36;
-  --bg-accent-muted: #2a1a3a;
+  --grove-forest: #14271f;
+  --grove-lilac: #b5a0cd;
+  --grove-lime: #bbce9b;
+  --grove-on-forest: #eef3e9;
 
-  --border-default: #2a3140;
-  --border-active: #3d475a;
+  --bg-primary: #101d17;
+  --bg-panel: #1c2c24;
+  --bg-surface: #23362c;
+  --bg-hover: #2c4135;
+  --bg-accent-muted: #393346;
 
-  --text-primary: #e8eaed;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
-  --text-link: #c084fc;
+  --border-default: #34483b;
+  --border-active: #6c876c;
 
-  --accent-primary: #c084fc;
-  --accent-hover: #d8b4fe;
-  --accent-active: #a855f7;
-  --accent-glow: rgba(192, 132, 252, 0.25);
-  --accent-glow-strong: rgba(192, 132, 252, 0.35);
+  --text-primary: #e6eddf;
+  --text-secondary: #aabcae;
+  --text-tertiary: #8ea493;
+  --text-link: #c6b4df;
 
-  --success: #10b981;
-  --success-bg: #065f46;
-  --warning: #f59e0b;
-  --warning-bg: #78350f;
-  --error: #ef4444;
-  --error-bg: #7f1d1d;
-  --info: #3b82f6;
-  --info-bg: #1e3a8a;
+  --accent-primary: #bbce9b;
+  --accent-hover: #cdddaf;
+  --accent-active: #a7bd86;
+  --accent-glow: rgba(187, 206, 155, 0.15);
+  --accent-glow-strong: rgba(187, 206, 155, 0.22);
 
-  --msg-user-bg: #232833;
-  --msg-ai-bg: #1b202a;
-  --msg-timestamp: #64748b;
-  --msg-code-bg: #151922;
-  --msg-code-text: #a5b4fc;
+  --success: #9dcba5;
+  --success-bg: #254632;
+  --warning: #e1c083;
+  --warning-bg: #483e29;
+  --error: #eda9a1;
+  --error-bg: #4c302f;
+  --info: #9fc4df;
+  --info-bg: #283d4a;
 
-  --modal-bg: #1b202a;
-  --modal-bg-active: #212633;
-  --modal-bg-inactive: #14171f;
-  --modal-header-bg: #252b38;
-  --modal-border: #2a3140;
+  --msg-user-bg: #2c4135;
+  --msg-ai-bg: #1c2c24;
+  --msg-timestamp: #8ea493;
+  --msg-code-bg: #101d17;
+  --msg-code-text: #c6b4df;
+
+  --modal-bg: #23362c;
+  --modal-bg-active: #2c4135;
+  --modal-bg-inactive: #1c2c24;
+  --modal-header-bg: #2c4135;
+  --modal-border: #34483b;
   --modal-border-active: var(--accent-primary);
   --modal-focus-ring: 0 0 0 2px var(--accent-glow);
 
   --elev-0: none;
-  --elev-1: 0 4px 14px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
-  --elev-2: 0 6px 18px rgba(0, 0, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.25);
+  --elev-1: 0 4px 20px rgba(35, 60, 50, 0.05);
+  --elev-2: 0 12px 36px rgba(35, 60, 50, 0.12);
   --elev-3: 0 8px 26px rgba(0, 0, 0, 0.45), 0 12px 36px var(--accent-glow);
   --elev-4: 0 12px 42px rgba(0, 0, 0, 0.5), 0 16px 52px var(--accent-glow-strong);
 
@@ -67,15 +75,23 @@
   --leading-normal: 1.5;
   --leading-relaxed: 1.75;
 
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --transition-fast: 160ms;
+
   --font-regular: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+  --font-extrabold: 800;
+  --font-black: 900;
 
   --z-dropdown: 1000;
-
-  --border-radius-base: 8px;
-  --border-radius-full: 9999px;
 
   // Extra Small Mobile (Portrait): 320px - 480px
   // Small Mobile (Landscape): 481px – 600px
@@ -165,7 +181,7 @@ body {
 
   &::-webkit-scrollbar-thumb {
     background: var(--border-active);
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
   }
 
   &::-webkit-scrollbar-thumb:hover {
@@ -174,5 +190,25 @@ body {
 
   &::-webkit-scrollbar-corner {
     background: transparent;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent-primary);
+  outline-offset: 4px;
+}
+
+::selection {
+  background: var(--grove-lilac);
+  color: var(--grove-forest);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -1,0 +1,33 @@
+@use '@shared/ui/styles' as media;
+
+.chat-persona-select {
+  width: auto;
+  max-width: 220px;
+  min-width: 0;
+
+  .select__trigger {
+    min-height: 36px;
+    padding: 6px 10px;
+    gap: 14px;
+    font-size: var(--text-sm);
+  }
+
+  &__value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__value > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @include media.mobile-sm {
+    .select__trigger {
+      min-height: 44px;
+    }
+  }
+}

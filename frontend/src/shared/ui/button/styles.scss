@@ -39,33 +39,40 @@ $button-semantic-colors: (
 
 @mixin button-semantic-ghost {
   --button-text: var(--semantic-accent);
-  --button-hover-bg: color-mix(in srgb, var(--semantic-accent) 14%, transparent);
-  --button-active-bg: color-mix(in srgb, var(--semantic-accent) 20%, transparent);
+  --button-hover-bg: color-mix(
+    in srgb,
+    var(--semantic-accent) 14%,
+    transparent
+  );
+  --button-active-bg: color-mix(
+    in srgb,
+    var(--semantic-accent) 20%,
+    transparent
+  );
   --button-focus-ring: 0 0 0 2px
     color-mix(in srgb, var(--semantic-accent) 35%, transparent);
 }
 
 .button {
-  --button-text: var(--text-primary);
-  --button-bg: var(--bg-surface);
-  --button-border: var(--border-default);
-  --button-hover-bg: var(--bg-hover);
-  --button-active-bg: color-mix(
-    in srgb,
-    var(--bg-hover) 92%,
-    var(--text-primary) 8%
-  );
+  --button-text: var(--grove-forest);
+  --button-bg: var(--accent-primary);
+  --button-border: transparent;
+  --button-hover-bg: var(--accent-hover);
+  --button-active-bg: var(--accent-active);
   --button-focus-bg: var(--button-hover-bg);
   --button-focus-border: var(--border-active);
-  --button-focus-ring: none;
+  --button-focus-ring: 0 0 0 3px var(--accent-glow-strong);
 
   background-color: var(--button-bg);
   color: var(--button-text);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
 
-  padding: 8px 12px;
-  border-radius: var(--border-radius-base);
+  padding: 10px 16px;
+  min-height: 44px;
+  font-weight: var(--font-extrabold);
+  transition: background-color var(--transition-fast);
+  border-radius: var(--radius-md);
   border: 1px solid var(--button-border);
 
   cursor: pointer;
@@ -85,11 +92,16 @@ $button-semantic-colors: (
   }
 
   &.button--ghost {
+    --button-text: var(--text-primary);
     --ghost-accent: var(--bg-hover);
     --button-bg: transparent;
     --button-border: transparent;
     --button-hover-bg: color-mix(in srgb, var(--ghost-accent) 80%, transparent);
-    --button-active-bg: color-mix(in srgb, var(--ghost-accent) 90%, transparent);
+    --button-active-bg: color-mix(
+      in srgb,
+      var(--ghost-accent) 90%,
+      transparent
+    );
     --button-focus-border: transparent;
   }
 
@@ -131,4 +143,18 @@ $button-semantic-colors: (
     align-items: center;
     justify-content: center;
   }
+}
+
+.button.button--compact {
+  min-height: 28px;
+  padding: 4px 6px;
+  gap: 5px;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
+}
+
+.button__content {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
 }

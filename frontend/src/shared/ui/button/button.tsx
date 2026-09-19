@@ -5,17 +5,21 @@ import './styles.scss';
 
 export const Button: FC<ButtonProps> = ({
   children,
+  type = 'button',
   rightIcon,
   leftIcon,
   className,
   variant = 'default',
   color = 'default',
-  disabled,
-  onClick,
+  size = 'default',
+  ...props
 }) => (
   <button
+    type={type}
+    {...props}
     className={[
       'button',
+      size === 'compact' ? 'button--compact' : '',
       variant !== 'default' ? `button--${variant}` : '',
       color !== 'default' ? `button--${color}` : '',
       !children ? 'button--iconic' : '',
@@ -23,13 +27,11 @@ export const Button: FC<ButtonProps> = ({
     ]
       .filter(Boolean)
       .join(' ')}
-    disabled={disabled}
-    onClick={onClick}
   >
-    {leftIcon && <div className="button__icon">{leftIcon}</div>}
+    {leftIcon && <span className="button__icon">{leftIcon}</span>}
 
-    {children && <div className="button__content">{children}</div>}
+    {children && <span className="button__content">{children}</span>}
 
-    {rightIcon && <div className="button__icon">{rightIcon}</div>}
+    {rightIcon && <span className="button__icon">{rightIcon}</span>}
   </button>
 );

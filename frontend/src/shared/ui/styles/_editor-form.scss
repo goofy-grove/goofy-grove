@@ -1,0 +1,224 @@
+@use '@shared/ui/styles' as media;
+
+@mixin page {
+  height: 100%;
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 36px clamp(16px, 4vw, 48px) 48px;
+  overflow-y: auto;
+
+  &__header {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  &__header > .button {
+    margin-left: -12px;
+    padding: 6px 12px;
+    color: var(--text-secondary);
+  }
+
+  &__header h2 {
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: var(--font-black);
+    letter-spacing: -1px;
+    line-height: 1.2;
+  }
+
+  &__intro {
+    margin: 12px 0 28px;
+    max-width: 640px;
+    color: var(--text-secondary);
+  }
+
+  &__loader {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
+
+  @include media.mobile-sm {
+    padding-top: 16px;
+
+    &__header {
+      gap: 12px;
+    }
+
+    &__intro {
+      font-size: var(--text-sm);
+      margin-bottom: 20px;
+    }
+  }
+}
+
+@mixin form {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  background: var(--bg-panel);
+
+  &__body {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 36px;
+    padding: 32px;
+  }
+
+  &__portrait {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    align-self: flex-start;
+    color: var(--text-secondary);
+    font-size: var(--text-xs);
+    font-weight: var(--font-extrabold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  &__avatar.avatar {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border: 1px solid var(--border-default);
+    border-radius: 70px 70px 20px 20px;
+    background: var(--bg-accent-muted);
+    color: var(--grove-lilac);
+  }
+
+  &__avatar svg {
+    width: 52px;
+    height: 52px;
+    stroke-width: 1;
+  }
+
+  &__portrait > .button {
+    width: 100%;
+    font-size: var(--text-sm);
+    border: 1px solid var(--border-default);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: var(--text-xs);
+    text-align: center;
+    color: var(--text-secondary);
+    max-width: 190px;
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+  }
+
+  &__section-heading h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-extrabold);
+    margin: 0 0 6px;
+  }
+
+  &__section-heading p {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  &__fields textarea {
+    min-height: 210px;
+    line-height: 1.7;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 32px;
+    border-top: 1px solid var(--border-default);
+  }
+
+  &__save-note {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  &__error {
+    width: 100%;
+  }
+
+  @include media.tablet-sm {
+    &__body {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+      padding: 24px;
+    }
+
+    &__portrait {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 8px 20px;
+      align-items: center;
+    }
+
+    &__avatar.avatar {
+      grid-column: 1;
+      grid-row: 1 / 4;
+      width: 88px;
+      border-radius: 32px 32px 14px 14px;
+    }
+
+    &__eyebrow,
+    &__portrait > .button,
+    &__hint {
+      grid-column: 2;
+    }
+
+    &__portrait > .button {
+      width: fit-content;
+    }
+
+    &__hint {
+      text-align: left;
+      max-width: none;
+    }
+
+    &__footer {
+      padding: 20px 24px;
+    }
+  }
+  @include media.mobile-xs {
+    border-radius: var(--radius-lg);
+
+    &__body,
+    &__footer {
+      padding: 20px 16px;
+    }
+
+    &__actions {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    &__actions .button {
+      flex-grow: 1;
+      font-size: var(--text-sm);
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { IconArrowLeft } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -67,7 +68,7 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
   const isEditMode = mode === 'edit';
 
   return (
-    <div className="persona-form-page">
+    <div className="persona-form-page scrollbar">
       <div className="persona-form-page__header">
         <Text tag="h2">
           {isEditMode ? t('persona.edit_title') : t('persona.create_title')}
@@ -75,11 +76,15 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
 
         <Button
           variant="ghost"
+          disabled={mutation.isPending}
+          leftIcon={<IconArrowLeft size={18} />}
           onClick={() => void navigate({ to: '/personas' })}
         >
           {t('common.back')}
         </Button>
       </div>
+
+      <p className="persona-form-page__intro">{t('forms.persona_intro')}</p>
 
       <PersonaForm
         name={name}
@@ -89,8 +94,9 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
         avatarUid={avatarUid}
         avatarPreviewUrl={avatarPreviewUrl}
         submitLabel={
-          isEditMode ? t('persona.actions.edit') : t('persona.actions.create')
+          isEditMode ? t('forms.save_changes') : t('persona.create_title')
         }
+        onCancel={() => void navigate({ to: '/personas' })}
         onNameChange={setName}
         onDescriptionChange={setDescription}
         onAvatarChange={setAvatarFile}
@@ -117,7 +123,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
 
   if (mode === 'edit' && !persona) {
     return (
-      <div className="persona-form-page">
+      <div className="persona-form-page scrollbar">
         <Text>{t('persona.not_found')}</Text>
 
         <Button onClick={() => void navigate({ to: '/personas' })}>

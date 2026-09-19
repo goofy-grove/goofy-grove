@@ -14,3 +14,5 @@ export * from './select';
 export * from './text';
 
 export { LocaleSwitcher } from './locale-switcher';
+
+export * from './grove-scene';

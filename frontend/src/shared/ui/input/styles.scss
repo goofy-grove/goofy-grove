@@ -1,11 +1,13 @@
 .input {
-  padding: 8px 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
   border: 1px solid var(--border-default);
-  border-radius: var(--border-radius-base);
+  border-radius: var(--radius-md);
 
   background-color: var(--bg-surface);
   color: var(--text-primary);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   line-height: var(--leading-normal);
 
   &:disabled ~ label {
@@ -20,7 +22,13 @@
   &-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    min-width: 0;
+
+    > label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-extrabold);
+    }
   }
 
   &:hover:not(:disabled) {
@@ -29,7 +37,8 @@
 
   &:focus:not(:disabled) {
     outline: none;
-    border-color: var(--border-active);
+    border-color: var(--accent-primary);
+    box-shadow: var(--modal-focus-ring);
     background-color: var(--bg-hover);
   }
 
@@ -40,6 +49,17 @@
 
 textarea.input {
   resize: vertical;
-  height: calc(var(--text-lg) * var(--leading-normal) * 4 /* lines */ + 8px * 2 + 1px);
-  min-height: calc(var(--text-lg) * var(--leading-normal) * 4 /* lines */ + 8px * 2 + 2px);
+  height: calc(
+    var(--text-lg) * var(--leading-normal) * 4 /* lines */ + 8px * 2 + 1px
+  );
+  min-height: calc(
+    var(--text-lg) * var(--leading-normal) * 4 /* lines */ + 8px * 2 + 2px
+  );
+}
+
+.input-hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
 }

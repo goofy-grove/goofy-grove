@@ -1,0 +1,11 @@
+.chat-role {
+  font-size: var(--text-xs);
+  font-weight: var(--font-extrabold);
+  letter-spacing: 0.2px;
+  color: var(--accent-primary);
+  white-space: nowrap;
+
+  &--character {
+    color: var(--grove-lilac);
+  }
+}

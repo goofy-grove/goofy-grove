@@ -9,7 +9,14 @@ import {
 } from '@pages/characters/model';
 import { CharacterItem } from '@pages/characters/ui/character-item';
 
-import { Button, ConfirmModal, IconLoader, Text } from '@shared/ui';
+import {
+  Button,
+  ConfirmModal,
+  GroveScene,
+  IconLoader,
+  PageHeader,
+  Text,
+} from '@shared/ui';
 
 import './styles.scss';
 
@@ -49,9 +56,16 @@ export const CharactersPage: FC = () => {
 
   return (
     <div className="characters-page">
-      <div className="characters-page__header">
-        <Text tag="h2">{t('character.list_title')}</Text>
-      </div>
+      <PageHeader title={t('character.list_title')}>
+        <Button
+          leftIcon={<IconPlusFilled size={18} />}
+          onClick={() => void navigate({ to: '/characters/new' })}
+        >
+          {t('character.create_title')}
+        </Button>
+      </PageHeader>
+
+      <p className="characters-page__intro">{t('grove.characters_intro')}</p>
 
       {isLoading && (
         <div className="characters-page__loader">
@@ -61,7 +75,11 @@ export const CharactersPage: FC = () => {
 
       {!isLoading && !hasCharacters && (
         <div className="characters-page__empty">
-          <Text>{t('character.empty')}</Text>
+          <GroveScene />
+
+          <Text tag="h3">{t('character.empty')}</Text>
+
+          <Text>{t('grove.characters_empty')}</Text>
         </div>
       )}
 
@@ -78,16 +96,6 @@ export const CharactersPage: FC = () => {
               onEdit={handleEdit}
             />
           ))}
-      </div>
-
-      <div className="characters-page__actions">
-        <Button
-          className="characters-page__actions__button"
-          leftIcon={<IconPlusFilled />}
-          onClick={() => void navigate({ to: '/characters/new' })}
-        >
-          {t('character.actions.create')}
-        </Button>
       </div>
 
       <ConfirmModal

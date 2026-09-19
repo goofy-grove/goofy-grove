@@ -9,7 +9,14 @@ import {
 } from '@pages/personas/model';
 import { PersonaItem } from '@pages/personas/ui/persona-item';
 
-import { Button, ConfirmModal, IconLoader, PageHeader, Text } from '@shared/ui';
+import {
+  Button,
+  ConfirmModal,
+  GroveScene,
+  IconLoader,
+  PageHeader,
+  Text,
+} from '@shared/ui';
 
 import './styles.scss';
 
@@ -47,17 +54,16 @@ export const PersonasPage: FC = () => {
 
   return (
     <div className="personas-page">
-      <PageHeader
-        className="personas-page__header"
-        title={t('persona.list_title')}
-      >
+      <PageHeader title={t('persona.list_title')}>
         <Button
+          leftIcon={<IconPlusFilled size={18} />}
           onClick={() => void navigate({ to: '/personas/new' })}
-          leftIcon={<IconPlusFilled />}
-        />
+        >
+          {t('persona.create_title')}
+        </Button>
       </PageHeader>
 
-      {/* Set as tooltip in the future <Text>{t('persona.actions.create')}</Text>*/}
+      <p className="personas-page__intro">{t('grove.personas_intro')}</p>
 
       {isLoading && (
         <div className="personas-page__loader">
@@ -67,7 +73,11 @@ export const PersonasPage: FC = () => {
 
       {!isLoading && !hasPersonas && (
         <div className="personas-page__empty">
-          <Text>{t('persona.empty')}</Text>
+          <GroveScene />
+
+          <Text tag="h3">{t('persona.empty')}</Text>
+
+          <Text>{t('grove.personas_empty')}</Text>
         </div>
       )}
 

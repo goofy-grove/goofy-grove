@@ -1,0 +1,80 @@
+@mixin portrait-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  background: var(--bg-panel);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--border-active);
+    background: color-mix(in srgb, var(--bg-panel) 85%, var(--bg-surface));
+  }
+
+  &__avatar.avatar {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+    background: var(--bg-accent-muted);
+    color: var(--grove-lilac);
+    border: 1px solid color-mix(in srgb, var(--grove-lilac) 18%, transparent);
+  }
+
+  &__avatar svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.2;
+  }
+
+  &__info {
+    width: 100%;
+    min-width: 0;
+    padding: 18px 8px;
+  }
+
+  &__info__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-xl);
+  }
+
+  &__info__description.text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    min-height: 66px;
+    margin-top: 8px;
+    overflow: hidden;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-default);
+  }
+
+  &__actions .button {
+    padding: 8px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-bold);
+  }
+}

@@ -26,14 +26,14 @@
 
     background-color: var(--bg-panel);
     border: 1px solid var(--border-default);
-    border-radius: var(--border-radius-base);
+    border-radius: var(--radius-xl);
     box-shadow: var(--elev-1);
 
     overflow: hidden;
   }
 
   &__body {
-    padding: 16px;
+    padding: 24px;
     overflow: auto;
   }
 }

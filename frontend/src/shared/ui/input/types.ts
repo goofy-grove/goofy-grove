@@ -2,6 +2,7 @@ import type { ComponentPropsWithRef } from 'react';
 
 type InputBaseProps = {
   label?: string;
+  hint?: string;
   onChange?: (value: string) => void;
 };
 

@@ -1,1 +1,3 @@
-export { ChatsPage } from './ui';
+export { ChatsPage, ChatView } from './ui';
+
+export type { ChatViewProps } from './ui/chat-view/types';

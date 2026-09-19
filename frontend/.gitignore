@@ -26,3 +26,9 @@ dist-ssr
 
 # Environment
 .env
+# Storybook build output
+storybook-static/
+
+# Root gitignore excludes dot-directories; keep Storybook configuration.
+!.storybook/
+!.storybook/**

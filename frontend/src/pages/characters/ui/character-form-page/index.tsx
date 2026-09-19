@@ -1,3 +1,4 @@
+import { IconArrowLeft } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
 import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -67,7 +68,7 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
   const isEditMode = mode === 'edit';
 
   return (
-    <div className="character-form-page">
+    <div className="character-form-page scrollbar">
       <div className="character-form-page__header">
         <Text tag="h2">
           {isEditMode ? t('character.edit_title') : t('character.create_title')}
@@ -75,11 +76,15 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
 
         <Button
           variant="ghost"
+          disabled={mutation.isPending}
+          leftIcon={<IconArrowLeft size={18} />}
           onClick={() => void navigate({ to: '/characters' })}
         >
           {t('common.back')}
         </Button>
       </div>
+
+      <p className="character-form-page__intro">{t('forms.character_intro')}</p>
 
       <CharacterForm
         name={name}
@@ -89,10 +94,9 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
         avatarUid={avatarUid}
         avatarPreviewUrl={avatarPreviewUrl}
         submitLabel={
-          isEditMode
-            ? t('character.actions.edit')
-            : t('character.actions.create')
+          isEditMode ? t('forms.save_changes') : t('character.create_title')
         }
+        onCancel={() => void navigate({ to: '/characters' })}
         onNameChange={setName}
         onDescriptionChange={setDescription}
         onAvatarChange={setAvatarFile}
@@ -122,7 +126,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
 
   if (mode === 'edit' && !character) {
     return (
-      <div className="character-form-page">
+      <div className="character-form-page scrollbar">
         <Text>{t('character.not_found')}</Text>
 
         <Button onClick={() => void navigate({ to: '/characters' })}>

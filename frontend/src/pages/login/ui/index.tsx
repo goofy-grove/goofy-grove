@@ -6,6 +6,7 @@ import {
   Alert,
   Button,
   Card,
+  GroveScene,
   IconLoader,
   Input,
   LocaleSwitcher,
@@ -28,40 +29,62 @@ export const LoginPage = () => {
 
   return (
     <div className="login-page">
-      <Card className="login-page-card" title={t('login.title')}>
-        <div className="login-page-card__form">
-          {error && <Alert type="error" message={t(error)} closable />}
+      <section className="login-page__welcome">
+        <span className="login-page__brand">goofy grove.</span>
 
-          <Input
-            id="username"
-            value={username}
-            disabled={isLoading}
-            label={t('login.labels.username')}
-            placeholder={t('login.labels.username')}
-            onChange={setUsername}
-          />
+        <GroveScene />
 
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            disabled={isLoading}
-            label={t('login.labels.password')}
-            placeholder={t('login.labels.password')}
-            onChange={setPassword}
-          />
+        <h1>{t('grove.welcome')}</h1>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            leftIcon={isLoading && <IconLoader isAnimated />}
+        <p>{t('grove.welcome_description')}</p>
+      </section>
+
+      <div className="login-page__entry">
+        <Card className="login-page-card" title={t('login.title')}>
+          <form
+            className="login-page-card__form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!isLoading) void handleSubmit();
+            }}
           >
-            {t('login.login')}
-          </Button>
-        </div>
-      </Card>
+            {error && <Alert type="error" message={t(error)} closable />}
 
-      <LocaleSwitcher />
+            <Input
+              id="username"
+              autoComplete="username"
+              name="username"
+              value={username}
+              disabled={isLoading}
+              label={t('login.labels.username')}
+              placeholder={t('login.labels.username')}
+              onChange={setUsername}
+            />
+
+            <Input
+              id="password"
+              autoComplete="current-password"
+              name="password"
+              type="password"
+              value={password}
+              disabled={isLoading}
+              label={t('login.labels.password')}
+              placeholder={t('login.labels.password')}
+              onChange={setPassword}
+            />
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              leftIcon={isLoading && <IconLoader isAnimated />}
+            >
+              {t('login.login')}
+            </Button>
+          </form>
+        </Card>
+
+        <LocaleSwitcher />
+      </div>
     </div>
   );
 };

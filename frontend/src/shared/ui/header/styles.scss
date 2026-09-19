@@ -1,13 +1,33 @@
+@use '@shared/ui/styles' as media;
+
 .page-header {
   display: flex;
+  flex-shrink: 0;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
-  background-color: transparent;
-  border-bottom: 1px solid var(--border-default);
+  gap: 16px;
+  padding: 14px 0 18px;
+
+  h2 {
+    font-size: clamp(26px, 3vw, 38px);
+    font-weight: var(--font-black);
+    letter-spacing: -1.2px;
+  }
 
   &__actions {
     display: flex;
     gap: 12px;
+  }
+  @include media.mobile-sm {
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    h2 {
+      font-size: 28px;
+    }
+
+    &__actions .button {
+      font-size: var(--text-sm);
+    }
   }
 }

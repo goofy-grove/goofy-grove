@@ -1,0 +1,103 @@
+@use '@shared/ui/styles' as media;
+
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 24px;
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    margin: 2px 0 10px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: var(--font-black);
+  }
+
+  &__owner,
+  time,
+  &__edited {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+
+  time {
+    margin-left: auto;
+  }
+
+  &__document {
+    padding: 16px 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: 4px 18px 18px;
+  }
+
+  &--character &__document {
+    border-left: 2px solid var(--grove-lilac);
+  }
+
+  &--persona &__document {
+    background: color-mix(in srgb, var(--msg-user-bg) 45%, var(--bg-primary));
+  }
+
+  &__edit {
+    font-size: var(--text-xs);
+  }
+
+  &__editing {
+    border: 1px solid var(--border-active);
+    border-radius: 16px;
+    background: var(--bg-panel);
+    overflow: hidden;
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+    color: var(--error);
+    font-size: var(--text-xs);
+  }
+
+  &--failed &__document {
+    border-color: var(--error);
+  }
+}
+
+@include media.mobile-sm {
+  .chat-message {
+    gap: 8px;
+  }
+
+  .chat-message > .chat-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: var(--text-sm);
+    border-radius: 9px;
+  }
+
+  .chat-message__header {
+    gap: 5px;
+  }
+
+  .chat-message__document {
+    padding: 12px 14px;
+  }
+
+  .chat-message__edit {
+    min-height: 44px;
+  }
+}

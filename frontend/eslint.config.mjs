@@ -15,7 +15,7 @@ import tseslint from 'typescript-eslint';
 import logicalBlockSpacing from './eslint-rules/logical-block-spacing.mjs';
 
 export default defineConfig(
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'storybook-static']),
   js.configs.recommended,
   reactHooks.configs.flat['recommended-latest'],
   reactRefresh.configs.vite,
@@ -157,4 +157,13 @@ export default defineConfig(
       ],
     },
   },
+  {
+    files: ['stories/**/*.{ts,tsx}', '.storybook/**/*.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+  {
+    files: ['.storybook/**/*.{ts,tsx}'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
 );
+

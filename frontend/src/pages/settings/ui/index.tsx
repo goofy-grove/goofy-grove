@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@entities/auth';
 
-import { Button, LocaleSwitcher, Text } from '@shared/ui';
+import { Button, LocaleSwitcher, PageHeader, Text } from '@shared/ui';
 
 import type { FC } from 'react';
 
@@ -21,13 +21,23 @@ export const SettingsPage: FC = () => {
 
   return (
     <div className="settings-page">
-      <Text tag="h2">{t('menu.settings')}</Text>
+      <PageHeader title={t('menu.settings')} />
 
-      <LocaleSwitcher />
+      <Text>{t('grove.settings_intro')}</Text>
 
-      <Button color="error" onClick={() => void handleLogout()}>
-        {t('auth.logout')}
-      </Button>
+      <section className="settings-page__section">
+        <Text tag="h3">{t('ui.select_locale')}</Text>
+
+        <LocaleSwitcher />
+      </section>
+
+      <section className="settings-page__section">
+        <Text tag="h3">{t('grove.session')}</Text>
+
+        <Button color="error" onClick={() => void handleLogout()}>
+          {t('auth.logout')}
+        </Button>
+      </section>
     </div>
   );
 };
