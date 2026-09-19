@@ -20,6 +20,10 @@
     max-width: 430px;
   }
 
+  &__empty > h2 {
+    font-weight: var(--font-extrabold);
+  }
+
   &__empty > p {
     color: var(--text-secondary);
   }
