@@ -1,7 +1,7 @@
 import { EditorContent, useEditor } from '@tiptap/react';
 import { useEffect, useMemo } from 'react';
 
-import { richTextExtensions } from '@pages/chats/lib/rich-text-extensions';
+import { richTextExtensions } from '@pages/chats/lib';
 
 import type { RichMessageProps } from './types';
 import type { FC } from 'react';
@@ -9,7 +9,7 @@ import type { FC } from 'react';
 import './styles.scss';
 
 export const RichMessage: FC<RichMessageProps> = ({ content }) => {
-  const extensions = useMemo(() => richTextExtensions(true), []);
+  const extensions = useMemo(() => richTextExtensions({ readOnly: true }), []);
   const editor = useEditor({
     extensions,
     content,
@@ -29,4 +29,3 @@ export const RichMessage: FC<RichMessageProps> = ({ content }) => {
 
   return <EditorContent editor={editor} className="chat-message__document" />;
 };
-

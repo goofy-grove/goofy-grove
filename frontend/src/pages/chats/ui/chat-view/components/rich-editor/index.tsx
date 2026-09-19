@@ -10,7 +10,7 @@ import { BubbleMenu } from '@tiptap/react/menus';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { richTextExtensions } from '@pages/chats/lib/rich-text-extensions';
+import { richTextExtensions } from '@pages/chats/lib';
 
 import { Button } from '@shared/ui';
 

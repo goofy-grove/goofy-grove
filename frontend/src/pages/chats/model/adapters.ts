@@ -1,7 +1,4 @@
-import {
-  parseMessageContent,
-  serializeMessageContent,
-} from '@pages/chats/lib/message-content';
+import { parseMessageContent, serializeMessageContent } from '@pages/chats/lib';
 
 import type { Character } from '@shared/api/characters';
 import type { Chat } from '@shared/api/chats';
