@@ -77,6 +77,7 @@
     "tagline": "A little wild. All yours.",
     "characters_intro": "The cast of your next adventure. Create the characters that bring your stories to life.",
     "personas_intro": "Who will you be today? Your personas are the roles you play in a story.",
+    "chats_intro": "Where your characters meet, talk, and create stories with you.",
     "characters_empty": "Give your first character a name, a personality, and a place in your story.",
     "personas_empty": "Create a persona to introduce yourself to your next story.",
     "item_actions": "Actions for {{name}}",
@@ -109,6 +110,7 @@
     "persona_intro": "Create the identity you will use to take part in a story."
   },
   "chat": {
+    "create_title": "Create chat",
     "title": "Where the mushrooms glow",
     "subtitle": "An evening at the old observatory",
     "scene": "At the forest door",

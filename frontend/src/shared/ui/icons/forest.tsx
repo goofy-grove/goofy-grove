@@ -1,0 +1,41 @@
+export const IconForest = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600">
+    <defs>
+      <linearGradient id="sky" x2="0" y2="1">
+        <stop stop-color="#364659" />
+
+        <stop offset="1" stop-color="#81917a" />
+      </linearGradient>
+    </defs>
+
+    <path fill="url(#sky)" d="M0 0h1200v1600H0z" />
+
+    <circle cx="850" cy="240" r="98" fill="#d4d2b2" />
+
+    <g fill="#52675f">
+      <path d="M0 550 120 120 250 550H190l90 200H0zM710 750 940 310l210 440h-90l140 220H670z" />
+
+      <path d="M260 800 510 190 710 800h-100l180 260H150z" />
+    </g>
+
+    <g fill="#233f35">
+      <path d="M-140 920 120 240 390 920H240l190 360H-100zM780 1020 1080 130 1380 1020h-170l250 420H650z" />
+    </g>
+
+    <path fill="#183529" d="M0 1160q230-190 520-40t680-70v550H0z" />
+
+    <path fill="#647661" d="M620 1060q-300 260 80 540h210q-420-320-290-540" />
+
+    <g fill="#192e28">
+      <ellipse cx="230" cy="1330" rx="190" ry="100" />
+
+      <ellipse cx="1080" cy="1500" rx="250" ry="220" />
+    </g>
+
+    <g fill="#b5a0cd">
+      <ellipse cx="220" cy="1230" rx="24" ry="10" />
+
+      <ellipse cx="1000" cy="1350" rx="36" ry="13" />
+    </g>
+  </svg>
+);

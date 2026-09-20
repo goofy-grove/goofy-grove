@@ -2,6 +2,8 @@ import { IconTrees } from '@tabler/icons-react';
 import { Link, useRouterState } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { useBreakpoints } from '@shared/ui';
+
 import { SIDEBAR_ITEMS } from './constants';
 
 import './styles.scss';
@@ -11,6 +13,7 @@ export const Sidebar = () => {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  const { isMobileSm } = useBreakpoints();
 
   return (
     <nav className="sidebar" aria-label={t('grove.navigation')}>
@@ -39,7 +42,7 @@ export const Sidebar = () => {
               aria-current={isActive ? 'page' : undefined}
               className={`sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
             >
-              <Icon size={23} stroke={1.7} />
+              <Icon size={isMobileSm ? 32 : 24} stroke={1.7} />
 
               <span>{t(title)}</span>
             </Link>

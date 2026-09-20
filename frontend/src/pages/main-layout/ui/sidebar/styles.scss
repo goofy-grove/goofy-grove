@@ -94,7 +94,7 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 1000px) and (min-width: 641px) {
+  @include media.tablet-lg {
     width: 88px;
     padding: 28px 12px;
 
@@ -118,6 +118,7 @@
       justify-content: center;
     }
   }
+
   @include media.mobile-sm {
     order: 2;
     width: 100%;
@@ -133,6 +134,7 @@
     &__items {
       flex-direction: row;
       gap: 4px;
+      margin-top: 0;
     }
 
     &__link {

@@ -7,12 +7,10 @@ export * from './dropdown';
 export * from './file-avatar';
 export * from './header';
 export * from './hooks';
-export * from './icons/icon-loader';
+export * from './icons';
 export * from './input';
 export * from './modal';
 export * from './select';
 export * from './text';
 
 export { LocaleSwitcher } from './locale-switcher';
-
-export * from './grove-scene';

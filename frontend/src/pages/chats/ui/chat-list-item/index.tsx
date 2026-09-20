@@ -2,7 +2,7 @@ import { IconDots } from '@tabler/icons-react';
 import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { FileAvatar, Button, GroveScene, useFileUrl } from '@shared/ui';
+import { FileAvatar, Button, IconForest, useFileUrl } from '@shared/ui';
 
 import type { ChatListItemProps } from './types';
 
@@ -37,7 +37,7 @@ export const ChatListItem: FC<ChatListItemProps> = ({
         {sceneUrl && failedImage !== sceneUrl ? (
           <img src={sceneUrl} alt="" onError={() => setFailedImage(sceneUrl)} />
         ) : (
-          <GroveScene />
+          <IconForest />
         )}
       </div>
 
