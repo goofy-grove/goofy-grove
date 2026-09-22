@@ -19,6 +19,7 @@
   "common": {
     "back": "Back",
     "cancel": "Cancel",
+    "close": "Close",
     "coming_soon": "Coming soon",
     "errors": {
       "save_failed": "Failed to save. Please try again.",

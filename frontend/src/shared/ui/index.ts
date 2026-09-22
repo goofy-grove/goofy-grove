@@ -12,5 +12,6 @@ export * from './input';
 export * from './modal';
 export * from './select';
 export * from './text';
+export * from './action-sheet';
 
 export { LocaleSwitcher } from './locale-switcher';

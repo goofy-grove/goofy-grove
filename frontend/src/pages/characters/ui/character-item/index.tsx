@@ -1,6 +1,7 @@
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLongPress } from 'use-long-press';
 
 import { Button, FileAvatar, Text } from '@shared/ui';
 
@@ -13,13 +14,25 @@ export const CharacterItem: FC<CharacterItemProps> = ({
   name,
   description,
   avatarUid,
+  showActions,
+
   onEdit,
   onDelete,
+  onLongPress,
+  onClick,
 }) => {
   const { t } = useTranslation();
+  const handlers = useLongPress(() => onLongPress?.(uid), {
+    cancelOnMovement: true,
+    captureEvent: true,
+  });
 
   return (
-    <article className="character-item">
+    <article
+      {...handlers()}
+      onClick={() => onClick?.(uid)}
+      className="character-item"
+    >
       <FileAvatar
         className="character-item__avatar"
         variant="unbordered"
@@ -35,24 +48,26 @@ export const CharacterItem: FC<CharacterItemProps> = ({
         <Text className="character-item__info__description">{description}</Text>
       </div>
 
-      <div className="character-item__actions">
-        <Button
-          variant="ghost"
-          leftIcon={<IconPencil size={17} />}
-          onClick={() => onEdit?.(uid)}
-        >
-          {t('character.actions.edit')}
-        </Button>
+      {showActions && (
+        <div className="character-item__actions">
+          <Button
+            variant="ghost"
+            leftIcon={<IconPencil size={17} />}
+            onClick={() => onEdit?.(uid)}
+          >
+            {t('character.actions.edit')}
+          </Button>
 
-        <Button
-          variant="ghost"
-          color="error"
-          leftIcon={<IconTrash size={17} />}
-          onClick={() => onDelete?.(uid)}
-        >
-          {t('character.actions.delete')}
-        </Button>
-      </div>
+          <Button
+            variant="ghost"
+            color="error"
+            leftIcon={<IconTrash size={17} />}
+            onClick={() => onDelete?.(uid)}
+          >
+            {t('character.actions.delete')}
+          </Button>
+        </div>
+      )}
     </article>
   );
 };

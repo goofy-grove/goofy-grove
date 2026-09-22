@@ -2,9 +2,9 @@ export const IconForest = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600">
     <defs>
       <linearGradient id="sky" x2="0" y2="1">
-        <stop stop-color="#364659" />
+        <stop stopColor="#364659" />
 
-        <stop offset="1" stop-color="#81917a" />
+        <stop offset="1" stopColor="#81917a" />
       </linearGradient>
     </defs>
 

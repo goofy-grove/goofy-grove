@@ -4,3 +4,4 @@ export {
   useDeleteCharacterMutation,
   useUpdateCharacterMutation,
 } from './mutations';
+export { useCharacterActions } from './use-character-actions';

@@ -1,4 +1,4 @@
-import { IconDots } from '@tabler/icons-react';
+import { IconDotsVertical } from '@tabler/icons-react';
 import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -119,7 +119,7 @@ export const ChatListItem: FC<ChatListItemProps> = ({
           <Button
             variant="ghost"
             aria-label={t('grove.item_actions', { name: title })}
-            leftIcon={<IconDots size={20} />}
+            leftIcon={<IconDotsVertical size={20} />}
             onClick={() => onActions(uid)}
           />
         </div>
