@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useBreakpoints } from '@shared/ui';
-import type { ActionSheetItem } from '@shared/ui/action-sheet/types';
+import type { ActionSheetItem } from '@shared/ui/action-sheet';
 
 import { useDeleteCharacterMutation } from './mutations';
 
