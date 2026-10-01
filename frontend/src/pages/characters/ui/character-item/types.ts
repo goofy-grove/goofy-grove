@@ -7,6 +7,6 @@ export type CharacterItemProps = {
 
   onEdit?: (uid: string) => void;
   onDelete?: (uid: string) => void;
-  onLongPress?: (uid: string) => void;
+  onOpenAction?: (uid: string) => void;
   onClick?: (uid: string) => void;
 };

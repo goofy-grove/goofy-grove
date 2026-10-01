@@ -2,4 +2,8 @@
 
 .character-item {
   @include portrait.portrait-card;
+
+  &__dots-actions {
+    width: 100%;
+  }
 }

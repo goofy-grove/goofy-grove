@@ -84,7 +84,7 @@ export const CharactersPage: FC = () => {
               onDelete={handleDelete}
               onEdit={handleEdit}
               showActions={!isMobileSm}
-              onLongPress={handleOpenActionSheet}
+              onOpenAction={handleOpenActionSheet}
               onClick={handleEdit}
             />
           ))}

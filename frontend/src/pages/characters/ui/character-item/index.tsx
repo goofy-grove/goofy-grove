@@ -1,7 +1,6 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
 import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLongPress } from 'use-long-press';
 
 import { Button, FileAvatar, Text } from '@shared/ui';
 
@@ -18,21 +17,19 @@ export const CharacterItem: FC<CharacterItemProps> = ({
 
   onEdit,
   onDelete,
-  onLongPress,
   onClick,
+  onOpenAction,
 }) => {
   const { t } = useTranslation();
-  const handlers = useLongPress(() => onLongPress?.(uid), {
-    cancelOnMovement: true,
-    captureEvent: true,
-  });
+
+  const handleOpenAction = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    onOpenAction?.(uid);
+  };
 
   return (
-    <article
-      {...handlers()}
-      onClick={() => onClick?.(uid)}
-      className="character-item"
-    >
+    <article onClick={() => onClick?.(uid)} className="character-item">
       <FileAvatar
         className="character-item__avatar"
         variant="unbordered"
@@ -67,6 +64,15 @@ export const CharacterItem: FC<CharacterItemProps> = ({
             {t('character.actions.delete')}
           </Button>
         </div>
+      )}
+
+      {!showActions && (
+        <Button
+          className="character-item__dots-actions"
+          variant="ghost"
+          leftIcon={<IconDotsVertical size={17} />}
+          onClick={handleOpenAction}
+        />
       )}
     </article>
   );
