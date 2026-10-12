@@ -114,6 +114,7 @@
 
   line-height: var(--leading-normal);
   font-family: var(--font-ui);
+  -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
