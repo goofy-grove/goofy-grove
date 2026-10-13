@@ -22,11 +22,12 @@ export const CharacterItem: FC<CharacterItemProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const handleOpenAction = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
+  const handleWithStopPropagation =
+    (fn: () => void) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
 
-    onOpenAction?.(uid);
-  };
+      fn();
+    };
 
   return (
     <article onClick={() => onClick?.(uid)} className="character-item">
@@ -50,7 +51,7 @@ export const CharacterItem: FC<CharacterItemProps> = ({
           <Button
             variant="ghost"
             leftIcon={<IconPencil size={17} />}
-            onClick={() => onEdit?.(uid)}
+            onClick={handleWithStopPropagation(() => onEdit?.(uid))}
           >
             {t('character.actions.edit')}
           </Button>
@@ -59,7 +60,7 @@ export const CharacterItem: FC<CharacterItemProps> = ({
             variant="ghost"
             color="error"
             leftIcon={<IconTrash size={17} />}
-            onClick={() => onDelete?.(uid)}
+            onClick={handleWithStopPropagation(() => onDelete?.(uid))}
           >
             {t('character.actions.delete')}
           </Button>
@@ -71,7 +72,7 @@ export const CharacterItem: FC<CharacterItemProps> = ({
           className="character-item__dots-actions"
           variant="ghost"
           leftIcon={<IconDotsVertical size={17} />}
-          onClick={handleOpenAction}
+          onClick={handleWithStopPropagation(() => onOpenAction?.(uid))}
         />
       )}
     </article>
