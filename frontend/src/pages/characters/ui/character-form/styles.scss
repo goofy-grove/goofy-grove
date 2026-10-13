@@ -1,5 +1,4 @@
-@use '@shared/ui/styles/editor-form' as editor;
-
-.character-form {
-  @include editor.form;
+textarea.character-form__textarea {
+  min-height: 210px;
+  line-height: 1.7;
 }

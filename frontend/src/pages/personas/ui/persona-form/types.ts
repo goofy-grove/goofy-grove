@@ -3,13 +3,13 @@ export type PersonaFormProps = {
   description: string;
   isPending: boolean;
   submitLabel: string;
-  errorMessage?: string | null;
-  avatarUid?: string | null;
-  avatarPreviewUrl?: string | null;
+  errorMessage?: string;
+  avatarUid?: string;
+  avatarPreviewUrl?: string;
 
   onNameChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
-  onAvatarChange: (file: File | null) => void;
+  onAvatarChange: (file?: File) => void;
   onCancel: () => void;
   onSubmit: () => void;
 };

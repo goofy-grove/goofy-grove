@@ -14,6 +14,7 @@ export const Input: FC<InputProps> = ({
   'aria-describedby': describedBy,
   onChange,
   multiline,
+  className,
   ...rest
 }) => {
   const generatedId = useId();
@@ -33,7 +34,7 @@ export const Input: FC<InputProps> = ({
 
       {multiline ? (
         <textarea
-          className="input scrollbar"
+          className={`input scrollbar ${className}`}
           id={inputId}
           aria-describedby={descriptionIds}
           {...(rest as ComponentPropsWithRef<'textarea'>)}
@@ -41,7 +42,7 @@ export const Input: FC<InputProps> = ({
         />
       ) : (
         <input
-          className="input"
+          className={`input ${className}`}
           id={inputId}
           aria-describedby={descriptionIds}
           {...(rest as ComponentPropsWithRef<'input'>)}

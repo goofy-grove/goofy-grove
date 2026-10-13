@@ -32,12 +32,12 @@ const CharacterFormState: FC<CharacterFormStateProps> = ({
 
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File>();
+  const [errorMessage, setErrorMessage] = useState<string>();
   const avatarPreviewUrl = useObjectUrl(avatarFile);
 
   const handleSubmit = async () => {
-    setErrorMessage(null);
+    setErrorMessage(undefined);
 
     try {
       if (mode === 'edit') {
@@ -154,7 +154,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
       uid={character!.uid}
       initialName={character!.name}
       initialDescription={character!.description}
-      avatarUid={character!.avatar_uid}
+      avatarUid={character!.avatar_uid || undefined}
     />
   );
 };

@@ -8,5 +8,5 @@ export type PersonaFormStateProps = {
   uid?: string;
   initialName: string;
   initialDescription: string;
-  avatarUid?: string | null;
+  avatarUid?: string;
 };

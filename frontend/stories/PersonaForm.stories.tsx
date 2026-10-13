@@ -36,7 +36,7 @@ export const Create: Story = {
   render: function Create(args) {
     const [name, setName] = useState(args.name);
     const [description, setDescription] = useState(args.description);
-    const [avatar, setAvatar] = useState<File | null>(null);
+    const [avatar, setAvatar] = useState<File>();
     const preview = useObjectUrl(avatar);
 
     return (

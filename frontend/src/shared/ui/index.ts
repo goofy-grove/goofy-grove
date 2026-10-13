@@ -13,5 +13,6 @@ export * from './modal';
 export * from './select';
 export * from './text';
 export * from './action-sheet';
+export * from './form';
 
 export { LocaleSwitcher } from './locale-switcher';

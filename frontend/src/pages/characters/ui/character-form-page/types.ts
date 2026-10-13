@@ -8,5 +8,5 @@ export type CharacterFormStateProps = {
   uid?: string;
   initialName: string;
   initialDescription: string;
-  avatarUid?: string | null;
+  avatarUid?: string;
 };

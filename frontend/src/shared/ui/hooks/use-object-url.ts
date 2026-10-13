@@ -1,7 +1,10 @@
 import { useEffect, useMemo } from 'react';
 
-export const useObjectUrl = (file: File | null) => {
-  const url = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+export const useObjectUrl = (file?: File) => {
+  const url = useMemo(
+    () => (file ? URL.createObjectURL(file) : undefined),
+    [file],
+  );
 
   useEffect(
     () => () => {

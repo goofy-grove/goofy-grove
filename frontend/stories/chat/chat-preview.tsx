@@ -49,7 +49,7 @@ function CharacterEditor({
   const { t } = useTranslation('translation', { keyPrefix: 'chat' });
   const [name, setName] = useState(character.name);
   const [description, setDescription] = useState(character.description ?? '');
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File>();
   const preview = useObjectUrl(file);
   const dialog = useRef<HTMLDialogElement>(null);
 

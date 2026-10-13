@@ -32,12 +32,12 @@ const PersonaFormState: FC<PersonaFormStateProps> = ({
 
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File>();
+  const [errorMessage, setErrorMessage] = useState<string>();
   const avatarPreviewUrl = useObjectUrl(avatarFile);
 
   const handleSubmit = async () => {
-    setErrorMessage(null);
+    setErrorMessage(undefined);
 
     try {
       if (mode === 'edit') {
@@ -151,7 +151,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
       uid={persona!.uid}
       initialName={persona!.name}
       initialDescription={persona!.description}
-      avatarUid={persona!.avatar_uid}
+      avatarUid={persona!.avatar_uid || undefined}
     />
   );
 };
