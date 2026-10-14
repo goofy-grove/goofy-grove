@@ -130,6 +130,14 @@ pub fn scope_from_db(
                 character_uid: character_uid.to_string(),
             })
         }
+        SCOPE_CHAT_AVATAR => {
+            let chat_uid = scope_entity_uid.ok_or_else(|| "internal error".to_string())?;
+
+            Ok(FileScope::ChatAvatar {
+                user_uid: scope_owner_uid.to_string(),
+                chat_uid: chat_uid.to_string(),
+            })
+        }
         _ => Err("internal error".to_string()),
     }
 }
