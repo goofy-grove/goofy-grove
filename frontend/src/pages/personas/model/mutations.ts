@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { v4 } from 'uuid';
+import { v7 } from 'uuid';
 
 import { useAuthStore } from '@entities/auth';
 
@@ -42,7 +42,7 @@ export const useCreatePersonaMutation = () =>
       }
 
       const optimisticResult: Persona = {
-        uid: v4(),
+        uid: v7(),
         name,
         description,
         creator_uid: currentUserId,

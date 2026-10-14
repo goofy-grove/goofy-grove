@@ -99,8 +99,11 @@
     "character_hint": "Start with a name, then add personality and a backstory.",
     "persona_heading": "Your part in the story",
     "persona_hint": "Tell us who you will be in this world.",
+    "chat_heading": "Your story starts here",
+    "chat_hint": "Bring your characters together and imagine where your adventure begins.",
     "character_name": "For example, Moss — keeper of the grove",
     "persona_name": "What should others call you?",
+    "chat_name": "For example, A meeting in the enchanted grove",
     "character_description": "What does this character look like? What matters to them? How do they speak, and what do they hide?",
     "persona_description": "Describe your appearance, personality and role. What should the other characters know about you?",
     "description_hint": "Write freely. Use paragraphs to give your ideas room.",
@@ -108,9 +111,14 @@
     "saving": "Saving…",
     "save_changes": "Save changes",
     "character_intro": "Give your character a face and a personality. Little details bring a story to life.",
-    "persona_intro": "Create the identity you will use to take part in a story."
+    "persona_intro": "Create the identity you will use to take part in a story.",
+    "chat_intro": "Give your characters a place to meet. A few first words can grow into a wonderful story."
   },
   "chat": {
+    "labels": {
+      "name": "Name"
+    },
+    "edit_title": "Edit chat",
     "create_title": "Create chat",
     "title": "Where the mushrooms glow",
     "subtitle": "An evening at the old observatory",

@@ -1,0 +1,5 @@
+@use '@shared/ui/styles/editor-form' as editor;
+
+.chat-form-page {
+  @include editor.page;
+}

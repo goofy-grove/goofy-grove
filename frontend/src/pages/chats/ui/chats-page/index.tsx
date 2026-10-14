@@ -1,5 +1,5 @@
 import { IconPlusFilled } from '@tabler/icons-react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { toChatSummary, useChatsQuery } from '@pages/chats/model';
@@ -15,10 +15,15 @@ export const ChatsPage = () => {
 
   const chats = (data ?? []).map(toChatSummary);
 
+  const navigate = useNavigate();
+
   return (
     <div className="chats-page scrollbar">
       <PageHeader className="chats-page__header" title={t('menu.chats')}>
-        <Button leftIcon={<IconPlusFilled size={18} />} onClick={() => {}}>
+        <Button
+          leftIcon={<IconPlusFilled size={18} />}
+          onClick={() => void navigate({ to: '/chats/new' })}
+        >
           {t('chat.create_title')}
         </Button>
       </PageHeader>
@@ -26,24 +31,6 @@ export const ChatsPage = () => {
       <p className="chats-page__intro">{t('grove.chats_intro')}</p>
 
       <div className="chats-page__list scrollbar">
-        {chats.map((chat) => (
-          <ChatListItem
-            key={chat.uid}
-            {...chat}
-            onOpen={() => {}}
-            onActions={() => {}}
-          />
-        ))}
-
-        {chats.map((chat) => (
-          <ChatListItem
-            key={chat.uid}
-            {...chat}
-            onOpen={() => {}}
-            onActions={() => {}}
-          />
-        ))}
-
         {chats.map((chat) => (
           <ChatListItem
             key={chat.uid}

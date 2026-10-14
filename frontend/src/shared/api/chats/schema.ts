@@ -17,7 +17,7 @@ export const ChatCharacterSchema = CharacterSchema.extend({
   chat_uid: z.string(),
 });
 
-export const ChatSchema = z.object({
+export const ChatInfoSchema = z.object({
   uid: z.string(),
   name: z.string(),
   created_at: z.iso
@@ -25,6 +25,15 @@ export const ChatSchema = z.object({
     .transform((date) => new Date(date)),
   creator_uid: z.string(),
   avatar_uid: z.string().nullable(),
+});
+
+export const ChatSchema = ChatInfoSchema.extend({
   members: z.array(ChatMemberSchema),
   characters: z.array(ChatCharacterSchema),
 });
+
+// pub uid: String,
+// pub name: String,
+// pub created_at: DateTime<Utc>,
+// pub creator_uid: String,
+// pub avatar_uid: Option<String>,

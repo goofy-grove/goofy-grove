@@ -21,3 +21,5 @@ export type {
   LoadChatHistory,
   ChatAdapterContext,
 } from './types';
+
+export { useCreateChatMutation } from './mutations';
