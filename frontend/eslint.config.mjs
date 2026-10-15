@@ -12,8 +12,6 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-import logicalBlockSpacing from './eslint-rules/logical-block-spacing.mjs';
-
 export default defineConfig(
   globalIgnores(['dist', 'storybook-static']),
   js.configs.recommended,
@@ -49,7 +47,6 @@ export default defineConfig(
       '@dword-design/import-alias/prefer-alias': {
         shouldReadTsConfig: false,
       },
-      local: logicalBlockSpacing,
       react,
     },
     languageOptions: {
@@ -70,12 +67,11 @@ export default defineConfig(
           project: './',
           tsconfig: './tsconfig.eslint.json',
         }),
-      ]
+      ],
     },
     rules: {
       'prettier/prettier': 'error',
       'react/jsx-newline': ['error', { prevent: false }],
-      'local/logical-block-spacing': 'error',
       'no-multiple-empty-lines': ['error', { max: 1, maxBOF: 0, maxEOF: 0 }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
@@ -83,14 +79,14 @@ export default defineConfig(
         'error',
         {
           alias: {
-            "@shared/*": "./src/shared/*",
-            "@entities/*": "./src/entities/*",
-            "@features/*": "./src/features/*",
-            "@widgets/*": "./src/widgets/*",
-            "@pages/*": "./src/pages/*",
-            "@app/*": "./src/app/*"
+            '@shared/*': './src/shared/*',
+            '@entities/*': './src/entities/*',
+            '@features/*': './src/features/*',
+            '@widgets/*': './src/widgets/*',
+            '@pages/*': './src/pages/*',
+            '@app/*': './src/app/*',
           },
-        }
+        },
       ],
       '@typescript-eslint/no-misused-promises': [
         'error',
@@ -166,4 +162,3 @@ export default defineConfig(
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
 );
-
