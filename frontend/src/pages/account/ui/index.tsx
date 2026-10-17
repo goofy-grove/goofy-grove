@@ -32,7 +32,7 @@ export const AccountPage = () => {
         </Button>
       </PageHeader>
 
-      <Text>{t('account.intro')}</Text>
+      <Text className="account-page__intro">{t('account.intro')}</Text>
 
       <Form
         headingText={t('account.info.title')}
