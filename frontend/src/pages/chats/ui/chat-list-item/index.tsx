@@ -1,89 +1,83 @@
 import { IconDotsVertical } from '@tabler/icons-react';
-import { useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { FileAvatar, Button, IconForest, useFileUrl } from '@shared/ui';
+import { FileAvatar, Button, IconForest, useBreakpoints } from '@shared/ui';
 
 import type { ChatListItemProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 
 export const ChatListItem: FC<ChatListItemProps> = ({
   uid,
   title,
-  imageUrl,
   avatarUid,
   characters,
   lastMessage,
-  activity,
-  unreadCount = 0,
   generatingCharacterName,
   onOpen,
   onActions,
 }) => {
   const { t } = useTranslation();
-  const fileUrl = useFileUrl(imageUrl ? null : avatarUid);
-  const sceneUrl = imageUrl ?? fileUrl;
-  const [failedImage, setFailedImage] = useState<string>();
-  const hasUnread = unreadCount > 0;
+  const { isMobileSm } = useBreakpoints();
+  // FIXME: move to contstant
   const visibleCharacters = characters.slice(0, 3);
 
+  const handleActions = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    onActions?.(uid);
+  };
+
   return (
-    <article
-      className={`chat-list-item ${hasUnread ? 'chat-list-item--unread' : ''}`}
-      aria-labelledby={`${uid}-title`}
-    >
-      <div className="chat-list-item__image" aria-hidden="true">
-        {sceneUrl && failedImage !== sceneUrl ? (
-          <img src={sceneUrl} alt="" onError={() => setFailedImage(sceneUrl)} />
-        ) : (
-          <IconForest />
-        )}
+    <article className="chat-list-item" onClick={() => onOpen?.(uid)}>
+      <div className="chat-list-item__image">
+        <FileAvatar
+          fileUid={avatarUid}
+          fallback={<IconForest />}
+          variant="unbordered"
+        />
       </div>
 
       <div className="chat-list-item__content">
-        <h3 className="chat-list-item__title" id={`${uid}-title`}>
-          <button
-            type="button"
-            onClick={() => onOpen(uid)}
-            aria-describedby={`${uid}-preview${hasUnread ? ` ${uid}-unread` : ''}`}
-          >
-            {title}
-          </button>
-        </h3>
+        <h3 className="chat-list-item__title">{title}</h3>
 
-        <p
-          id={`${uid}-preview`}
+        <div
           className={`chat-list-item__preview ${generatingCharacterName ? 'chat-list-item__preview--generating' : ''}`}
         >
           {generatingCharacterName ? (
-            <>
-              <span className="chat-list-item__pulse" aria-hidden="true" />
+            <div className="chat-list-item__generating-block">
+              <span className="chat-list-item__pulse" />
 
-              {t('chat.list.responding', { name: generatingCharacterName })}
-            </>
+              <p className="chat-list-item__preview-responding-name">
+                {generatingCharacterName}
+              </p>
+
+              <span>{t('chat.list.responding')}</span>
+            </div>
           ) : lastMessage ? (
-            <>
+            <div className="chat-list-item__message-block">
               <span className="chat-list-item__author">
-                {`${lastMessage.author}: `}
+                {lastMessage.author}
               </span>
 
-              {lastMessage.text}
-            </>
+              <span className="chat-list-item__text">
+                {isMobileSm ? lastMessage.text : `: ${lastMessage.text}`}
+              </span>
+            </div>
           ) : (
             t('chat.list.noMessages')
           )}
-        </p>
+        </div>
 
         <div className="chat-list-item__cast">
-          <div className="chat-list-item__avatars" aria-hidden="true">
+          <div className="chat-list-item__avatars">
             {visibleCharacters.map((character) => (
               <div className="chat-list-item__avatar" key={character.id}>
                 <FileAvatar
                   previewUrl={character.previewUrl}
                   fileUid={character.avatarUid}
                   fallback={character.initials}
-                  alt=""
                   variant="unbordered"
                 />
               </div>
@@ -98,29 +92,12 @@ export const ChatListItem: FC<ChatListItemProps> = ({
         </div>
       </div>
 
-      <div className="chat-list-item__meta">
-        {activity && <time dateTime={activity.dateTime}>{activity.label}</time>}
-
-        {hasUnread && (
-          <span className="chat-list-item__unread" id={`${uid}-unread`}>
-            <span aria-hidden="true">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-
-            <span className="chat-list-item__unread-label">
-              {t('chat.list.unread', { count: unreadCount })}
-            </span>
-          </span>
-        )}
-      </div>
-
       {onActions && (
         <div className="chat-list-item__actions">
           <Button
             variant="ghost"
-            aria-label={t('grove.item_actions', { name: title })}
-            leftIcon={<IconDotsVertical size={20} />}
-            onClick={() => onActions(uid)}
+            leftIcon={<IconDotsVertical size={24} />}
+            onClick={handleActions}
           />
         </div>
       )}

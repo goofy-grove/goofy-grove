@@ -138,7 +138,7 @@ export const English: Story = {
 export const InList: Story = {
   render: (args) => (
     <div style={{ display: 'grid', gap: 12 }}>
-      <ChatListItem {...args} unreadCount={3} />
+      <ChatListItem {...args} />
 
       <ChatListItem
         {...args}

@@ -176,7 +176,7 @@
     "users": "Users",
     "noCharacters": "No characters in this story yet.",
     "list": {
-      "responding": "{{name}} is replying…",
+      "responding": "is replying…",
       "noMessages": "The first words are yours.",
       "characters_zero": "No characters yet",
       "characters_one": "{{count}} character",

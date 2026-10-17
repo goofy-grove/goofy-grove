@@ -176,7 +176,7 @@
     "users": "Пользователи",
     "noCharacters": "В этой истории пока нет персонажей.",
     "list": {
-      "responding": "{{name}} отвечает…",
+      "responding": "отвечает…",
       "noMessages": "Первые слова за вами.",
       "characters_zero": "Пока без персонажей",
       "characters_one": "{{count}} персонаж",

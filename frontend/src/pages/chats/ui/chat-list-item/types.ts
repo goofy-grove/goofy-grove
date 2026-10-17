@@ -11,9 +11,8 @@ export type ChatListItemProps = {
   >[];
   lastMessage?: { author: string; text: string };
   activity?: { label: string; dateTime: string };
-  unreadCount?: number;
   generatingCharacterName?: string;
 
-  onOpen: (uid: string) => void;
+  onOpen?: (uid: string) => void;
   onActions?: (uid: string) => void;
 };
