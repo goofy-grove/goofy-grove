@@ -9,27 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as MainLayoutRouteImport } from './routes/_main-layout'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MainLayoutIndexRouteImport } from './routes/_main-layout/index'
-import { Route as MainLayoutSettingsIndexRouteImport } from './routes/_main-layout/settings/index'
-import { Route as MainLayoutPersonasIndexRouteImport } from './routes/_main-layout/personas/index'
-import { Route as MainLayoutChatsIndexRouteImport } from './routes/_main-layout/chats/index'
-import { Route as MainLayoutCharactersIndexRouteImport } from './routes/_main-layout/characters/index'
 import { Route as MainLayoutAccountIndexRouteImport } from './routes/_main-layout/account/index'
-import { Route as MainLayoutPersonasNewRouteImport } from './routes/_main-layout/personas/new'
-import { Route as MainLayoutPersonasUidRouteImport } from './routes/_main-layout/personas/$uid'
-import { Route as MainLayoutChatsNewRouteImport } from './routes/_main-layout/chats/new'
-import { Route as MainLayoutCharactersNewRouteImport } from './routes/_main-layout/characters/new'
+import { Route as MainLayoutCharactersIndexRouteImport } from './routes/_main-layout/characters/index'
 import { Route as MainLayoutCharactersUidRouteImport } from './routes/_main-layout/characters/$uid'
+import { Route as MainLayoutCharactersNewRouteImport } from './routes/_main-layout/characters/new'
+import { Route as MainLayoutChatsIndexRouteImport } from './routes/_main-layout/chats/index'
+import { Route as MainLayoutChatsNewRouteImport } from './routes/_main-layout/chats/new'
+import { Route as MainLayoutPersonasIndexRouteImport } from './routes/_main-layout/personas/index'
+import { Route as MainLayoutPersonasUidRouteImport } from './routes/_main-layout/personas/$uid'
+import { Route as MainLayoutPersonasNewRouteImport } from './routes/_main-layout/personas/new'
+import { Route as MainLayoutSettingsIndexRouteImport } from './routes/_main-layout/settings/index'
 
+const MainLayoutRoute = MainLayoutRouteImport.update({
+  id: '/_main-layout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MainLayoutRoute = MainLayoutRouteImport.update({
-  id: '/_main-layout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainLayoutIndexRoute = MainLayoutIndexRouteImport.update({
@@ -37,19 +37,9 @@ const MainLayoutIndexRoute = MainLayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => MainLayoutRoute,
 } as any)
-const MainLayoutSettingsIndexRoute = MainLayoutSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => MainLayoutRoute,
-} as any)
-const MainLayoutPersonasIndexRoute = MainLayoutPersonasIndexRouteImport.update({
-  id: '/personas/',
-  path: '/personas/',
-  getParentRoute: () => MainLayoutRoute,
-} as any)
-const MainLayoutChatsIndexRoute = MainLayoutChatsIndexRouteImport.update({
-  id: '/chats/',
-  path: '/chats/',
+const MainLayoutAccountIndexRoute = MainLayoutAccountIndexRouteImport.update({
+  id: '/account/',
+  path: '/account/',
   getParentRoute: () => MainLayoutRoute,
 } as any)
 const MainLayoutCharactersIndexRoute =
@@ -58,24 +48,9 @@ const MainLayoutCharactersIndexRoute =
     path: '/characters/',
     getParentRoute: () => MainLayoutRoute,
   } as any)
-const MainLayoutAccountIndexRoute = MainLayoutAccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => MainLayoutRoute,
-} as any)
-const MainLayoutPersonasNewRoute = MainLayoutPersonasNewRouteImport.update({
-  id: '/personas/new',
-  path: '/personas/new',
-  getParentRoute: () => MainLayoutRoute,
-} as any)
-const MainLayoutPersonasUidRoute = MainLayoutPersonasUidRouteImport.update({
-  id: '/personas/$uid',
-  path: '/personas/$uid',
-  getParentRoute: () => MainLayoutRoute,
-} as any)
-const MainLayoutChatsNewRoute = MainLayoutChatsNewRouteImport.update({
-  id: '/chats/new',
-  path: '/chats/new',
+const MainLayoutCharactersUidRoute = MainLayoutCharactersUidRouteImport.update({
+  id: '/characters/$uid',
+  path: '/characters/$uid',
   getParentRoute: () => MainLayoutRoute,
 } as any)
 const MainLayoutCharactersNewRoute = MainLayoutCharactersNewRouteImport.update({
@@ -83,9 +58,34 @@ const MainLayoutCharactersNewRoute = MainLayoutCharactersNewRouteImport.update({
   path: '/characters/new',
   getParentRoute: () => MainLayoutRoute,
 } as any)
-const MainLayoutCharactersUidRoute = MainLayoutCharactersUidRouteImport.update({
-  id: '/characters/$uid',
-  path: '/characters/$uid',
+const MainLayoutChatsIndexRoute = MainLayoutChatsIndexRouteImport.update({
+  id: '/chats/',
+  path: '/chats/',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
+const MainLayoutChatsNewRoute = MainLayoutChatsNewRouteImport.update({
+  id: '/chats/new',
+  path: '/chats/new',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
+const MainLayoutPersonasIndexRoute = MainLayoutPersonasIndexRouteImport.update({
+  id: '/personas/',
+  path: '/personas/',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
+const MainLayoutPersonasUidRoute = MainLayoutPersonasUidRouteImport.update({
+  id: '/personas/$uid',
+  path: '/personas/$uid',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
+const MainLayoutPersonasNewRoute = MainLayoutPersonasNewRouteImport.update({
+  id: '/personas/new',
+  path: '/personas/new',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
+const MainLayoutSettingsIndexRoute = MainLayoutSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => MainLayoutRoute,
 } as any)
 
@@ -186,18 +186,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_main-layout': {
       id: '/_main-layout'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof MainLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_main-layout/': {
@@ -207,25 +207,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutIndexRouteImport
       parentRoute: typeof MainLayoutRoute
     }
-    '/_main-layout/settings/': {
-      id: '/_main-layout/settings/'
-      path: '/settings'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof MainLayoutSettingsIndexRouteImport
-      parentRoute: typeof MainLayoutRoute
-    }
-    '/_main-layout/personas/': {
-      id: '/_main-layout/personas/'
-      path: '/personas'
-      fullPath: '/personas/'
-      preLoaderRoute: typeof MainLayoutPersonasIndexRouteImport
-      parentRoute: typeof MainLayoutRoute
-    }
-    '/_main-layout/chats/': {
-      id: '/_main-layout/chats/'
-      path: '/chats'
-      fullPath: '/chats/'
-      preLoaderRoute: typeof MainLayoutChatsIndexRouteImport
+    '/_main-layout/account/': {
+      id: '/_main-layout/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof MainLayoutAccountIndexRouteImport
       parentRoute: typeof MainLayoutRoute
     }
     '/_main-layout/characters/': {
@@ -235,32 +221,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutCharactersIndexRouteImport
       parentRoute: typeof MainLayoutRoute
     }
-    '/_main-layout/account/': {
-      id: '/_main-layout/account/'
-      path: '/account'
-      fullPath: '/account/'
-      preLoaderRoute: typeof MainLayoutAccountIndexRouteImport
-      parentRoute: typeof MainLayoutRoute
-    }
-    '/_main-layout/personas/new': {
-      id: '/_main-layout/personas/new'
-      path: '/personas/new'
-      fullPath: '/personas/new'
-      preLoaderRoute: typeof MainLayoutPersonasNewRouteImport
-      parentRoute: typeof MainLayoutRoute
-    }
-    '/_main-layout/personas/$uid': {
-      id: '/_main-layout/personas/$uid'
-      path: '/personas/$uid'
-      fullPath: '/personas/$uid'
-      preLoaderRoute: typeof MainLayoutPersonasUidRouteImport
-      parentRoute: typeof MainLayoutRoute
-    }
-    '/_main-layout/chats/new': {
-      id: '/_main-layout/chats/new'
-      path: '/chats/new'
-      fullPath: '/chats/new'
-      preLoaderRoute: typeof MainLayoutChatsNewRouteImport
+    '/_main-layout/characters/$uid': {
+      id: '/_main-layout/characters/$uid'
+      path: '/characters/$uid'
+      fullPath: '/characters/$uid'
+      preLoaderRoute: typeof MainLayoutCharactersUidRouteImport
       parentRoute: typeof MainLayoutRoute
     }
     '/_main-layout/characters/new': {
@@ -270,11 +235,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutCharactersNewRouteImport
       parentRoute: typeof MainLayoutRoute
     }
-    '/_main-layout/characters/$uid': {
-      id: '/_main-layout/characters/$uid'
-      path: '/characters/$uid'
-      fullPath: '/characters/$uid'
-      preLoaderRoute: typeof MainLayoutCharactersUidRouteImport
+    '/_main-layout/chats/': {
+      id: '/_main-layout/chats/'
+      path: '/chats'
+      fullPath: '/chats/'
+      preLoaderRoute: typeof MainLayoutChatsIndexRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
+    '/_main-layout/chats/new': {
+      id: '/_main-layout/chats/new'
+      path: '/chats/new'
+      fullPath: '/chats/new'
+      preLoaderRoute: typeof MainLayoutChatsNewRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
+    '/_main-layout/personas/': {
+      id: '/_main-layout/personas/'
+      path: '/personas'
+      fullPath: '/personas/'
+      preLoaderRoute: typeof MainLayoutPersonasIndexRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
+    '/_main-layout/personas/$uid': {
+      id: '/_main-layout/personas/$uid'
+      path: '/personas/$uid'
+      fullPath: '/personas/$uid'
+      preLoaderRoute: typeof MainLayoutPersonasUidRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
+    '/_main-layout/personas/new': {
+      id: '/_main-layout/personas/new'
+      path: '/personas/new'
+      fullPath: '/personas/new'
+      preLoaderRoute: typeof MainLayoutPersonasNewRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
+    '/_main-layout/settings/': {
+      id: '/_main-layout/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof MainLayoutSettingsIndexRouteImport
       parentRoute: typeof MainLayoutRoute
     }
   }
