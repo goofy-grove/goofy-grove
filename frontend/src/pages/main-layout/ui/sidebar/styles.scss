@@ -9,6 +9,7 @@
   padding: 36px 20px 24px;
   background: var(--grove-forest);
   color: var(--grove-on-forest);
+  border-right: 1px solid var(--border-default);
 
   &__brand {
     display: flex;
