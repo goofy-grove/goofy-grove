@@ -27,7 +27,7 @@
     overflow: hidden;
     border-radius: var(--radius-md);
     background: var(--grove-forest);
-    border: 1px solid var(--border-default);
+    border: 1px solid color-mix(in srgb, var(--grove-lilac) 18%, transparent);
 
     > img {
       width: 100%;
