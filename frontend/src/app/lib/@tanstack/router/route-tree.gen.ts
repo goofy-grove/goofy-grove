@@ -16,6 +16,7 @@ import { Route as MainLayoutSettingsIndexRouteImport } from './routes/_main-layo
 import { Route as MainLayoutPersonasIndexRouteImport } from './routes/_main-layout/personas/index'
 import { Route as MainLayoutChatsIndexRouteImport } from './routes/_main-layout/chats/index'
 import { Route as MainLayoutCharactersIndexRouteImport } from './routes/_main-layout/characters/index'
+import { Route as MainLayoutAccountIndexRouteImport } from './routes/_main-layout/account/index'
 import { Route as MainLayoutPersonasNewRouteImport } from './routes/_main-layout/personas/new'
 import { Route as MainLayoutPersonasUidRouteImport } from './routes/_main-layout/personas/$uid'
 import { Route as MainLayoutChatsNewRouteImport } from './routes/_main-layout/chats/new'
@@ -57,6 +58,11 @@ const MainLayoutCharactersIndexRoute =
     path: '/characters/',
     getParentRoute: () => MainLayoutRoute,
   } as any)
+const MainLayoutAccountIndexRoute = MainLayoutAccountIndexRouteImport.update({
+  id: '/account/',
+  path: '/account/',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
 const MainLayoutPersonasNewRoute = MainLayoutPersonasNewRouteImport.update({
   id: '/personas/new',
   path: '/personas/new',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/chats/new': typeof MainLayoutChatsNewRoute
   '/personas/$uid': typeof MainLayoutPersonasUidRoute
   '/personas/new': typeof MainLayoutPersonasNewRoute
+  '/account/': typeof MainLayoutAccountIndexRoute
   '/characters/': typeof MainLayoutCharactersIndexRoute
   '/chats/': typeof MainLayoutChatsIndexRoute
   '/personas/': typeof MainLayoutPersonasIndexRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/chats/new': typeof MainLayoutChatsNewRoute
   '/personas/$uid': typeof MainLayoutPersonasUidRoute
   '/personas/new': typeof MainLayoutPersonasNewRoute
+  '/account': typeof MainLayoutAccountIndexRoute
   '/characters': typeof MainLayoutCharactersIndexRoute
   '/chats': typeof MainLayoutChatsIndexRoute
   '/personas': typeof MainLayoutPersonasIndexRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/_main-layout/chats/new': typeof MainLayoutChatsNewRoute
   '/_main-layout/personas/$uid': typeof MainLayoutPersonasUidRoute
   '/_main-layout/personas/new': typeof MainLayoutPersonasNewRoute
+  '/_main-layout/account/': typeof MainLayoutAccountIndexRoute
   '/_main-layout/characters/': typeof MainLayoutCharactersIndexRoute
   '/_main-layout/chats/': typeof MainLayoutChatsIndexRoute
   '/_main-layout/personas/': typeof MainLayoutPersonasIndexRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/chats/new'
     | '/personas/$uid'
     | '/personas/new'
+    | '/account/'
     | '/characters/'
     | '/chats/'
     | '/personas/'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/chats/new'
     | '/personas/$uid'
     | '/personas/new'
+    | '/account'
     | '/characters'
     | '/chats'
     | '/personas'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/_main-layout/chats/new'
     | '/_main-layout/personas/$uid'
     | '/_main-layout/personas/new'
+    | '/_main-layout/account/'
     | '/_main-layout/characters/'
     | '/_main-layout/chats/'
     | '/_main-layout/personas/'
@@ -223,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutCharactersIndexRouteImport
       parentRoute: typeof MainLayoutRoute
     }
+    '/_main-layout/account/': {
+      id: '/_main-layout/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof MainLayoutAccountIndexRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
     '/_main-layout/personas/new': {
       id: '/_main-layout/personas/new'
       path: '/personas/new'
@@ -268,6 +287,7 @@ interface MainLayoutRouteChildren {
   MainLayoutChatsNewRoute: typeof MainLayoutChatsNewRoute
   MainLayoutPersonasUidRoute: typeof MainLayoutPersonasUidRoute
   MainLayoutPersonasNewRoute: typeof MainLayoutPersonasNewRoute
+  MainLayoutAccountIndexRoute: typeof MainLayoutAccountIndexRoute
   MainLayoutCharactersIndexRoute: typeof MainLayoutCharactersIndexRoute
   MainLayoutChatsIndexRoute: typeof MainLayoutChatsIndexRoute
   MainLayoutPersonasIndexRoute: typeof MainLayoutPersonasIndexRoute
@@ -281,6 +301,7 @@ const MainLayoutRouteChildren: MainLayoutRouteChildren = {
   MainLayoutChatsNewRoute: MainLayoutChatsNewRoute,
   MainLayoutPersonasUidRoute: MainLayoutPersonasUidRoute,
   MainLayoutPersonasNewRoute: MainLayoutPersonasNewRoute,
+  MainLayoutAccountIndexRoute: MainLayoutAccountIndexRoute,
   MainLayoutCharactersIndexRoute: MainLayoutCharactersIndexRoute,
   MainLayoutChatsIndexRoute: MainLayoutChatsIndexRoute,
   MainLayoutPersonasIndexRoute: MainLayoutPersonasIndexRoute,

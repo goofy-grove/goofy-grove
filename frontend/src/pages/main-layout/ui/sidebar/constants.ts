@@ -3,6 +3,7 @@ import {
   IconRobot,
   IconSettings,
   IconUser,
+  IconUserCircle,
 } from '@tabler/icons-react';
 
 export const SIDEBAR_ITEMS = [
@@ -25,5 +26,10 @@ export const SIDEBAR_ITEMS = [
     title: 'menu.settings',
     to: '/settings',
     icon: IconSettings,
+  },
+  {
+    title: 'menu.account',
+    to: '/account',
+    icon: IconUserCircle,
   },
 ] as const;

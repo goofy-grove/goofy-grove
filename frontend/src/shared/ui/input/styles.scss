@@ -19,7 +19,20 @@
     pointer-events: none;
   }
 
+  &-with-actions {
+    position: relative;
+  }
+
+  &__copy-button {
+    position: absolute;
+
+    aspect-ratio: 1/1;
+    right: 3px;
+    top: 3px;
+  }
+
   &-wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;

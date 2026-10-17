@@ -70,7 +70,17 @@
     "personas": "Personas",
     "characters": "Characters",
     "chats": "Chats",
-    "settings": "Settings"
+    "settings": "Settings",
+    "account": "Profile"
+  },
+  "account": {
+    "title": "Profile settings",
+    "intro": "You’re one of this grove’s many wonders. Share a little about yourself in your profile",
+    "info": {
+      "title": "General information",
+      "username": "Username",
+      "save": "Save changes"
+    }
   },
   "grove": {
     "navigation": "Main navigation",
@@ -87,7 +97,7 @@
     "explore_characters": "Explore characters",
     "welcome": "A home for your wildest stories.",
     "welcome_description": "Dream up characters. Find your role. Let a little imagination grow.",
-    "settings_intro": "Make yourself at home.",
+    "settings_intro": "Settle in and make things your own",
     "session": "Your session"
   },
   "forms": {

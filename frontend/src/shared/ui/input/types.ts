@@ -3,6 +3,7 @@ import type { ComponentPropsWithRef } from 'react';
 type InputBaseProps = {
   label?: string;
   hint?: string;
+  isCopyable?: boolean;
   onChange?: (value: string) => void;
 };
 

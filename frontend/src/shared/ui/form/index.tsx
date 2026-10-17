@@ -110,9 +110,11 @@ export const Form: FC<FormProps> = ({
         <span className="app-form__save-note">{t('forms.save_hint')}</span>
 
         <div className="app-form__actions">
-          <Button variant="ghost" disabled={isPending} onClick={onCancel}>
-            {t('common.cancel')}
-          </Button>
+          {onCancel && (
+            <Button variant="ghost" disabled={isPending} onClick={onCancel}>
+              {t('common.cancel')}
+            </Button>
+          )}
 
           <Button
             type="submit"
