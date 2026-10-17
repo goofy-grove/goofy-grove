@@ -42,7 +42,7 @@ export const Sidebar = () => {
               aria-current={isActive ? 'page' : undefined}
               className={`sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
             >
-              <Icon size={isMobileSm ? 32 : 24} stroke={1.7} />
+              <Icon size={isMobileSm ? 28 : 24} stroke={1.7} />
 
               <span>{t(title)}</span>
             </Link>
