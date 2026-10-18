@@ -17,6 +17,7 @@ export const Dropdown: FC<DropdownProps> = ({
   children,
   isOpen,
   trigger,
+  virtualReference,
   onShow,
   onHide,
   matchTriggerWidth = false,
@@ -58,12 +59,16 @@ export const Dropdown: FC<DropdownProps> = ({
     }
   };
 
-  const setReference = (node: HTMLDivElement) => {
+  useEffect(() => {
+    refs.setPositionReference(virtualReference ?? dropdownRef.current);
+  }, [refs, virtualReference]);
+
+  const setReference = (node: HTMLDivElement | null) => {
     refs.setReference(node);
     dropdownRef.current = node;
   };
 
-  const setFloating = (node: HTMLDivElement) => {
+  const setFloating = (node: HTMLDivElement | null) => {
     refs.setFloating(node);
     contentRef.current = node;
   };
@@ -93,13 +98,15 @@ export const Dropdown: FC<DropdownProps> = ({
 
   return (
     <div className="dropdown">
-      <div
-        className="dropdown__trigger"
-        onClick={handleClick}
-        ref={setReference}
-      >
-        {trigger}
-      </div>
+      {!virtualReference && (
+        <div
+          className="dropdown__trigger"
+          onClick={handleClick}
+          ref={setReference}
+        >
+          {trigger}
+        </div>
+      )}
 
       {isOpen &&
         createPortal(

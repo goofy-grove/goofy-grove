@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { Button, Card, Dropdown, Input } from '@shared/ui';
 
+import type { VirtualElement } from '@floating-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = { title: 'Controls/Overview' } satisfies Meta;
@@ -12,30 +13,34 @@ type Story = StoryObj<typeof meta>;
 export const Buttons: Story = {
   render: () => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-      <Button>Сохранить</Button>
+      <Button>Save</Button>
 
-      <Button variant="ghost">Отмена</Button>
+      <Button variant="ghost">Cancel</Button>
 
       <Button color="error" variant="ghost">
-        Удалить
+        Delete
       </Button>
 
-      <Button disabled>Сохраняем…</Button>
+      <Button disabled>Saving…</Button>
     </div>
   ),
 };
 
 export const Fields: Story = {
   render: function Fields() {
-    const [value, setValue] = useState('Мох');
+    const [value, setValue] = useState('Moss');
 
     return (
       <div style={{ maxWidth: 480, display: 'grid', gap: 24 }}>
-        <Input label="Имя" value={value} onChange={setValue} />
+        <Input label="Name" value={value} onChange={setValue} />
 
-        <Input label="Описание" multiline hint="Расскажите о своём герое." />
+        <Input
+          label="Description"
+          multiline
+          hint="Tell us about your character."
+        />
 
-        <Input label="Недоступное поле" disabled value="Сохраняем…" />
+        <Input label="Disabled field" disabled value="Saving…" />
       </div>
     );
   },
@@ -43,9 +48,9 @@ export const Fields: Story = {
 
 export const Panel: Story = {
   render: () => (
-    <Card title="Новая история" style={{ maxWidth: 420 }}>
+    <Card title="New story" style={{ maxWidth: 420 }}>
       <p style={{ padding: '0 24px 24px', margin: 0 }}>
-        Место для героев и маленьких приключений.
+        A place for characters and little adventures.
       </p>
     </Card>
   ),
@@ -60,14 +65,14 @@ export const ActionMenu: Story = {
         isOpen={open}
         onShow={() => setOpen(true)}
         onHide={() => setOpen(false)}
-        trigger={<Button variant="ghost">Действия</Button>}
+        trigger={<Button variant="ghost">Actions</Button>}
       >
         <Button
           variant="ghost"
           leftIcon={<IconPencil size={18} />}
           onClick={() => setOpen(false)}
         >
-          Редактировать
+          Edit
         </Button>
 
         <hr className="dropdown__separator" />
@@ -78,9 +83,113 @@ export const ActionMenu: Story = {
           leftIcon={<IconTrash size={18} />}
           onClick={() => setOpen(false)}
         >
-          Удалить
+          Delete
         </Button>
       </Dropdown>
+    );
+  },
+};
+
+export const VirtualActionMenu: Story = {
+  render: function VirtualActionMenu() {
+    const [open, setOpen] = useState(false);
+    const [anchor, setAnchor] = useState<VirtualElement | null>(null);
+
+    return (
+      <>
+        <div
+          style={{ padding: 64, border: '1px dashed var(--border-default)' }}
+          onContextMenu={(event) => {
+            event.preventDefault();
+
+            const { clientX, clientY } = event;
+
+            setAnchor({
+              getBoundingClientRect: () => new DOMRect(clientX, clientY, 0, 0),
+            });
+            setOpen(true);
+          }}
+        >
+          Right-click to open the menu.
+        </div>
+
+        <Dropdown
+          isOpen={open}
+          virtualReference={anchor}
+          onHide={() => setOpen(false)}
+        >
+          <Button
+            variant="ghost"
+            leftIcon={<IconPencil size={18} />}
+            onClick={() => setOpen(false)}
+          >
+            Edit
+          </Button>
+
+          <hr className="dropdown__separator" />
+
+          <Button
+            variant="ghost"
+            color="error"
+            leftIcon={<IconTrash size={18} />}
+            onClick={() => setOpen(false)}
+          >
+            Delete
+          </Button>
+        </Dropdown>
+      </>
+    );
+  },
+};
+
+export const SharedListActionMenu: Story = {
+  render: function SharedListActionMenu() {
+    const [activeItem, setActiveItem] = useState<{
+      name: string;
+      anchor: HTMLButtonElement;
+    } | null>(null);
+
+    return (
+      <>
+        <div style={{ display: 'grid', gap: 12, maxWidth: 320 }}>
+          {['Moss', 'Fern', 'Willow'].map((name) => (
+            <Button
+              key={name}
+              onClick={(event) => {
+                event.stopPropagation();
+                setActiveItem({ name, anchor: event.currentTarget });
+              }}
+            >
+              Actions for {name}
+            </Button>
+          ))}
+        </div>
+
+        <Dropdown
+          isOpen={activeItem !== null}
+          virtualReference={activeItem?.anchor}
+          onHide={() => setActiveItem(null)}
+        >
+          <Button
+            variant="ghost"
+            leftIcon={<IconPencil size={18} />}
+            onClick={() => setActiveItem(null)}
+          >
+            Edit {activeItem?.name}
+          </Button>
+
+          <hr className="dropdown__separator" />
+
+          <Button
+            variant="ghost"
+            color="error"
+            leftIcon={<IconTrash size={18} />}
+            onClick={() => setActiveItem(null)}
+          >
+            Delete {activeItem?.name}
+          </Button>
+        </Dropdown>
+      </>
     );
   },
 };
