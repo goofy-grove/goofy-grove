@@ -85,18 +85,6 @@ export const Dropdown: FC<DropdownProps> = ({
   };
 
   useEffect(() => {
-    if (isDropdownOpen) {
-      const target =
-        contentRef.current?.querySelector<HTMLElement>(
-          '[aria-selected="true"]',
-        ) ??
-        contentRef.current?.querySelector<HTMLElement>('button:not(:disabled)');
-
-      target?.focus();
-    }
-  }, [isDropdownOpen]);
-
-  useEffect(() => {
     if (!isDropdownOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -110,37 +98,9 @@ export const Dropdown: FC<DropdownProps> = ({
       handleHide();
     };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === 'Tab' &&
-        contentRef.current?.contains(document.activeElement)
-      ) {
-        const buttons = Array.from(
-          contentRef.current.querySelectorAll('button:not(:disabled)'),
-        );
-        const atEdge = event.shiftKey
-          ? document.activeElement === buttons[0]
-          : document.activeElement === buttons.at(-1);
-
-        if (atEdge || contentRef.current.querySelector('[role="listbox"]')) {
-          if (event.shiftKey) event.preventDefault();
-          handleHide();
-          dropdownRef.current?.querySelector('button')?.focus();
-        }
-      }
-
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        handleHide();
-        dropdownRef.current?.querySelector('button')?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('click', handleClickOutside);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('click', handleClickOutside);
     };
   });

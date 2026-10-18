@@ -1,5 +1,5 @@
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
-import { useId, useRef, useState, type FC, type KeyboardEvent } from 'react';
+import { useId, useState, type FC } from 'react';
 
 import { Dropdown } from '@shared/ui/dropdown';
 
@@ -19,7 +19,6 @@ export const Select: FC<SelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const listId = useId();
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const selectedItems = items.filter((item) =>
     multiselect ? selected?.includes(item.value) : selected === item.value,
   );
@@ -36,43 +35,7 @@ export const Select: FC<SelectProps> = ({
     } else {
       onChange?.(value);
       setIsOpen(false);
-      triggerRef.current?.focus();
     }
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const options = Array.from(
-      event.currentTarget.querySelectorAll<HTMLButtonElement>(
-        '[role="option"]',
-      ),
-    );
-
-    if (!options.length) {
-      return;
-    }
-
-    const index = options.indexOf(document.activeElement as HTMLButtonElement);
-    let next: number;
-
-    switch (event.key) {
-      case 'ArrowDown':
-        next = (index + 1) % options.length;
-        break;
-      case 'ArrowUp':
-        next = (index - 1 + options.length) % options.length;
-        break;
-      case 'Home':
-        next = 0;
-        break;
-      case 'End':
-        next = options.length - 1;
-        break;
-      default:
-        return;
-    }
-
-    event.preventDefault();
-    options[next]?.focus();
   };
 
   return (
@@ -84,19 +47,12 @@ export const Select: FC<SelectProps> = ({
         onHide={() => setIsOpen(false)}
         trigger={
           <button
-            ref={triggerRef}
             type="button"
             className={`select__trigger ${isOpen ? 'select__trigger--open' : ''}`}
             aria-label={placeholder}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             aria-controls={isOpen ? listId : undefined}
-            onKeyDown={(event) => {
-              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                event.preventDefault();
-                setIsOpen(true);
-              }
-            }}
           >
             <span
               className={
@@ -123,7 +79,6 @@ export const Select: FC<SelectProps> = ({
           aria-label={placeholder}
           aria-multiselectable={multiselect || undefined}
           className="select__options"
-          onKeyDown={handleKeyDown}
         >
           {items.map((item) => {
             const isSelected = selectedItems.some(
