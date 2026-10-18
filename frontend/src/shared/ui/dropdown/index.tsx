@@ -6,7 +6,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/react';
-import { useEffect, useRef, useState, type FC } from 'react';
+import { useEffect, useRef, type FC } from 'react';
 import { createPortal } from 'react-dom';
 
 import type { DropdownProps } from './types';
@@ -24,14 +24,8 @@ export const Dropdown: FC<DropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(isOpen);
-
-  useEffect(() => {
-    setIsDropdownOpen(isOpen);
-  }, [isOpen]);
-
   const { refs, floatingStyles } = useFloating({
-    open: isDropdownOpen,
+    open: isOpen,
     placement: 'bottom-start',
     whileElementsMounted: autoUpdate,
     middleware: [
@@ -53,24 +47,14 @@ export const Dropdown: FC<DropdownProps> = ({
     ],
   });
 
-  const handleShow = () => {
-    setIsDropdownOpen(true);
-    onShow?.();
-  };
-
-  const handleHide = () => {
-    setIsDropdownOpen(false);
-    onHide?.();
-  };
-
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
 
-    if (isDropdownOpen) {
-      handleHide();
+    if (isOpen) {
+      onHide?.();
     } else {
-      handleShow();
+      onShow?.();
     }
   };
 
@@ -85,7 +69,9 @@ export const Dropdown: FC<DropdownProps> = ({
   };
 
   useEffect(() => {
-    if (!isDropdownOpen) return;
+    if (!isOpen) {
+      return;
+    }
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -95,7 +81,7 @@ export const Dropdown: FC<DropdownProps> = ({
         return;
       }
 
-      handleHide();
+      onHide?.();
     };
 
     document.addEventListener('click', handleClickOutside);
@@ -115,7 +101,7 @@ export const Dropdown: FC<DropdownProps> = ({
         {trigger}
       </div>
 
-      {isDropdownOpen &&
+      {isOpen &&
         createPortal(
           <div
             ref={setFloating}

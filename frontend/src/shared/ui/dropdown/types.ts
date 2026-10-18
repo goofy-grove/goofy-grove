@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 export type DropdownProps = {
   children: ReactNode;
   trigger: ReactNode;
-  isOpen?: boolean;
+  isOpen: boolean;
   matchTriggerWidth?: boolean;
 
   onShow?: () => void;
