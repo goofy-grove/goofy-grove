@@ -1,10 +1,12 @@
 import { IconDotsVertical } from '@tabler/icons-react';
+import { useRef, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FileAvatar, Button, IconForest, useBreakpoints } from '@shared/ui';
 
+import { MAX_VISIBLE_CHARACTERS } from './constants';
+
 import type { ChatListItemProps } from './types';
-import type { FC } from 'react';
 
 import './styles.scss';
 
@@ -20,13 +22,13 @@ export const ChatListItem: FC<ChatListItemProps> = ({
 }) => {
   const { t } = useTranslation();
   const { isMobileSm } = useBreakpoints();
-  // FIXME: move to contstant
-  const visibleCharacters = characters.slice(0, 3);
+  const visibleCharacters = characters.slice(0, MAX_VISIBLE_CHARACTERS);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleActions = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    onActions?.(uid);
+    onActions?.(uid, buttonRef.current);
   };
 
   return (
@@ -95,6 +97,7 @@ export const ChatListItem: FC<ChatListItemProps> = ({
       {onActions && (
         <div className="chat-list-item__actions">
           <Button
+            ref={buttonRef}
             variant="ghost"
             leftIcon={<IconDotsVertical size={24} />}
             onClick={handleActions}

@@ -96,6 +96,8 @@
   }
 
   @include media.tablet-lg {
+    border-right: 0;
+    border-top: 1px solid var(--border-default);
     width: 88px;
     padding: 28px 12px;
 

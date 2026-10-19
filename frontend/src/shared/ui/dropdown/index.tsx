@@ -18,9 +18,10 @@ export const Dropdown: FC<DropdownProps> = ({
   isOpen,
   trigger,
   virtualReference,
+  matchTriggerWidth = false,
+  contentClass,
   onShow,
   onHide,
-  matchTriggerWidth = false,
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -112,7 +113,7 @@ export const Dropdown: FC<DropdownProps> = ({
         createPortal(
           <div
             ref={setFloating}
-            className="dropdown__content"
+            className={`dropdown__content ${contentClass || ''}`}
             style={floatingStyles}
           >
             {children}

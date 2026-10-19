@@ -102,3 +102,40 @@ export const useCreateChatMutation = () =>
       );
     },
   });
+
+export const useDeleteChatMutation = () =>
+  useMutation({
+    mutationFn: ({ uid }: { uid: string }) => api.chats.remove(uid),
+
+    onMutate: async ({ uid }, context) => {
+      await context.client.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      const previousChats =
+        context.client.getQueryData<Chat[]>([CHATS_QUERY_KEY]) || [];
+
+      context.client.setQueryData<Chat[]>(
+        [CHATS_QUERY_KEY],
+        (old) => old?.filter((character) => character.uid !== uid) || [],
+      );
+
+      return previousChats;
+    },
+
+    onError: (_, __, onMutateResult, context) => {
+      context.client.setQueryData<Chat[]>(
+        [CHATS_QUERY_KEY],
+        onMutateResult || [],
+      );
+    },
+
+    onSuccess: (result, __, onMutateResult, context) => {
+      if (result.error) {
+        context.client.setQueryData<Chat[]>(
+          [CHATS_QUERY_KEY],
+          onMutateResult || [],
+        );
+
+        throw new ApiRequestError(result.data);
+      }
+    },
+  });

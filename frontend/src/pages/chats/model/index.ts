@@ -23,3 +23,4 @@ export type {
 } from './types';
 
 export { useCreateChatMutation } from './mutations';
+export { useChatActions } from './use-chat-actions';

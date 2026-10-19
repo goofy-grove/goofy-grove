@@ -128,6 +128,11 @@
     "labels": {
       "name": "Name"
     },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "confirm_delete": "Delete this chat?",
     "edit_title": "Edit chat",
     "create_title": "Create chat",
     "title": "Where the mushrooms glow",

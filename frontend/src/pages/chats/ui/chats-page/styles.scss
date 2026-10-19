@@ -1,3 +1,5 @@
+@use '@shared/ui/styles' as media;
+
 .chats-page {
   display: flex;
   flex-direction: column;
@@ -26,6 +28,18 @@
     gap: 18px;
     max-height: 100%;
     overflow-y: auto;
+
+    &__dropdown {
+      min-width: 250px;
+      min-height: max-content;
+
+      .button {
+        width: 100%;
+        border-radius: var(--radius-md);
+        display: flex;
+        justify-content: flex-start;
+      }
+    }
   }
 
   &__empty {
@@ -64,5 +78,18 @@
     color: var(--accent-primary);
     text-underline-offset: 5px;
     font-weight: var(--font-extrabold);
+  }
+
+  @include media.mobile-sm {
+    padding-top: 12px;
+
+    &__intro {
+      margin-bottom: 16px;
+      font-size: var(--text-sm);
+    }
+
+    &__empty {
+      padding: 8px;
+    }
   }
 }

@@ -1,11 +1,26 @@
 import { IconPlusFilled } from '@tabler/icons-react';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { toChatSummary, useChatsQuery } from '@pages/chats/model';
+import {
+  toChatSummary,
+  useChatActions,
+  useChatsQuery,
+} from '@pages/chats/model';
 import { ChatListItem } from '@pages/chats/ui/chat-list-item';
 
-import { GroveScene, PageHeader, Text, IconLoader, Button } from '@shared/ui';
+import {
+  GroveScene,
+  PageHeader,
+  Text,
+  IconLoader,
+  Button,
+  useBreakpoints,
+  ActionSheet,
+  Dropdown,
+  ConfirmModal,
+} from '@shared/ui';
 
 import './styles.scss';
 
@@ -16,6 +31,21 @@ export const ChatsPage = () => {
   const chats = (data ?? []).map(toChatSummary);
 
   const navigate = useNavigate();
+
+  const { isMobileSm } = useBreakpoints();
+  const {
+    actions,
+    isActionsOpened,
+    isDeleteConfirmationOpen,
+    handleClose,
+    handleOpen,
+    handleCloseDeleteConfirmation,
+    handleConfirmDeletion,
+    isRemovePending,
+  } = useChatActions();
+  const [actionButton, setActionButton] = useState<HTMLButtonElement | null>(
+    null,
+  );
 
   return (
     <div className="chats-page scrollbar">
@@ -36,9 +66,42 @@ export const ChatsPage = () => {
             key={chat.uid}
             {...chat}
             onOpen={() => {}}
-            onActions={() => {}}
+            onActions={(uid, ref) => {
+              setActionButton(ref);
+              handleOpen(uid);
+            }}
           />
         ))}
+
+        {!isMobileSm && (
+          <Dropdown
+            contentClass="chats-page__list__dropdown"
+            virtualReference={actionButton}
+            isOpen={isActionsOpened}
+            onHide={handleClose}
+          >
+            {actions.map(({ Icon, title, color, onClick }, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                color={color}
+                leftIcon={Icon}
+                onClick={onClick}
+              >
+                {title}
+              </Button>
+            ))}
+          </Dropdown>
+        )}
+
+        {isMobileSm && (
+          <ActionSheet
+            isOpened={isActionsOpened}
+            items={actions}
+            showClose
+            onClose={handleClose}
+          />
+        )}
       </div>
 
       {isLoading && <IconLoader size={64} isAnimated />}
@@ -58,6 +121,16 @@ export const ChatsPage = () => {
           </Link>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isDeleteConfirmationOpen}
+        message={t('chat.confirm_delete')}
+        confirmLabel={t('chat.actions.delete')}
+        cancelLabel={t('common.cancel')}
+        isPending={isRemovePending}
+        onConfirm={handleConfirmDeletion}
+        onCancel={handleCloseDeleteConfirmation}
+      />
     </div>
   );
 };

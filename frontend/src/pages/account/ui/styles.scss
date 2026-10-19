@@ -1,3 +1,5 @@
+@use '@shared/ui/styles' as media;
+
 .account-page {
   display: flex;
   flex-direction: column;
@@ -21,5 +23,14 @@
     background: var(--bg-panel);
     border: 1px solid var(--border-default);
     border-radius: 20px;
+  }
+
+  @include media.mobile-sm {
+    padding-top: 12px;
+
+    &__intro {
+      margin-bottom: 16px;
+      font-size: var(--text-sm);
+    }
   }
 }

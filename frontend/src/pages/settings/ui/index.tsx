@@ -13,7 +13,7 @@ export const SettingsPage: FC = () => {
     <div className="settings-page">
       <PageHeader title={t('menu.settings')} />
 
-      <Text>{t('grove.settings_intro')}</Text>
+      <Text className="settings-page__intro">{t('grove.settings_intro')}</Text>
 
       <section className="settings-page__section">
         <Text tag="h3">{t('ui.select_locale')}</Text>

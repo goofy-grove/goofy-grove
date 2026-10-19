@@ -14,5 +14,5 @@ export type ChatListItemProps = {
   generatingCharacterName?: string;
 
   onOpen?: (uid: string) => void;
-  onActions?: (uid: string) => void;
+  onActions?: (uid: string, ref: HTMLButtonElement | null) => void;
 };

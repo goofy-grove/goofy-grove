@@ -50,7 +50,6 @@ const meta = {
       text: 'Кажется, за дверью кто-то есть. Ты тоже слышишь эти шаги?',
     },
     activity: { label: '12:40', dateTime: '2026-09-16T12:40:00+03:00' },
-    unreadCount: 0,
     onOpen: fn(),
     onActions: fn(),
   },
@@ -67,10 +66,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const Unread: Story = { args: { unreadCount: 3 } };
-
 export const Generating: Story = {
-  args: { generatingCharacterName: 'Сова', unreadCount: 2 },
+  args: { generatingCharacterName: 'Сова' },
 };
 
 export const FirstMessage: Story = {
@@ -97,7 +94,6 @@ export const LongContent: Story = {
         4,
       ),
     },
-    unreadCount: 128,
     characters: Array.from({ length: 8 }, (_, index) => ({
       id: `character-${index}`,
       name: `Персонаж ${index + 1}`,
@@ -107,7 +103,6 @@ export const LongContent: Story = {
 };
 
 export const Mobile: Story = {
-  args: { unreadCount: 3 },
   globals: { viewport: { value: 'mobile1', isRotated: false } },
   parameters: {
     viewport: {
@@ -127,7 +122,6 @@ export const English: Story = {
   args: {
     title: 'A night at the old lighthouse',
     generatingCharacterName: 'Owl',
-    unreadCount: 3,
     characters: [
       { id: 'owl', name: 'Owl', initials: 'O' },
       { id: 'moss', name: 'Moss', initials: 'M' },
