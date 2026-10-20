@@ -80,9 +80,9 @@ pub async fn can_access_file_meta(
             persona_uid,
             user_uid,
         } => {
-            if actor_uid == user_uid && persona::is_owner(deps, persona_uid, user_uid).await {
-                Ok(())
-            } else if persona::is_visible_to_user(deps, persona_uid, actor_uid).await {
+            if actor_uid == user_uid && persona::is_owner(deps, persona_uid, user_uid).await
+                || persona::is_visible_to_user(deps, persona_uid, actor_uid).await
+            {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)
@@ -92,9 +92,9 @@ pub async fn can_access_file_meta(
             user_uid,
             character_uid,
         } => {
-            if actor_uid == user_uid && character::is_owner(deps, character_uid, user_uid).await {
-                Ok(())
-            } else if character::is_visible_to_user(deps, character_uid, actor_uid).await {
+            if actor_uid == user_uid && character::is_owner(deps, character_uid, user_uid).await
+                || character::is_visible_to_user(deps, character_uid, actor_uid).await
+            {
                 Ok(())
             } else {
                 Err(FileAccessError::AccessDenied)

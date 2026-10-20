@@ -199,8 +199,7 @@ pub async fn load_latest_messages_by_chat(
     // Since SeaORM does not support window queries, two queries are made to maintain code readability:
     // - the first to retrieve all message identifiers,
     // - and the second to retrieve the rest of the information about the messages and the entities associated with them (characters and personas).
-    let placeholders = std::iter::repeat("?")
-        .take(chats_uids.len())
+    let placeholders = std::iter::repeat_n("?", chats_uids.len())
         .collect::<Vec<_>>()
         .join(", ");
     let messages_query = format!(
@@ -228,7 +227,7 @@ pub async fn load_latest_messages_by_chat(
         .map_err(|err| {
             LoadLatestMessagesByChat::Internal(format!(
                 "Failed to load latest messages by chat: {}",
-                err.to_string()
+                err
             ))
         })?
         .into_iter()
@@ -244,7 +243,7 @@ pub async fn load_latest_messages_by_chat(
         .map_err(|err| {
             LoadLatestMessagesByChat::Internal(format!(
                 "Failed to load latest messages by chat: {}",
-                err.to_string()
+                err
             ))
         })?;
 

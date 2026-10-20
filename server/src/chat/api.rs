@@ -85,7 +85,7 @@ async fn get_all_user_chats(
         .into_iter()
         .map(|chat| ChatWithLastMessage {
             last_message: chats_messages.remove(&chat.uid),
-            chat
+            chat,
         })
         .collect();
 
