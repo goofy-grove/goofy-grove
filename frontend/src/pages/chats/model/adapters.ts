@@ -4,8 +4,8 @@ import type {
   Character,
   Chat,
   MessageDto,
-  SendMessageDto,
   Persona,
+  SendMessageDto,
 } from '@shared/api';
 
 import type {
@@ -73,6 +73,13 @@ export const toChatSummary = (chat: Chat) => ({
   avatarUid: chat.avatar_uid,
   users: chat.members.map((user) => ({ id: user.uid, name: user.username })),
   characters: chat.characters.map(toChatCharacter),
+  lastMessage: chat.last_message
+    ? {
+        author: chat.last_message.author?.name ?? '[deleted]',
+        // TODO: Use parsed content instead of raw text
+        text: chat.last_message.content,
+      }
+    : undefined,
 });
 
 export const toSendMessage = (

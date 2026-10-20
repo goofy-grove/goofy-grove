@@ -1,6 +1,7 @@
 import z from 'zod';
 
 import { CharacterSchema } from '@shared/api/characters';
+import { MessageSchema } from '@shared/api/messages';
 import { UserSchema } from '@shared/api/user';
 
 export const ChatMemberSchema = UserSchema.extend({
@@ -25,6 +26,7 @@ export const ChatInfoSchema = z.object({
     .transform((date) => new Date(date)),
   creator_uid: z.string(),
   avatar_uid: z.string().nullable(),
+  last_message: MessageSchema.nullable(),
 });
 
 export const ChatSchema = ChatInfoSchema.extend({
