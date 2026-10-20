@@ -4,25 +4,29 @@ use axum::{
     response::Response,
     routing::{delete, get, patch, post, put},
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::error;
 
 use crate::{
     app::AppDeps,
     auth::{AuthLayerExt, AuthenticatedUser},
-    chat::services::{
-        self,
-        avatar::{
-            ClearChatAvatarError, ClearChatAvatarInput, SetChatAvatarError, SetChatAvatarInput,
+    chat::{
+        db::Chat,
+        services::{
+            self,
+            avatar::{
+                ClearChatAvatarError, ClearChatAvatarInput, SetChatAvatarError, SetChatAvatarInput,
+            },
+            character_add::{AddCharacterError, AddCharacterInput},
+            character_remove::{RemoveCharacterError, RemoveCharacterInput},
+            create::CreateChatInput,
+            delete::{DeleteChatError, DeleteChatInput},
+            member_add::{AddMemberError, AddMemberInput},
+            member_remove::{RemoveMemberFromChatError, RemoveUserFromChatInput},
+            update::{UpdateChatError, UpdateChatInput},
         },
-        character_add::{AddCharacterError, AddCharacterInput},
-        character_remove::{RemoveCharacterError, RemoveCharacterInput},
-        create::CreateChatInput,
-        delete::{DeleteChatError, DeleteChatInput},
-        member_add::{AddMemberError, AddMemberInput},
-        member_remove::{RemoveMemberFromChatError, RemoveUserFromChatInput},
-        update::{UpdateChatError, UpdateChatInput},
     },
+    messages::{Message, get_latest_messages_by_chat},
     platform::http::{
         error::{ApiError, codes},
         extract::{ExcludeSocketParticipants, ValidatedJson, read_multipart_file},
@@ -50,18 +54,42 @@ struct UpdateChatRequest {
     name: Option<String>,
 }
 
+#[derive(Clone, Debug, Serialize)]
+struct ChatWithLastMessage {
+    #[serde(flatten)]
+    chat: Chat,
+
+    last_message: Option<Message>,
+}
+
 async fn get_all_user_chats(
     Extension(user): Extension<AuthenticatedUser>,
     State(deps): State<AppDeps>,
 ) -> Result<Response, ApiError> {
-    services::get::get_chats(&deps, &user.uid)
+    let chats = services::get::get_chats(&deps, &user.uid)
         .await
         .map_err(|err| {
             error!(target: "chats::api::get_all_user_chats", ?err, "Failed to get chats");
 
             ApiError::internal(codes::CHAT_LIST_FAILED)
+        })?;
+    let chat_uids = chats.iter().map(|chat| chat.uid.clone()).collect();
+    let mut chats_messages = get_latest_messages_by_chat(&deps.db, chat_uids)
+        .await
+        .map_err(|err| {
+            error!(target: "chats::api::get_all_user_chats", ?err, "Failed to get chats");
+
+            ApiError::internal(codes::CHAT_LIST_FAILED)
+        })?;
+    let response: Vec<ChatWithLastMessage> = chats
+        .into_iter()
+        .map(|chat| ChatWithLastMessage {
+            last_message: chats_messages.remove(&chat.uid),
+            chat
         })
-        .map(response::ok)
+        .collect();
+
+    Ok(response::ok(response))
 }
 
 async fn create_chat(

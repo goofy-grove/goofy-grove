@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use migration::OnConflict;
-use sea_orm::{ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, SqlErr};
+use sea_orm::{
+    ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, SqlErr, Statement,
+};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -132,6 +134,12 @@ pub enum LoadMessagesError {
 }
 
 #[derive(Debug, Clone, Error)]
+pub enum LoadLatestMessagesByChat {
+    #[error("Internal error: {0}")]
+    Internal(String),
+}
+
+#[derive(Debug, Clone, Error)]
 pub enum SaveMessageError {
     #[error("Internal error: {0}")]
     Internal(String),
@@ -178,6 +186,93 @@ pub async fn load_message(
     }
 
     Ok((message.0, message.1, message.2, reply_to_message).into())
+}
+
+pub async fn load_latest_messages_by_chat(
+    connection: &impl ConnectionTrait,
+    chats_uids: Vec<String>,
+) -> Result<HashMap<String, Message>, LoadLatestMessagesByChat> {
+    // NOTE: This query retrieves the most recent messages for each passed chat.
+    //
+    // SQLite does not support DISTINCT ON, unlike PostgreSQL, so window functions are used here to ensure compatibility with both databases.
+    //
+    // Since SeaORM does not support window queries, two queries are made to maintain code readability:
+    // - the first to retrieve all message identifiers,
+    // - and the second to retrieve the rest of the information about the messages and the entities associated with them (characters and personas).
+    let placeholders = std::iter::repeat("?")
+        .take(chats_uids.len())
+        .collect::<Vec<_>>()
+        .join(", ");
+    let messages_query = format!(
+        r#"
+            SELECT uid FROM (
+                SELECT 
+                    uid,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY chat_uid 
+                        ORDER BY created_at DESC, uid DESC
+                    ) AS rn
+                FROM messages
+                WHERE chat_uid IN ({placeholders})
+            ) AS ranked
+            WHERE rn = 1
+        "#
+    );
+    let values = chats_uids.into_iter().map(Into::into);
+    let statement =
+        Statement::from_sql_and_values(connection.get_database_backend(), &messages_query, values);
+
+    let messages_uids: Vec<String> = connection
+        .query_all_raw(statement)
+        .await
+        .map_err(|err| {
+            LoadLatestMessagesByChat::Internal(format!(
+                "Failed to load latest messages by chat: {}",
+                err.to_string()
+            ))
+        })?
+        .into_iter()
+        .filter_map(|row| row.try_get_by_index(0).ok())
+        .collect();
+
+    let messages = messages::Entity::find()
+        .filter(messages::Column::Uid.is_in(messages_uids))
+        .find_also_related(personas::Entity)
+        .find_also_related(characters::Entity)
+        .all(connection)
+        .await
+        .map_err(|err| {
+            LoadLatestMessagesByChat::Internal(format!(
+                "Failed to load latest messages by chat: {}",
+                err.to_string()
+            ))
+        })?;
+
+    let reply_to_messages_uids: Vec<String> = messages
+        .iter()
+        .filter_map(|(message, _, _)| message.reply_to_message_uid.clone())
+        .collect();
+
+    let loaded_reply_to_messages_infos = load_message_infos(connection, reply_to_messages_uids)
+        .await
+        .map_err(|err| LoadLatestMessagesByChat::Internal(err.to_string()))?;
+
+    let messages = messages
+        .into_iter()
+        .map(|(message, persona, character)| {
+            let reply_to_message = message
+                .reply_to_message_uid
+                .as_ref()
+                .and_then(|uid| loaded_reply_to_messages_infos.get(uid).cloned());
+
+            Message::from((message, persona, character, reply_to_message))
+        })
+        .into_group_map_by(|message| message.chat_uid.clone())
+        .into_iter()
+        .filter_map(|(key, mut value)| value.pop().map(|inner| (key, inner)))
+        .collect();
+
+    Ok(messages)
 }
 
 pub async fn load_messages(
