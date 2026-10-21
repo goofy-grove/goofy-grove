@@ -1,10 +1,11 @@
 import { type FC } from 'react';
 
-import { Button, Modal, Text } from '@shared/ui';
-
-import type { ConfirmModalProps } from './types';
+import { Button } from '@shared/ui/button';
+import { Modal } from '@shared/ui/modal';
+import { Text } from '@shared/ui/text';
 
 import './styles.scss';
+import type { ConfirmModalProps } from './types';
 
 export const ConfirmModal: FC<ConfirmModalProps> = ({
   isOpen,
