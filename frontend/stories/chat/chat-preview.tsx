@@ -9,8 +9,6 @@ import {
   type ChatMessageData,
 } from '@pages/chats/model';
 
-import { useObjectUrl } from '@shared/ui/hooks';
-
 import forest from './assets/forest.svg';
 import { createScene } from './model';
 
@@ -47,10 +45,6 @@ function CharacterEditor({
   onSave: (changes: Partial<ChatCharacter>) => void;
 }) {
   const { t } = useTranslation('translation', { keyPrefix: 'chat' });
-  const [name, setName] = useState(character.name);
-  const [description, setDescription] = useState(character.description ?? '');
-  const [file, setFile] = useState<File>();
-  const preview = useObjectUrl(file);
   const dialog = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -67,27 +61,28 @@ function CharacterEditor({
       <h2>{t('editCharacter')}</h2>
 
       <CharacterForm
-        name={name}
-        description={description}
+        initialValues={{
+          name: character.name,
+          description: character.description ?? '',
+        }}
         avatarUid={character.avatarUid ?? undefined}
-        avatarPreviewUrl={preview ?? character.previewUrl}
+        avatarPreviewUrl={character.previewUrl}
         isPending={false}
         submitLabel={t('save')}
-        onNameChange={setName}
-        onDescriptionChange={setDescription}
-        onAvatarChange={setFile}
         onCancel={onClose}
-        onSubmit={() => {
-          if (file) {
+        onSubmit={({ name, description, avatarFile }) => {
+          if (avatarFile) {
             const reader = new FileReader();
 
             reader.onload = () => {
-              if (typeof reader.result !== 'string') return;
+              if (typeof reader.result !== 'string') {
+                return;
+              }
 
               onSave({ name, description, previewUrl: reader.result });
               onClose();
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(avatarFile);
           } else {
             onSave({ name, description });
             onClose();
@@ -156,13 +151,18 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
 
     return () => {
       active.current = false;
-      if (timer.current) clearTimeout(timer.current);
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
     };
   }, []);
   const trigger = (id: string) => {
     const character = characters.find((item) => item.id === id);
 
-    if (!character || generatingId || state === 'read-only') return;
+    if (!character || generatingId || state === 'read-only') {
+      return;
+    }
+
     setGeneratingId(id);
     setNotice('');
     timer.current = setTimeout(() => {
@@ -183,7 +183,10 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
       (persona) => persona.id === selectedId,
     );
 
-    if (!author || generatingId) return;
+    if (!author || generatingId) {
+      return;
+    }
+
     setMessages((current) => [
       ...current,
       { id: `local-${sequence.current++}`, author, content, time: '21:08' },
@@ -192,11 +195,15 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
   };
   const loadOlder = async (pageSize: number) => {
     await new Promise((resolve) => setTimeout(resolve, 900));
-    if (!active.current) return;
+    if (!active.current) {
+      return;
+    }
+
     if (failOnce.current) {
       failOnce.current = false;
       throw new Error('Demo loading error');
     }
+
     const next = Math.max(0, oldest - pageSize);
 
     setMessages((current) => [...history.slice(next, oldest), ...current]);
@@ -225,7 +232,10 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
         onEditCharacter={setEditingId}
         generatingCharacterId={generatingId}
         onStop={() => {
-          if (timer.current) clearTimeout(timer.current);
+          if (timer.current) {
+            clearTimeout(timer.current);
+          }
+
           setGeneratingId(null);
           setNotice(t('stopped'));
         }}

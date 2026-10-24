@@ -1,5 +1,6 @@
 import importAliases from '@dword-design/eslint-plugin-import-alias';
 import js from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
 import pluginRouter from '@tanstack/eslint-plugin-router';
 import tsParser from '@typescript-eslint/parser';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
@@ -43,6 +44,7 @@ export default defineConfig(
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
+      '@stylistic': stylistic,
       '@typescript-eslint': tseslint.plugin,
       '@dword-design/import-alias/prefer-alias': {
         shouldReadTsConfig: false,
@@ -70,6 +72,11 @@ export default defineConfig(
       ],
     },
     rules: {
+      curly: ['error', 'all'],
+      '@stylistic/padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: 'if', next: '*' },
+      ],
       'prettier/prettier': 'error',
       'react/jsx-newline': ['error', { prevent: false }],
       'no-multiple-empty-lines': ['error', { max: 1, maxBOF: 0, maxEOF: 0 }],

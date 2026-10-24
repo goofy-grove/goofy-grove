@@ -80,7 +80,10 @@ export const RichEditor: FC<RichEditorProps> = ({
   );
 
   useEffect(() => {
-    if (!editor || editor.isDestroyed) return;
+    if (!editor || editor.isDestroyed) {
+      return;
+    }
+
     editor.setOptions({
       editorProps: {
         attributes: {
@@ -95,7 +98,10 @@ export const RichEditor: FC<RichEditorProps> = ({
   }, [t, editor]);
 
   const send = () => {
-    if (!editor || blocked || !editor.getText().trim()) return;
+    if (!editor || blocked || !editor.getText().trim()) {
+      return;
+    }
+
     onSend(editor.getJSON());
     editor.commands.clearContent();
     editor.commands.focus();

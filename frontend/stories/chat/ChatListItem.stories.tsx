@@ -14,6 +14,7 @@ const summary = toChatSummary({
   creator_uid: 'me',
   avatar_uid: null,
   members: [],
+  last_message: null,
   characters: [
     {
       uid: 'owl',

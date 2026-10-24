@@ -1,15 +1,17 @@
-export type CharacterFormProps = {
+export type CharacterFormValues = {
   name: string;
   description: string;
+  avatarFile?: File;
+};
+
+export type CharacterFormProps = {
+  initialValues: Pick<CharacterFormValues, 'name' | 'description'>;
   isPending: boolean;
   submitLabel: string;
   errorMessage?: string;
   avatarUid?: string;
   avatarPreviewUrl?: string;
 
-  onNameChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onAvatarChange: (file?: File) => void;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (values: CharacterFormValues) => void;
 };

@@ -1,6 +1,6 @@
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useState, type FC } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -9,107 +9,38 @@ import {
   useUpdatePersonaMutation,
 } from '@pages/personas/model';
 import { PersonaForm } from '@pages/personas/ui/persona-form';
+import type { PersonaFormValues } from '@pages/personas/ui/persona-form/types';
 
 import { getApiErrorMessage } from '@shared/api';
-import { Button, IconLoader, Text, useObjectUrl } from '@shared/ui';
+import { Button, IconLoader, Text } from '@shared/ui';
 
-import type { PersonaFormPageProps, PersonaFormStateProps } from './types';
+import type { PersonaFormPageProps } from './types';
 
 import './styles.scss';
-
-const PersonaFormState: FC<PersonaFormStateProps> = ({
-  mode,
-  uid,
-  initialName,
-  initialDescription,
-  avatarUid,
-}) => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const createMutation = useCreatePersonaMutation();
-  const updateMutation = useUpdatePersonaMutation();
-  const mutation = mode === 'edit' ? updateMutation : createMutation;
-
-  const [name, setName] = useState(initialName);
-  const [description, setDescription] = useState(initialDescription);
-  const [avatarFile, setAvatarFile] = useState<File>();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const avatarPreviewUrl = useObjectUrl(avatarFile);
-
-  const handleSubmit = async () => {
-    setErrorMessage(undefined);
-
-    try {
-      if (mode === 'edit') {
-        if (!uid) {
-          return;
-        }
-
-        await updateMutation.mutateAsync({
-          uid,
-          name,
-          description,
-          avatarFile,
-        });
-      } else {
-        await createMutation.mutateAsync({
-          name,
-          description,
-          avatarFile,
-        });
-      }
-
-      void navigate({ to: '/personas' });
-    } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, t));
-    }
-  };
-
-  const isEditMode = mode === 'edit';
-
-  return (
-    <div className="persona-form-page scrollbar">
-      <div className="persona-form-page__header">
-        <Text tag="h2">
-          {isEditMode ? t('persona.edit_title') : t('persona.create_title')}
-        </Text>
-
-        <Button
-          variant="ghost"
-          disabled={mutation.isPending}
-          leftIcon={<IconArrowLeft size={18} />}
-          onClick={() => void navigate({ to: '/personas' })}
-        >
-          {t('common.back')}
-        </Button>
-      </div>
-
-      <p className="persona-form-page__intro">{t('forms.persona_intro')}</p>
-
-      <PersonaForm
-        name={name}
-        description={description}
-        isPending={mutation.isPending}
-        errorMessage={errorMessage}
-        avatarUid={avatarUid}
-        avatarPreviewUrl={avatarPreviewUrl}
-        submitLabel={
-          isEditMode ? t('forms.save_changes') : t('persona.create_title')
-        }
-        onCancel={() => void navigate({ to: '/personas' })}
-        onNameChange={setName}
-        onDescriptionChange={setDescription}
-        onAvatarChange={setAvatarFile}
-        onSubmit={() => void handleSubmit()}
-      />
-    </div>
-  );
-};
 
 export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading } = usePersonasQuery();
+  const createMutation = useCreatePersonaMutation();
+  const updateMutation = useUpdatePersonaMutation();
+  const isEditMode = mode === 'edit';
+  const mutation = isEditMode ? updateMutation : createMutation;
+
+  const handleBack = () => void navigate({ to: '/personas' });
+  const handleSubmit = async (values: PersonaFormValues) => {
+    if (isEditMode) {
+      if (!uid) {
+        return;
+      }
+
+      await updateMutation.mutateAsync({ uid, ...values });
+    } else {
+      await createMutation.mutateAsync(values);
+    }
+
+    handleBack();
+  };
   const persona =
     mode === 'edit' ? data?.find((item) => item.uid === uid) : null;
 
@@ -133,25 +64,42 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
     );
   }
 
-  if (mode === 'create') {
-    return (
-      <PersonaFormState
-        key="create"
-        mode="create"
-        initialName=""
-        initialDescription=""
-      />
-    );
-  }
-
   return (
-    <PersonaFormState
-      key={persona!.uid}
-      mode="edit"
-      uid={persona!.uid}
-      initialName={persona!.name}
-      initialDescription={persona!.description}
-      avatarUid={persona!.avatar_uid || undefined}
-    />
+    <div className="persona-form-page scrollbar">
+      <div className="persona-form-page__header">
+        <Text tag="h2">
+          {isEditMode ? t('persona.edit_title') : t('persona.create_title')}
+        </Text>
+
+        <Button
+          variant="ghost"
+          disabled={mutation.isPending}
+          leftIcon={<IconArrowLeft size={18} />}
+          onClick={handleBack}
+        >
+          {t('common.back')}
+        </Button>
+      </div>
+
+      <p className="persona-form-page__intro">{t('forms.persona_intro')}</p>
+
+      <PersonaForm
+        key={isEditMode ? persona!.uid : 'create'}
+        initialValues={{
+          name: persona?.name ?? '',
+          description: persona?.description ?? '',
+        }}
+        avatarUid={persona?.avatar_uid || undefined}
+        isPending={mutation.isPending}
+        errorMessage={
+          mutation.isError ? getApiErrorMessage(mutation.error, t) : undefined
+        }
+        submitLabel={
+          isEditMode ? t('forms.save_changes') : t('persona.create_title')
+        }
+        onSubmit={handleSubmit}
+        onCancel={handleBack}
+      />
+    </div>
   );
 };

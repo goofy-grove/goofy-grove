@@ -21,6 +21,7 @@ export const parseMessageContent = (value: string): JSONContent => {
     ) {
       throw new Error('Not a rich-text document');
     }
+
     const node = schema.nodeFromJSON(parsed);
 
     node.check();

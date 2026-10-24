@@ -78,6 +78,7 @@ export const RepeatedUpdates: Story = {
       if (bold.getAttribute('aria-pressed') !== 'true') {
         await userEvent.click(bold);
       }
+
       await userEvent.type(editor, text);
       await expect(editor.querySelector('strong')).toHaveTextContent(text);
       await expect(send).toBeEnabled();

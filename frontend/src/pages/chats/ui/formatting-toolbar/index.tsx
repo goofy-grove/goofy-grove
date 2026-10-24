@@ -86,8 +86,10 @@ export const FormattingToolbar: FC<FormattingToolbarProps> = ({ editor }) => {
     try {
       const parsed = new URL(url);
 
-      if (!['https:', 'http:'].includes(parsed.protocol))
+      if (!['https:', 'http:'].includes(parsed.protocol)) {
         throw new Error('protocol');
+      }
+
       editor
         .chain()
         .focus()
@@ -171,6 +173,7 @@ export const FormattingToolbar: FC<FormattingToolbarProps> = ({ editor }) => {
                   event.preventDefault();
                   applyLink();
                 }
+
                 if (event.key === 'Escape') {
                   setLinkOpen(false);
                   editor.commands.focus();

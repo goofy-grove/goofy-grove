@@ -1,15 +1,16 @@
-export type PersonaFormProps = {
+export type PersonaFormValues = {
   name: string;
   description: string;
+  avatarFile?: File;
+};
+
+export type PersonaFormProps = {
+  initialValues: Pick<PersonaFormValues, 'name' | 'description'>;
   isPending: boolean;
   submitLabel: string;
   errorMessage?: string;
   avatarUid?: string;
-  avatarPreviewUrl?: string;
 
-  onNameChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
-  onAvatarChange: (file?: File) => void;
   onCancel: () => void;
-  onSubmit: () => void;
+  onSubmit: (values: PersonaFormValues) => void;
 };

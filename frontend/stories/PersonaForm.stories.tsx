@@ -1,9 +1,6 @@
-import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { PersonaForm } from '@pages/personas/ui/persona-form';
-
-import { useObjectUrl } from '@shared/ui/hooks';
 
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
@@ -11,13 +8,9 @@ const meta = {
   title: 'Forms/Persona',
   component: PersonaForm,
   args: {
-    name: '',
-    description: '',
+    initialValues: { name: '', description: '' },
     isPending: false,
     submitLabel: 'Создать персону',
-    onNameChange: fn(),
-    onDescriptionChange: fn(),
-    onAvatarChange: fn(),
     onSubmit: fn(),
     onCancel: fn(),
   },
@@ -32,34 +25,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Create: Story = {
-  render: function Create(args) {
-    const [name, setName] = useState(args.name);
-    const [description, setDescription] = useState(args.description);
-    const [avatar, setAvatar] = useState<File>();
-    const preview = useObjectUrl(avatar);
-
-    return (
-      <PersonaForm
-        {...args}
-        name={name}
-        description={description}
-        avatarPreviewUrl={preview}
-        onAvatarChange={setAvatar}
-        onNameChange={setName}
-        onDescriptionChange={setDescription}
-      />
-    );
-  },
-};
+export const Create: Story = {};
 
 export const Saving: Story = {
-  args: { name: 'Мох', isPending: true, submitLabel: 'Сохранить изменения' },
+  args: {
+    initialValues: { name: 'Мох', description: '' },
+    isPending: true,
+    submitLabel: 'Сохранить изменения',
+  },
 };
 
 export const Error: Story = {
   args: {
-    name: 'Мох',
+    initialValues: { name: 'Мох', description: '' },
     errorMessage: 'Не удалось сохранить. Попробуйте ещё раз.',
   },
 };

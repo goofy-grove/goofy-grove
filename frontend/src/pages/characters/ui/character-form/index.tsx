@@ -1,40 +1,49 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Input } from '@shared/ui';
+import { Input, useObjectUrl } from '@shared/ui';
 import { Form } from '@shared/ui/form';
-import './styles.scss';
 
 import type { CharacterFormProps } from './types';
 import type { FC } from 'react';
 
+import './styles.scss';
+
 export const CharacterForm: FC<CharacterFormProps> = ({
-  name,
-  description,
+  initialValues,
   isPending,
   submitLabel,
   errorMessage,
   avatarUid,
   avatarPreviewUrl,
-  onNameChange,
-  onDescriptionChange,
-  onAvatarChange,
   onSubmit,
   onCancel,
 }) => {
   const { t } = useTranslation();
+  const [name, setName] = useState(initialValues.name);
+  const [description, setDescription] = useState(initialValues.description);
+  const [avatarFile, setAvatarFile] = useState<File>();
+  const selectedAvatarPreviewUrl = useObjectUrl(avatarFile);
+
+  const handleSubmit = () => {
+    if (!isPending) {
+      onSubmit({ name, description, avatarFile });
+    }
+  };
 
   return (
     <Form
+      isPending={isPending}
       errorMessage={errorMessage}
       avatarUid={avatarUid}
-      avatarPreviewUrl={avatarPreviewUrl}
+      avatarPreviewUrl={selectedAvatarPreviewUrl ?? avatarPreviewUrl}
       submitLabel={submitLabel}
       headingText={t('forms.character_heading')}
       headingHint={t('forms.character_hint')}
       hasPortrait
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       onCancel={onCancel}
-      onPortraitChange={onAvatarChange}
+      onPortraitChange={setAvatarFile}
     >
       <Input
         name="name"
@@ -42,7 +51,7 @@ export const CharacterForm: FC<CharacterFormProps> = ({
         placeholder={t('forms.character_name')}
         disabled={isPending}
         value={name}
-        onChange={onNameChange}
+        onChange={setName}
       />
 
       <Input
@@ -54,7 +63,7 @@ export const CharacterForm: FC<CharacterFormProps> = ({
         multiline
         disabled={isPending}
         value={description}
-        onChange={onDescriptionChange}
+        onChange={setDescription}
       />
     </Form>
   );

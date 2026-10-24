@@ -63,6 +63,7 @@ export const useCreateChatMutation = () =>
           },
         ],
         characters: [],
+        last_message: null,
       };
 
       context.client.setQueryData<Chat[]>([CHATS_QUERY_KEY], (old) =>

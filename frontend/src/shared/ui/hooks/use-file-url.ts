@@ -7,7 +7,9 @@ const fileUrlCache = new Map<string, Promise<string>>();
 const getFileUrl = (fileUid: string) => {
   const cachedUrl = fileUrlCache.get(fileUid);
 
-  if (cachedUrl) return cachedUrl;
+  if (cachedUrl) {
+    return cachedUrl;
+  }
 
   const request = api.files
     .getBlob(fileUid)

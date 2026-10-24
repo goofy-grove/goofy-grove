@@ -10,7 +10,9 @@ const BASE = import.meta.env.BASE_URL || '/';
 let initPromise: Promise<void> | null = null;
 
 export const initI18n = async (): Promise<void> => {
-  if (initPromise) return initPromise;
+  if (initPromise) {
+    return initPromise;
+  }
 
   initPromise = (async () => {
     const localeSettings = await getAvailableLocales();

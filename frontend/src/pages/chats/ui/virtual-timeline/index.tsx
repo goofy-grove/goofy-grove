@@ -74,7 +74,10 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
   }, []);
 
   const requestOlder = async () => {
-    if (fetching.current || !hasOlder || !loadOlder) return;
+    if (fetching.current || !hasOlder || !loadOlder) {
+      return;
+    }
+
     pinned.current = false;
     fetching.current = true;
     setLoading(true);
@@ -82,10 +85,14 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
     try {
       await loadOlder(pageSize);
     } catch {
-      if (mounted.current) setError(true);
+      if (mounted.current) {
+        setError(true);
+      }
     } finally {
       fetching.current = false;
-      if (mounted.current) setLoading(false);
+      if (mounted.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -100,10 +107,14 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
   useEffect(() => {
     const content = scroller.current?.firstElementChild;
 
-    if (!content) return;
+    if (!content) {
+      return;
+    }
+
     const observer = new ResizeObserver(() => {
-      if (pinned.current && scroller.current)
+      if (pinned.current && scroller.current) {
         scroller.current.scrollTop = scroller.current.scrollHeight;
+      }
     });
 
     observer.observe(content);
@@ -114,13 +125,18 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
   const onScroll = () => {
     const element = scroller.current;
 
-    if (!element) return;
+    if (!element) {
+      return;
+    }
+
     const bottom =
       element.scrollHeight - element.scrollTop - element.clientHeight < 64;
 
     pinned.current = bottom;
     setAtBottom(bottom);
-    if (element.scrollTop < 120 && !error && !loading) void requestOlder();
+    if (element.scrollTop < 120 && !error && !loading) {
+      void requestOlder();
+    }
   };
 
   return (
