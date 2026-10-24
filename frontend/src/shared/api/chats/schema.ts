@@ -26,16 +26,10 @@ export const ChatInfoSchema = z.object({
     .transform((date) => new Date(date)),
   creator_uid: z.string(),
   avatar_uid: z.string().nullable(),
-  last_message: MessageSchema.nullable(),
 });
 
 export const ChatSchema = ChatInfoSchema.extend({
+  last_message: MessageSchema.nullable().default(null),
   members: z.array(ChatMemberSchema),
   characters: z.array(ChatCharacterSchema),
 });
-
-// pub uid: String,
-// pub name: String,
-// pub created_at: DateTime<Utc>,
-// pub creator_uid: String,
-// pub avatar_uid: Option<String>,

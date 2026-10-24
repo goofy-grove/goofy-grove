@@ -104,6 +104,73 @@ export const useCreateChatMutation = () =>
     },
   });
 
+export const useUpdateChatMutation = () =>
+  useMutation({
+    mutationFn: async ({
+      uid,
+      name,
+      avatarFile,
+    }: {
+      uid: string;
+      name: string;
+      avatarFile?: File;
+    }) => {
+      const updated = await api.chats.update(uid, { name });
+
+      if (updated.error) {
+        return updated;
+      }
+
+      if (!avatarFile) {
+        return updated;
+      }
+
+      return api.chats.putAvatar(uid, avatarFile);
+    },
+
+    onMutate: async ({ uid, name }, context) => {
+      await context.client.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+      const previousChats =
+        context.client.getQueryData<Chat[]>([CHATS_QUERY_KEY]) || [];
+
+      context.client.setQueryData<Chat[]>(
+        [CHATS_QUERY_KEY],
+        (old) =>
+          old?.map((chat) => (chat.uid === uid ? { ...chat, name } : chat)) ||
+          [],
+      );
+
+      return previousChats;
+    },
+
+    onError: (_, __, onMutateResult, context) => {
+      context.client.setQueryData<Chat[]>(
+        [CHATS_QUERY_KEY],
+        onMutateResult || [],
+      );
+    },
+
+    onSuccess: (result, { uid }, onMutateResult, context) => {
+      if (result.error) {
+        context.client.setQueryData<Chat[]>(
+          [CHATS_QUERY_KEY],
+          onMutateResult || [],
+        );
+
+        throw new ApiRequestError(result.data);
+      }
+
+      context.client.setQueryData<Chat[]>(
+        [CHATS_QUERY_KEY],
+        (old) =>
+          old?.map((chat) =>
+            chat.uid === uid ? { ...chat, ...result.data } : chat,
+          ) || [],
+      );
+    },
+  });
+
 export const useDeleteChatMutation = () =>
   useMutation({
     mutationFn: ({ uid }: { uid: string }) => api.chats.remove(uid),

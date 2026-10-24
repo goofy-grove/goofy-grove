@@ -1,81 +1,103 @@
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useCreateChatMutation } from '@pages/chats/model';
+import {
+  useCreateChatMutation,
+  useChatsQuery,
+  useUpdateChatMutation,
+} from '@pages/chats/model';
+import { ChatForm } from '@pages/chats/ui/chat-form';
+import type { ChatFormValues } from '@pages/chats/ui/chat-form/types';
 
 import { getApiErrorMessage } from '@shared/api';
-import { Button, Form, Input, Text, useObjectUrl } from '@shared/ui';
+import { Button, IconLoader, Text } from '@shared/ui';
+
+import type { ChatFormPageProps } from './types';
 
 import './styles.scss';
 
-export const ChatFormPage = () => {
+export const ChatFormPage: FC<ChatFormPageProps> = ({ mode, uid }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { data, isLoading } = useChatsQuery();
   const createMutation = useCreateChatMutation();
-  const isEditMode = false;
+  const updateMutation = useUpdateChatMutation();
+  const isEditMode = mode === 'edit';
+  const mutation = isEditMode ? updateMutation : createMutation;
 
-  const [name, setName] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File>();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const avatarPreviewUrl = useObjectUrl(avatarFile);
+  const handleBack = () => void navigate({ to: '/chats' });
+  const handleSubmit = async (values: ChatFormValues) => {
+    if (isEditMode) {
+      if (!uid) {
+        return;
+      }
 
-  const handleSubmit = async () => {
-    try {
-      await createMutation.mutateAsync({
-        name,
-        avatarFile,
-      });
-
-      void navigate({ to: '/chats' });
-    } catch (error) {
-      console.log('Error creating chat:', error);
-      setErrorMessage(getApiErrorMessage(error, t));
+      await updateMutation.mutateAsync({ uid, ...values });
+    } else {
+      await createMutation.mutateAsync(values);
     }
+
+    handleBack();
   };
+  const chat = mode === 'edit' ? data?.find((item) => item.uid === uid) : null;
+
+  if (mode === 'edit' && isLoading) {
+    return (
+      <div className="chat-form-page__loader">
+        <IconLoader size={64} isAnimated />
+      </div>
+    );
+  }
+
+  if (mode === 'edit' && !chat) {
+    return (
+      <div className="chat-form-page scrollbar">
+        <Text>{t('chat.not_found')}</Text>
+
+        <Button onClick={() => void navigate({ to: '/chats' })}>
+          {t('common.back')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="chat-form-page">
-      <div className="character-form-page__header">
+    <div className="chat-form-page scrollbar">
+      <div className="chat-form-page__header">
         <Text tag="h2">
           {isEditMode ? t('chat.edit_title') : t('chat.create_title')}
         </Text>
 
         <Button
           variant="ghost"
-          disabled={createMutation.isPending}
+          disabled={mutation.isPending}
           leftIcon={<IconArrowLeft size={18} />}
-          onClick={() => void navigate({ to: '/chats' })}
+          onClick={handleBack}
         >
           {t('common.back')}
         </Button>
       </div>
 
-      <p className="character-form-page__intro">{t('forms.chat_intro')}</p>
+      <p className="chat-form-page__intro">{t('forms.chat_intro')}</p>
 
-      <Form
-        errorMessage={errorMessage}
-        avatarPreviewUrl={avatarPreviewUrl}
+      <ChatForm
+        key={isEditMode ? chat!.uid : 'create'}
+        initialValues={{
+          name: chat?.name ?? '',
+        }}
+        avatarUid={chat?.avatar_uid || undefined}
+        isPending={mutation.isPending}
+        errorMessage={
+          mutation.isError ? getApiErrorMessage(mutation.error, t) : undefined
+        }
         submitLabel={
           isEditMode ? t('forms.save_changes') : t('chat.create_title')
         }
-        headingText={t('forms.chat_heading')}
-        headingHint={t('forms.chat_hint')}
-        hasPortrait
         onSubmit={handleSubmit}
-        onPortraitChange={setAvatarFile}
-        onCancel={() => void navigate({ to: '/chats' })}
-      >
-        <Input
-          name="name"
-          label={t('chat.labels.name')}
-          placeholder={t('forms.chat_name')}
-          disabled={createMutation.isPending}
-          value={name}
-          onChange={setName}
-        />
-      </Form>
+        onCancel={handleBack}
+      />
     </div>
   );
 };

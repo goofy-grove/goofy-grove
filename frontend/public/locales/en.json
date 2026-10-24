@@ -133,6 +133,7 @@
       "delete": "Delete"
     },
     "confirm_delete": "Delete this chat?",
+    "not_found": "Chat not found",
     "edit_title": "Edit chat",
     "create_title": "Create chat",
     "title": "Where the mushrooms glow",
