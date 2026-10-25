@@ -19,6 +19,8 @@ export const ChatViewPage = ({ uid }: ChatViewPageProps) => {
   };
 
   const messages = data?.pages
+    .slice()
+    .reverse()
     .map((page) =>
       page.messages.map((message) =>
         toChatMessage(message, {

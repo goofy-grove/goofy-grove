@@ -62,13 +62,16 @@ pub async fn get_paginated(
     limit: u64,
 ) -> Result<GetPaginatedResult, GetPaginatedError> {
     let page_data = parse_page_data(page, limit)?;
-    let messages = db::load_messages(&deps.db, chat_uid, page_data)
+    let mut messages = db::load_messages(&deps.db, chat_uid, page_data)
         .await
         .map_err(|err| GetPaginatedError::Internal(err.to_string()))?;
+
     let next_page = messages
         .last()
         .map(|message| stringify_page_data(message.created_at, message.uid.clone()))
         .transpose()?;
+
+    messages.reverse();
 
     Ok(GetPaginatedResult {
         messages,

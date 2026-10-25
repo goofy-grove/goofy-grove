@@ -285,7 +285,7 @@ pub async fn load_messages(
         .find_also_related(characters::Entity)
         .cursor_by((messages::Column::CreatedAt, messages::Column::Uid));
 
-    messages_cursor.asc();
+    messages_cursor.desc();
 
     if let Some(page) = page_data.next_page {
         messages_cursor.after(page);
