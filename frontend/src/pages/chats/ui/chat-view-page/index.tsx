@@ -9,6 +9,7 @@ import type { ChatViewPageProps } from './types';
 
 export const ChatViewPage = ({ uid }: ChatViewPageProps) => {
   const { user } = useAuth();
+
   const fileUrl =
     useFileUrl('file-01a0c57a-25eb-7370-b133-d7bae4105e5e') || undefined;
 

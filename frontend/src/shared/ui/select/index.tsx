@@ -19,6 +19,7 @@ export const Select: FC<SelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const listId = useId();
+
   const selectedItems = items.filter((item) =>
     multiselect ? selected?.includes(item.value) : selected === item.value,
   );

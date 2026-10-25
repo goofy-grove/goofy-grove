@@ -7,6 +7,7 @@ import type { VirtualElement } from '@floating-ui/react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 const meta = { title: 'Controls/Overview' } satisfies Meta;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 

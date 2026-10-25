@@ -25,6 +25,7 @@ export const FormattingToolbar: FC<FormattingToolbarProps> = ({ editor }) => {
   const [linkOpen, setLinkOpen] = useState(false);
   const [url, setUrl] = useState('');
   const [error, setError] = useState(false);
+
   const buttons = [
     {
       label: t('bold'),

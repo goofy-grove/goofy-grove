@@ -7,10 +7,11 @@ import { CharacterThinking } from '@pages/chats/ui/character-thinking';
 import { ChatComposer } from '@pages/chats/ui/chat-composer';
 import { VirtualTimeline } from '@pages/chats/ui/virtual-timeline';
 
-import type { CSSProperties, FC } from 'react';
-import type { ChatViewProps } from './types';
-
 import { Avatar, useFileUrl } from '@shared/ui';
+
+import type { ChatViewProps } from './types';
+import type { CSSProperties, FC } from 'react';
+
 import './styles.scss';
 
 export const ChatView: FC<ChatViewProps> = (props) => {
@@ -21,6 +22,7 @@ export const ChatView: FC<ChatViewProps> = (props) => {
   const activeCharacter = props.characters.find(
     (character) => character.id === props.generatingCharacterId,
   );
+
   const background: CSSProperties | undefined = props.backgroundUrl
     ? {
         backgroundImage: `linear-gradient(rgba(16,29,23,.68), rgba(16,29,23,.86))`,
@@ -50,7 +52,11 @@ export const ChatView: FC<ChatViewProps> = (props) => {
     >
       <header className="chat-header">
         <div className="chat-header__mark">
-          <Avatar src={avatarUrl || undefined} fallback={<IconTrees size={27} stroke={1.5} />} variant="unbordered" />
+          <Avatar
+            src={avatarUrl || undefined}
+            fallback={<IconTrees size={27} stroke={1.5} />}
+            variant="unbordered"
+          />
         </div>
 
         <div className="chat-header__title">

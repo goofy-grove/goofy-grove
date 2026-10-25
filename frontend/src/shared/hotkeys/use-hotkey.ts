@@ -13,6 +13,7 @@ export const useHotkey = (
 ) => {
   const { enabled = true } = options;
   const isEnabled = enabled && !!handler;
+
   const combo = useHotkeysStore(
     (state) => state.overrides[id] ?? DEFAULT_HOTKEYS[id],
   );

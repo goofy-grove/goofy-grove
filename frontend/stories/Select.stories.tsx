@@ -59,6 +59,7 @@ const meta = {
     ),
   ],
 } satisfies Meta<typeof SelectPreview>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 

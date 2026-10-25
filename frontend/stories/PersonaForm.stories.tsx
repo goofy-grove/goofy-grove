@@ -22,6 +22,7 @@ const meta = {
     ),
   ],
 } satisfies Meta<typeof PersonaForm>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 

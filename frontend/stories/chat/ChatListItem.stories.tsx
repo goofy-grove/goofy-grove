@@ -62,6 +62,7 @@ const meta = {
     ),
   ],
 } satisfies Meta<typeof ChatListItem>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -160,6 +161,7 @@ export const OpenAndActions: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const open = canvas.getByRole('button', { name: args.title });
+
     const actions = canvas.getByRole('button', {
       name: `Действия: ${args.title}`,
     });

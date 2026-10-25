@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { PersonaSelect } from '@pages/chats/ui/persona-select';
 import { RichEditor } from '@pages/chats/ui/rich-editor';
 
-import type { FC } from 'react';
 import type { ChatComposerProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 
@@ -17,9 +17,11 @@ export const ChatComposer: FC<ChatComposerProps> = ({
   initialContent,
 }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'chat' });
+
   const available = personas.filter(
     (identity) => identity.kind === 'persona' && identity.own,
   );
+
   const selected = available.find((identity) => identity.id === selectedId);
 
   return (

@@ -11,11 +11,13 @@ import { useDeleteCharacterMutation } from './mutations';
 export const useCharacterActions = () => {
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const [pendingDeleteUid, setPendingDeleteUid] = useState<string | null>(null);
+
   const [selectedCharacterUid, setSelectedCharacterUid] = useState<
     string | null
   >(null);
 
   const { t } = useTranslation();
+
   const actions: ActionSheetItem[] = [
     {
       Icon: <IconPencil size={17} />,

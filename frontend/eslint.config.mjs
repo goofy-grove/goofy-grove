@@ -2,11 +2,9 @@ import importAliases from '@dword-design/eslint-plugin-import-alias';
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import pluginRouter from '@tanstack/eslint-plugin-router';
-import tsParser from '@typescript-eslint/parser';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import { defineConfig, globalIgnores } from 'eslint/config';
@@ -14,85 +12,76 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  globalIgnores(['dist', 'storybook-static']),
-  js.configs.recommended,
-  reactHooks.configs.flat['recommended-latest'],
-  reactRefresh.configs.vite,
-  eslintPluginPrettierRecommended,
-
-  tseslint.configs.recommendedTypeChecked,
-  importX.flatConfigs.recommended,
-  importX.flatConfigs.typescript,
-  importX.flatConfigs.react,
-
-  pluginRouter.configs['flat/recommended'],
-
-  // {
-  //   settings: {
-  //     'import-x/resolver-next': [
-  //       createTypeScriptImportResolver({
-  //         alwaysTryTypes: true,
-  //         project: './',
-  //         tsconfig: './tsconfig.json',
-  //       }),
-  //     ]
-  //   },
-  // },
-
-  importAliases.configs.recommended,
-
+  globalIgnores([
+    'dist',
+    'storybook-static',
+    'src/app/lib/@tanstack/router/route-tree.gen.ts',
+  ]),
   {
+    name: 'frontend/typescript',
     files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommendedTypeChecked,
+      reactHooks.configs.flat['recommended-latest'],
+      reactRefresh.configs.vite,
+      importX.flatConfigs.recommended,
+      importX.flatConfigs.typescript,
+      importX.flatConfigs.react,
+      pluginRouter.configs['flat/recommended'],
+      importAliases.configs.recommended,
+    ],
     plugins: {
       '@stylistic': stylistic,
-      '@typescript-eslint': tseslint.plugin,
-      '@dword-design/import-alias/prefer-alias': {
-        shouldReadTsConfig: false,
-      },
-      react,
     },
     languageOptions: {
       ecmaVersion: 2023,
       globals: globals.browser,
-      parser: tsParser,
       parserOptions: {
-        ecmaVersion: 2023,
-        sourceType: 'module',
-        ecmaFeatures: { jsx: true },
         projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
           alwaysTryTypes: true,
-          project: './',
-          tsconfig: './tsconfig.eslint.json',
+          project: `${import.meta.dirname}/tsconfig.json`,
         }),
       ],
     },
     rules: {
-      curly: ['error', 'all'],
       '@stylistic/padding-line-between-statements': [
         'error',
         { blankLine: 'always', prev: 'if', next: '*' },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: ['if', 'for', 'while', 'switch', 'try'],
+        },
+        { blankLine: 'always', prev: '*', next: 'return' },
+        { blankLine: 'always', prev: ['const', 'let'], next: '*' },
+        {
+          blankLine: 'any',
+          prev: ['const', 'let'],
+          next: ['const', 'let'],
+        },
+        {
+          blankLine: 'always',
+          prev: ['multiline-const', 'multiline-let'],
+          next: '*',
+        },
+        {
+          blankLine: 'always',
+          prev: '*',
+          next: ['multiline-const', 'multiline-let'],
+        },
       ],
-      'prettier/prettier': 'error',
-      'react/jsx-newline': ['error', { prevent: false }],
-      'no-multiple-empty-lines': ['error', { max: 1, maxBOF: 0, maxEOF: 0 }],
-      '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-floating-promises': 'error',
       '@dword-design/import-alias/prefer-alias': [
         'error',
         {
-          alias: {
-            '@shared/*': './src/shared/*',
-            '@entities/*': './src/entities/*',
-            '@features/*': './src/features/*',
-            '@widgets/*': './src/widgets/*',
-            '@pages/*': './src/pages/*',
-            '@app/*': './src/app/*',
-          },
+          shouldReadTsConfig: true,
+          shouldReadBabelConfig: false,
         },
       ],
       '@typescript-eslint/no-misused-promises': [
@@ -120,8 +109,6 @@ export default defineConfig(
           ],
         },
       ],
-      '@typescript-eslint/no-unsafe-argument': 'error',
-      '@typescript-eslint/explicit-module-boundary-types': 'error',
       'import-x/no-absolute-path': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -167,5 +154,14 @@ export default defineConfig(
   {
     files: ['.storybook/**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
+    files: ['vite.config.ts'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [eslintPluginPrettierRecommended],
+    rules: { curly: ['error', 'all'] },
   },
 );

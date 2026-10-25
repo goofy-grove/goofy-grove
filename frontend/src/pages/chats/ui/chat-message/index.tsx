@@ -9,8 +9,8 @@ import { RichMessage } from '@pages/chats/ui/rich-message';
 
 import { Button } from '@shared/ui';
 
-import type { FC } from 'react';
 import type { ChatMessageProps } from './types';
+import type { FC } from 'react';
 
 import './styles.scss';
 
@@ -23,6 +23,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
   const { t } = useTranslation('translation', { keyPrefix: 'chat' });
   const [editing, setEditing] = useState(false);
   const titleId = useId();
+
   const canBeEdited =
     message.author?.kind === 'persona' &&
     message.author.own &&

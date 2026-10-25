@@ -26,6 +26,7 @@ const meta = {
     ),
   ],
 } satisfies Meta<typeof ChatPreview>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -146,6 +147,7 @@ export const LoadOlderPage: Story = {
   globals: { locale: 'en' },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
     const timeline = canvas.getByRole('region', {
       name: 'Earlier in the story',
     });

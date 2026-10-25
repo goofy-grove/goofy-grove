@@ -31,6 +31,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
   const mutation = isEditMode ? updateMutation : createMutation;
 
   const handleBack = () => void navigate({ to: '/characters' });
+
   const handleSubmit = async (values: CharacterFormValues) => {
     if (isEditMode) {
       if (!uid) {
@@ -44,6 +45,7 @@ export const CharacterFormPage: FC<CharacterFormPageProps> = ({
 
     handleBack();
   };
+
   const character =
     mode === 'edit' ? data?.find((item) => item.uid === uid) : null;
 

@@ -25,9 +25,11 @@ export const Input: FC<InputProps> = ({
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const hintId = `${inputId}-hint`;
+
   const descriptionIds =
     [describedBy, hint ? hintId : undefined].filter(Boolean).join(' ') ||
     undefined;
+
   const { isCopied, handleCopy } = useCopy(value?.toString() || '');
 
   return (

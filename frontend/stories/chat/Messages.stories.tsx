@@ -22,6 +22,7 @@ function MessagePreview({
   const scene = createScene(isEnglish);
   const [edited, setEdited] = useState<JSONContent>();
   const [retried, setRetried] = useState(false);
+
   const message =
     scene.messages[kind === 'persona' ? 1 : kind === 'companion' ? 2 : 0];
 
@@ -58,6 +59,7 @@ const meta = {
     },
   },
 } satisfies Meta<typeof MessagePreview>;
+
 export default meta;
 type Story = StoryObj<typeof meta>;
 

@@ -39,10 +39,12 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
   const pinned = useRef(true);
   const initialized = useRef(false);
   const mounted = useRef(true);
+
   const getItemKey = useCallback(
     (index: number) => messages[index].id,
     [messages],
   );
+
   const virtualizer = useVirtualizer({
     count: messages.length,
     getScrollElement: () => scroller.current,
@@ -63,6 +65,7 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
     followOnAppend: true,
     scrollEndThreshold: 64,
   });
+
   const virtualItems = virtualizer.getVirtualItems();
 
   useEffect(() => {
@@ -82,6 +85,7 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
     fetching.current = true;
     setLoading(true);
     setError(false);
+
     try {
       await loadOlder(pageSize);
     } catch {
@@ -90,6 +94,7 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
       }
     } finally {
       fetching.current = false;
+
       if (mounted.current) {
         setLoading(false);
       }
@@ -134,6 +139,7 @@ export const VirtualTimeline: FC<VirtualTimelineProps> = ({
 
     pinned.current = bottom;
     setAtBottom(bottom);
+
     if (element.scrollTop < 120 && !error && !loading) {
       void requestOlder();
     }

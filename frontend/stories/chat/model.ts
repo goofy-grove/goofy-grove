@@ -35,6 +35,7 @@ export function createScene(en: boolean) {
       sasha: en ? 'Sasha' : 'Саша',
     },
   };
+
   const personaDto = {
     uid: 'fern',
     name: en ? 'Fern' : 'Папоротник',
@@ -42,17 +43,20 @@ export function createScene(en: boolean) {
     creator_uid: 'me',
     avatar_uid: null,
   };
+
   const alternateDto = {
     ...personaDto,
     uid: 'robin',
     name: en ? 'Robin' : 'Зарянка',
   };
+
   const companionDto = {
     ...personaDto,
     uid: 'clover',
     name: en ? 'Clover' : 'Клевер',
     creator_uid: 'sasha',
   };
+
   const characterDto = {
     uid: 'moss',
     name: en ? 'Moss' : 'Мох',
@@ -60,15 +64,18 @@ export function createScene(en: boolean) {
     creator_uid: 'me',
     avatar_uid: null,
   };
+
   const persona = toChatPersona(personaDto, context);
   const alternate = toChatPersona(alternateDto, context);
   const companion = toChatPersona(companionDto, context);
   const character = toChatCharacter(characterDto);
+
   const authors: Record<string, MessageAuthorDto> = {
     fern: { ...personaDto, kind: 'persona' },
     clover: { ...companionDto, kind: 'persona' },
     moss: { ...characterDto, kind: 'character' },
   };
+
   const opening = document(
     paragraph(
       text(
@@ -98,6 +105,7 @@ export function createScene(en: boolean) {
       ],
     },
   );
+
   const reply = document(
     paragraph(
       text(
@@ -124,6 +132,7 @@ export function createScene(en: boolean) {
       ),
     ),
   );
+
   const messageDrafts: ChatMessageData[] = [
     { id: 'm1', author: character, content: opening, time: '21:04' },
     {
@@ -166,8 +175,10 @@ export function createScene(en: boolean) {
     },
     { id: 'm4', author: character, content: reply, time: '21:07' },
   ];
+
   const messages = messageDrafts.map((message) => {
     const author = message.author ? authors[message.author.id] : null;
+
     const content = author
       ? toSendMessage(message.content, {
           kind: author.kind,
@@ -188,6 +199,7 @@ export function createScene(en: boolean) {
       context,
     );
   });
+
   const rich = document(
     {
       type: 'heading',

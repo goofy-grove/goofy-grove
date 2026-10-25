@@ -55,6 +55,7 @@ export const RichEditor: FC<RichEditorProps> = ({
 }) => {
   const { t, i18n } = useTranslation('translation', { keyPrefix: 'chat' });
   const [formatOpen, setFormatOpen] = useState(false);
+
   const extensions = useMemo(
     () => [
       ...richTextExtensions(),
@@ -62,6 +63,7 @@ export const RichEditor: FC<RichEditorProps> = ({
     ],
     [i18n],
   );
+
   const editor = useEditor(
     {
       extensions,

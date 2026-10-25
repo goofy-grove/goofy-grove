@@ -48,6 +48,7 @@ export const useCreateChatMutation = () =>
       }
 
       const chatUid = v7();
+
       const optimisticResult: Chat = {
         uid: chatUid,
         name,

@@ -35,6 +35,7 @@ export const CharactersPage: FC = () => {
     handleConfirmDelete,
     handleEdit,
   } = useCharacterActions();
+
   const { isMobileSm } = useBreakpoints();
   const { data, isLoading } = useCharactersQuery();
 

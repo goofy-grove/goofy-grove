@@ -45,6 +45,7 @@ export const LoginPage = () => {
             className="login-page-card__form"
             onSubmit={(event) => {
               event.preventDefault();
+
               if (!isLoading) {
                 void handleSubmit();
               }

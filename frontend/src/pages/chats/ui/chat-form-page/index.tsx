@@ -28,6 +28,7 @@ export const ChatFormPage: FC<ChatFormPageProps> = ({ mode, uid }) => {
   const mutation = isEditMode ? updateMutation : createMutation;
 
   const handleBack = () => void navigate({ to: '/chats' });
+
   const handleSubmit = async (values: ChatFormValues) => {
     if (isEditMode) {
       if (!uid) {
@@ -41,6 +42,7 @@ export const ChatFormPage: FC<ChatFormPageProps> = ({ mode, uid }) => {
 
     handleBack();
   };
+
   const chat = mode === 'edit' ? data?.find((item) => item.uid === uid) : null;
 
   if (mode === 'edit' && isLoading) {

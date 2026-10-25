@@ -28,6 +28,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
   const mutation = isEditMode ? updateMutation : createMutation;
 
   const handleBack = () => void navigate({ to: '/personas' });
+
   const handleSubmit = async (values: PersonaFormValues) => {
     if (isEditMode) {
       if (!uid) {
@@ -41,6 +42,7 @@ export const PersonaFormPage: FC<PersonaFormPageProps> = ({ mode, uid }) => {
 
     handleBack();
   };
+
   const persona =
     mode === 'edit' ? data?.find((item) => item.uid === uid) : null;
 

@@ -17,6 +17,7 @@ import './styles.scss';
 
 export const Alert: FC<AlertProps> = ({ message, type = 'info', closable }) => {
   const [isOpen, setIsOpen] = useState(true);
+
   const typeIconMap: Record<typeof type, (props: IconProps) => ReactNode> = {
     success: IconCircleCheckFilled,
     error: IconCircleXFilled,

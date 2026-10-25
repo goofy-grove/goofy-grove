@@ -10,9 +10,11 @@ import './styles.scss';
 
 export const Sidebar = () => {
   const { t } = useTranslation();
+
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+
   const { isMobileSm } = useBreakpoints();
 
   return (

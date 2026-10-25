@@ -10,6 +10,7 @@ import './styles.scss';
 
 export const RichMessage: FC<RichMessageProps> = ({ content }) => {
   const extensions = useMemo(() => richTextExtensions({ readOnly: true }), []);
+
   const editor = useEditor({
     extensions,
     content,

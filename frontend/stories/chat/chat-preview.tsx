@@ -97,6 +97,7 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
   const { t, i18n } = useTranslation('translation', { keyPrefix: 'chat' });
   const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
   const scene = useMemo(() => createScene(isEnglish), [isEnglish]);
+
   const history = useMemo(
     () =>
       Array.from(
@@ -109,8 +110,10 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
       ),
     [scene],
   );
+
   const historyMode = state === 'history' || state === 'history-error';
   const [oldest, setOldest] = useState(historyMode ? 200 : 0);
+
   const [messages, setMessages] = useState<ChatMessageData[]>(() =>
     historyMode
       ? history.slice(-CHAT_PAGE_SIZE)
@@ -125,6 +128,7 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
               ]
             : scene.messages,
   );
+
   const [characters, setCharacters] = useState<ChatCharacter[]>([
     { ...scene.character, kind: 'character', ownerId: 'me' },
     {
@@ -135,11 +139,14 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
       ownerId: 'sasha',
     },
   ]);
+
   const [editingId, setEditingId] = useState<string>();
   const [selectedId, setSelectedId] = useState(scene.persona.id);
+
   const [generatingId, setGeneratingId] = useState<string | null>(
     state === 'generating' ? scene.character.id : null,
   );
+
   const [notice, setNotice] = useState('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const failOnce = useRef(state === 'history-error');
@@ -151,11 +158,13 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
 
     return () => {
       active.current = false;
+
       if (timer.current) {
         clearTimeout(timer.current);
       }
     };
   }, []);
+
   const trigger = (id: string) => {
     const character = characters.find((item) => item.id === id);
 
@@ -178,6 +187,7 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
       setGeneratingId(null);
     }, 2200);
   };
+
   const send = (content: JSONContent) => {
     const author = [scene.persona, scene.alternate].find(
       (persona) => persona.id === selectedId,
@@ -193,8 +203,10 @@ function ChatScene({ state, background }: Required<ChatPreviewProps>) {
     ]);
     trigger(characters[0].id);
   };
+
   const loadOlder = async (pageSize: number) => {
     await new Promise((resolve) => setTimeout(resolve, 900));
+
     if (!active.current) {
       return;
     }

@@ -14,6 +14,7 @@ export const useChatActions = () => {
   const [selectedElementUid, setSelectedElementUid] = useState<string | null>(
     null,
   );
+
   const [deletePendingUid, setDeletePendingUid] = useState<string | null>(null);
   const isActionsOpened = Boolean(selectedElementUid);
   const isDeleteConfirmationOpen = Boolean(deletePendingUid);

@@ -39,6 +39,7 @@ export const ChatsPage = () => {
   };
 
   const { isMobileSm } = useBreakpoints();
+
   const {
     actions,
     isActionsOpened,
@@ -49,6 +50,7 @@ export const ChatsPage = () => {
     handleConfirmDeletion,
     isRemovePending,
   } = useChatActions();
+
   const [actionButton, setActionButton] = useState<HTMLButtonElement | null>(
     null,
   );

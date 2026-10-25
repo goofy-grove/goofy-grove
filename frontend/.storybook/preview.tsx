@@ -10,6 +10,7 @@ import '@app/styles/general.scss';
 import './preview.scss';
 
 const i18n = createInstance();
+
 await i18n.use(initReactI18next).init({
   lng: 'ru',
   fallbackLng: 'en',
