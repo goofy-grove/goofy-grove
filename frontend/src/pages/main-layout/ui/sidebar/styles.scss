@@ -96,8 +96,6 @@
   }
 
   @include media.tablet-lg {
-    border-right: 0;
-    border-top: 1px solid var(--border-default);
     width: 88px;
     padding: 28px 12px;
 
@@ -127,6 +125,8 @@
     width: 100%;
     height: auto;
     padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+    border-right: 0;
+    border-top: 1px solid var(--border-default);
 
     &__brand,
     &__caption,

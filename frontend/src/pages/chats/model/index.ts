@@ -1,4 +1,4 @@
-export { useChatsQuery } from './query';
+export { useChatsQuery, useMessagesQuery } from './query';
 export { CHAT_PAGE_SIZE } from './constants';
 export {
   toChatCharacter,

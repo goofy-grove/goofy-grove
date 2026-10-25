@@ -39,7 +39,7 @@ export type ChatMessageData = {
   id: string;
   author: ChatIdentity | null;
   removed?: boolean;
-  content: JSONContent;
+  content: JSONContent | string;
   time: string;
 } & ChatMessagePresentationState;
 

@@ -7,14 +7,25 @@ import { CharacterThinking } from '@pages/chats/ui/character-thinking';
 import { ChatComposer } from '@pages/chats/ui/chat-composer';
 import { VirtualTimeline } from '@pages/chats/ui/virtual-timeline';
 
-import type { ChatViewProps } from './types';
 import type { CSSProperties, FC } from 'react';
+import type { ChatViewProps } from './types';
 
+import { Avatar, useFileUrl } from '@shared/ui';
 import './styles.scss';
 
 export const ChatView: FC<ChatViewProps> = (props) => {
   const { t } = useTranslation('translation', { keyPrefix: 'chat' });
+  const avatarUrl = useFileUrl(props.avatarUid);
   const container = useRef<HTMLElement>(null);
+
+  const activeCharacter = props.characters.find(
+    (character) => character.id === props.generatingCharacterId,
+  );
+  const background: CSSProperties | undefined = props.backgroundUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(16,29,23,.68), rgba(16,29,23,.86))`,
+      }
+    : undefined;
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -30,14 +41,6 @@ export const ChatView: FC<ChatViewProps> = (props) => {
 
     return () => viewport?.removeEventListener('resize', resize);
   }, []);
-  const activeCharacter = props.characters.find(
-    (character) => character.id === props.generatingCharacterId,
-  );
-  const background: CSSProperties | undefined = props.backgroundUrl
-    ? {
-        backgroundImage: `linear-gradient(rgba(16,29,23,.68), rgba(16,29,23,.86)), url(${JSON.stringify(props.backgroundUrl)})`,
-      }
-    : undefined;
 
   return (
     <section
@@ -47,7 +50,7 @@ export const ChatView: FC<ChatViewProps> = (props) => {
     >
       <header className="chat-header">
         <div className="chat-header__mark">
-          <IconTrees size={27} stroke={1.5} />
+          <Avatar src={avatarUrl || undefined} fallback={<IconTrees size={27} stroke={1.5} />} variant="unbordered" />
         </div>
 
         <div className="chat-header__title">

@@ -9,8 +9,8 @@ import { RichMessage } from '@pages/chats/ui/rich-message';
 
 import { Button } from '@shared/ui';
 
-import type { ChatMessageProps } from './types';
 import type { FC } from 'react';
+import type { ChatMessageProps } from './types';
 
 import './styles.scss';
 
@@ -31,18 +31,6 @@ export const ChatMessage: FC<ChatMessageProps> = ({
     message.status !== 'failed' &&
     !editing;
 
-  const getMessageOwner = () => {
-    if (message.author?.kind == 'persona') {
-      return message.author.owner;
-    }
-
-    if (message.author) {
-      return t('ai');
-    }
-
-    return '';
-  };
-
   return (
     <article
       className={`chat-message chat-message--${message.author?.kind ?? 'unknown'} ${message.status === 'failed' ? 'chat-message--failed' : ''}`}
@@ -55,8 +43,6 @@ export const ChatMessage: FC<ChatMessageProps> = ({
           <h3 id={titleId}>{message.author?.name ?? t('unknownAuthor')}</h3>
 
           <ChatRole kind={message.author?.kind} />
-
-          <span className="chat-message__owner">{getMessageOwner()}</span>
 
           <time>{message.time}</time>
 

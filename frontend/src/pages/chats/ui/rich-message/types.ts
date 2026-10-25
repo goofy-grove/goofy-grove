@@ -1,3 +1,3 @@
 import type { JSONContent } from '@tiptap/react';
 
-export type RichMessageProps = { content: JSONContent };
+export type RichMessageProps = { content: JSONContent | string };

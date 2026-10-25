@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
-import { ChatRole } from '@pages/chats/ui/chat-role';
 import { PersonaSelect } from '@pages/chats/ui/persona-select';
 import { RichEditor } from '@pages/chats/ui/rich-editor';
 
-import type { ChatComposerProps } from './types';
 import type { FC } from 'react';
+import type { ChatComposerProps } from './types';
 
 import './styles.scss';
 
@@ -33,8 +32,6 @@ export const ChatComposer: FC<ChatComposerProps> = ({
           selectedId={selectedId}
           onChange={onPersonaChange}
         />
-
-        <ChatRole kind="persona" />
       </div>
 
       <RichEditor

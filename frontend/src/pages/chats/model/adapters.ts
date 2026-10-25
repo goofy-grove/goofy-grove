@@ -83,7 +83,7 @@ export const toChatSummary = (chat: Chat) => ({
 });
 
 export const toSendMessage = (
-  content: JSONContent,
+  content: JSONContent | string,
   author: SendMessageDto['author'],
   replyToUid: string | null = null,
 ): SendMessageDto => ({

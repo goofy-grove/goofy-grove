@@ -20,8 +20,8 @@ export const RichMessage: FC<RichMessageProps> = ({ content }) => {
   useEffect(() => {
     if (
       editor &&
-      !editor.isDestroyed &&
-      !editor.state.doc.eq(editor.schema.nodeFromJSON(content))
+      !editor.isDestroyed
+      // !editor.state.doc.eq(editor.schema.nodeFromJSON(content))
     ) {
       editor.commands.setContent(content, { emitUpdate: false });
     }

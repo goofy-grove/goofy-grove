@@ -1,17 +1,18 @@
 import type {
-  ChatPersona,
-  ChatMessageData,
   ChatCharacter,
+  ChatMessageData,
+  ChatPersona,
   ChatUser,
   EditChatMessage,
-  RetryChatMessage,
   LoadChatHistory,
+  RetryChatMessage,
 } from '@pages/chats/model';
 
 import type { JSONContent } from '@tiptap/react';
 
 export type ChatViewProps = {
   title: string;
+  avatarUid?: string;
   subtitle?: string;
   users: ChatUser[];
   currentUserId: string;

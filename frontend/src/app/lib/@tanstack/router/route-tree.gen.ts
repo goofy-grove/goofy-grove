@@ -23,6 +23,7 @@ import { Route as MainLayoutChatsNewRouteImport } from './routes/_main-layout/ch
 import { Route as MainLayoutChatsUidRouteImport } from './routes/_main-layout/chats/$uid'
 import { Route as MainLayoutCharactersNewRouteImport } from './routes/_main-layout/characters/new'
 import { Route as MainLayoutCharactersUidRouteImport } from './routes/_main-layout/characters/$uid'
+import { Route as MainLayoutChatsUidEditRouteImport } from './routes/_main-layout/chats/$uid_.edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -94,6 +95,11 @@ const MainLayoutCharactersUidRoute = MainLayoutCharactersUidRouteImport.update({
   path: '/characters/$uid',
   getParentRoute: () => MainLayoutRoute,
 } as any)
+const MainLayoutChatsUidEditRoute = MainLayoutChatsUidEditRouteImport.update({
+  id: '/chats/$uid_/edit',
+  path: '/chats/$uid/edit',
+  getParentRoute: () => MainLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof MainLayoutIndexRoute
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/chats/': typeof MainLayoutChatsIndexRoute
   '/personas/': typeof MainLayoutPersonasIndexRoute
   '/settings/': typeof MainLayoutSettingsIndexRoute
+  '/chats/$uid/edit': typeof MainLayoutChatsUidEditRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/chats': typeof MainLayoutChatsIndexRoute
   '/personas': typeof MainLayoutPersonasIndexRoute
   '/settings': typeof MainLayoutSettingsIndexRoute
+  '/chats/$uid/edit': typeof MainLayoutChatsUidEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/_main-layout/chats/': typeof MainLayoutChatsIndexRoute
   '/_main-layout/personas/': typeof MainLayoutPersonasIndexRoute
   '/_main-layout/settings/': typeof MainLayoutSettingsIndexRoute
+  '/_main-layout/chats/$uid_/edit': typeof MainLayoutChatsUidEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/chats/'
     | '/personas/'
     | '/settings/'
+    | '/chats/$uid/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/personas'
     | '/settings'
+    | '/chats/$uid/edit'
   id:
     | '__root__'
     | '/_main-layout'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/_main-layout/chats/'
     | '/_main-layout/personas/'
     | '/_main-layout/settings/'
+    | '/_main-layout/chats/$uid_/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -296,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainLayoutCharactersUidRouteImport
       parentRoute: typeof MainLayoutRoute
     }
+    '/_main-layout/chats/$uid_/edit': {
+      id: '/_main-layout/chats/$uid_/edit'
+      path: '/chats/$uid/edit'
+      fullPath: '/chats/$uid/edit'
+      preLoaderRoute: typeof MainLayoutChatsUidEditRouteImport
+      parentRoute: typeof MainLayoutRoute
+    }
   }
 }
 
@@ -312,6 +331,7 @@ interface MainLayoutRouteChildren {
   MainLayoutChatsIndexRoute: typeof MainLayoutChatsIndexRoute
   MainLayoutPersonasIndexRoute: typeof MainLayoutPersonasIndexRoute
   MainLayoutSettingsIndexRoute: typeof MainLayoutSettingsIndexRoute
+  MainLayoutChatsUidEditRoute: typeof MainLayoutChatsUidEditRoute
 }
 
 const MainLayoutRouteChildren: MainLayoutRouteChildren = {
@@ -327,6 +347,7 @@ const MainLayoutRouteChildren: MainLayoutRouteChildren = {
   MainLayoutChatsIndexRoute: MainLayoutChatsIndexRoute,
   MainLayoutPersonasIndexRoute: MainLayoutPersonasIndexRoute,
   MainLayoutSettingsIndexRoute: MainLayoutSettingsIndexRoute,
+  MainLayoutChatsUidEditRoute: MainLayoutChatsUidEditRoute,
 }
 
 const MainLayoutRouteWithChildren = MainLayoutRoute._addFileChildren(

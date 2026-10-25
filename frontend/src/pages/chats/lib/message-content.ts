@@ -6,10 +6,11 @@ import type { JSONContent } from '@tiptap/react';
 
 const schema = getSchema(richTextExtensions());
 
-export const serializeMessageContent = (content: JSONContent): string =>
-  JSON.stringify(content);
+export const serializeMessageContent = (
+  content: JSONContent | string,
+): string => (typeof content === 'string' ? content : JSON.stringify(content));
 
-export const parseMessageContent = (value: string): JSONContent => {
+export const parseMessageContent = (value: string): JSONContent | string => {
   try {
     const parsed: unknown = JSON.parse(value);
 
@@ -36,12 +37,14 @@ export const parseMessageContent = (value: string): JSONContent => {
 
     return node.toJSON() as JSONContent;
   } catch {
-    return {
-      type: 'doc',
-      content: value.split(/\r?\n/).map((line) => ({
-        type: 'paragraph',
-        content: line ? [{ type: 'text', text: line }] : [],
-      })),
-    };
+    // return {
+    //   type: 'doc',
+    //   content: value.split(/\r?\n/).map((line) => ({
+    //     type: 'paragraph',
+    //     content: line ? [{ type: 'text', text: line }] : [],
+    //   })),
+    // };
+
+    return value;
   }
 };

@@ -46,7 +46,7 @@ export const useChatActions = () => {
       onClick: () => {
         if (selectedElementUid) {
           void navigate({
-            to: '/chats/$uid',
+            to: '/chats/$uid/edit',
             params: { uid: selectedElementUid },
           });
         }

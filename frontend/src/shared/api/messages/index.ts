@@ -1,3 +1,5 @@
+import { getPaginated } from './get-paginated';
+
 import type {
   MessageInfoSchema,
   MessageAuthorUidSchema,
@@ -28,3 +30,5 @@ export type SendMessageDto = z.infer<typeof SendMessageSchema>;
 export type MessageInfoDto = z.infer<typeof MessageInfoSchema>;
 
 export type MessageAuthorUidDto = z.infer<typeof MessageAuthorUidSchema>;
+
+export const messages = { getPaginated };

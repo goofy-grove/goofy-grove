@@ -26,11 +26,17 @@ import './styles.scss';
 
 export const ChatsPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data, isLoading } = useChatsQuery();
 
   const chats = (data ?? []).map(toChatSummary);
 
-  const navigate = useNavigate();
+  const handleRedirectToChat = (uid: string) => {
+    void navigate({
+      to: '/chats/$uid',
+      params: { uid },
+    });
+  };
 
   const { isMobileSm } = useBreakpoints();
   const {
@@ -65,7 +71,7 @@ export const ChatsPage = () => {
           <ChatListItem
             key={chat.uid}
             {...chat}
-            onOpen={() => {}}
+            onOpen={handleRedirectToChat}
             onActions={(uid, ref) => {
               setActionButton(ref);
               handleOpen(uid);

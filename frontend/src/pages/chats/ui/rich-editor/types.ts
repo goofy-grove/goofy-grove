@@ -3,7 +3,7 @@ import type { BubbleMenu } from '@tiptap/react/menus';
 import type { ComponentProps } from 'react';
 
 export type RichEditorProps = {
-  initialContent?: JSONContent;
+  initialContent?: JSONContent | string;
   onSend: (content: JSONContent) => void;
   blocked?: boolean;
   sendLabel?: string;
