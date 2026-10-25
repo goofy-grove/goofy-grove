@@ -1,0 +1,17 @@
+{
+  "name": "goofy-grove-tooling",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "npm --prefix frontend ci && cargo fetch --manifest-path server/Cargo.toml --locked",
+    "prepare": "husky",
+    "hooks:pre-commit": "lint-staged --config lint-staged.config.mjs --concurrent false --hide-unstaged",
+    "hooks:pre-push": "npm --prefix frontend run check && npm run check:rust",
+    "check:rust:fix": "cd server && cargo clippy --fix --workspace --allow-dirty && cargo fmt --all",
+    "check:rust": "cd server && cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings"
+  },
+  "devDependencies": {
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0"
+  }
+}

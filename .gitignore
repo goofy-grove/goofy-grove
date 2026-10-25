@@ -3,3 +3,8 @@
 !docs/.prettierignore
 !.gitignore
 !.vscode
+!.husky/
+!.husky/pre-commit
+!.husky/pre-push
+!.husky/.gitignore
+/node_modules/
