@@ -9,18 +9,25 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table("tokens")
+                    .table("personas")
                     .col(string("uid").primary_key())
-                    .col(string("hashed_token").unique_key())
-                    .col(string("user_id"))
-                    .col(string("user_agent"))
-                    .col(date_time("last_accessed_at"))
+                    .col(string("name"))
+                    .col(text("description"))
+                    .col(string("creator_uid"))
+                    .col(string_null("avatar_uid"))
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk_tokens_users")
-                            .from("tokens", "user_id")
+                            .name("fk_personas_users")
+                            .from("personas", "creator_uid")
                             .to("users", "uid")
                             .on_delete(ForeignKeyAction::Cascade),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_personas_files")
+                            .from("personas", "avatar_uid")
+                            .to("files", "uid")
+                            .on_delete(ForeignKeyAction::SetNull),
                     )
                     .to_owned(),
             )
@@ -29,7 +36,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table("tokens").to_owned())
+            .drop_table(Table::drop().table("personas").to_owned())
             .await
     }
 }

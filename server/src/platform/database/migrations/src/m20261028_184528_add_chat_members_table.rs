@@ -10,14 +10,9 @@ impl MigrationTrait for Migration {
             .create_table(
                 Table::create()
                     .table("chat_members")
-                    .if_not_exists()
-                    .col(string("chat_uid").not_null())
-                    .col(string("user_uid").not_null())
-                    .col(
-                        timestamp("joined_at")
-                            .not_null()
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(string("chat_uid"))
+                    .col(string("user_uid"))
+                    .col(timestamp("joined_at").default(Expr::current_timestamp()))
                     .primary_key(
                         Index::create()
                             .name("pk_chat_members")

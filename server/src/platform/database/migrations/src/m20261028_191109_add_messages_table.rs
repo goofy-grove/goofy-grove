@@ -10,19 +10,20 @@ impl MigrationTrait for Migration {
             .create_table(
                 Table::create()
                     .table("messages")
-                    .if_not_exists()
                     .col(string("uid").primary_key())
                     .col(text("content"))
-                    .col(string("author_persona_uid").null())
-                    .col(string("author_character_uid").null())
+                    .col(string_null("author_persona_uid"))
+                    .col(string_null("author_character_uid"))
                     .col(string("chat_uid"))
-                    .col(string("reply_to_message_uid").null())
+                    .col(string_null("reply_to_message_uid"))
                     .col(boolean("is_removed").default(false))
-                    .col(
-                        timestamp("created_at")
-                            .not_null()
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(timestamp("created_at").default(Expr::current_timestamp()))
+                    .check((
+                        "ck_message_at_most_one_author",
+                        Expr::col("author_persona_uid")
+                            .is_null()
+                            .or(Expr::col("author_character_uid").is_null()),
+                    ))
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_messages_personas")
@@ -51,12 +52,6 @@ impl MigrationTrait for Migration {
                             .to("messages", "uid")
                             .on_delete(ForeignKeyAction::NoAction),
                     )
-                    .check((
-                        "ck_message_at_most_one_author",
-                        Expr::col("author_persona_uid")
-                            .is_null()
-                            .or(Expr::col("author_character_uid").is_null()),
-                    ))
                     .to_owned(),
             )
             .await

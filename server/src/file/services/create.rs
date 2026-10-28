@@ -60,7 +60,6 @@ pub async fn create_file(
     let meta = FileMeta {
         uid: uid.clone(),
         filename,
-        uploaded_by_uid: user_uid.to_string(),
         scope: input.scope,
         uploaded_at: Utc::now(),
         status: FileStatus::Created,

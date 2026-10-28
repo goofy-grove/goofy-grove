@@ -1,17 +1,13 @@
 pub use sea_orm_migration::prelude::*;
 
-mod m20220101_000001_create_table;
-mod m20260217_201018_create_personas_table;
-mod m20260321_155310_create_tokens_users;
-mod m20260427_082333_add_character;
-mod m20260530_132459_add_file_table;
-mod m20260530_145742_add_avatar_uid_field;
-mod m20260611_145415_add_avatar_uid_field_for_character;
-mod m20260611_162629_update_uid_naming_conventions;
-mod m20260731_142015_add_chats;
-mod m20260731_142806_add_chats_members;
-mod m20260731_150107_add_chats_characters;
-mod m20260821_213734_add_messages;
+mod m20261028_174528_add_users_and_files_tables;
+mod m20261028_175641_add_personas_table;
+mod m20261028_180923_add_characters_table;
+mod m20261028_182037_add_tokens_table;
+mod m20261028_183412_add_chats_table;
+mod m20261028_184528_add_chat_members_table;
+mod m20261028_185853_add_chat_characters_table;
+mod m20261028_191109_add_messages_table;
 
 pub struct Migrator;
 
@@ -19,18 +15,14 @@ pub struct Migrator;
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
-            Box::new(m20220101_000001_create_table::Migration),
-            Box::new(m20260217_201018_create_personas_table::Migration),
-            Box::new(m20260321_155310_create_tokens_users::Migration),
-            Box::new(m20260427_082333_add_character::Migration),
-            Box::new(m20260530_132459_add_file_table::Migration),
-            Box::new(m20260530_145742_add_avatar_uid_field::Migration),
-            Box::new(m20260611_145415_add_avatar_uid_field_for_character::Migration),
-            Box::new(m20260611_162629_update_uid_naming_conventions::Migration),
-            Box::new(m20260731_142015_add_chats::Migration),
-            Box::new(m20260731_142806_add_chats_members::Migration),
-            Box::new(m20260731_150107_add_chats_characters::Migration),
-            Box::new(m20260821_213734_add_messages::Migration),
+            Box::new(m20261028_174528_add_users_and_files_tables::Migration),
+            Box::new(m20261028_175641_add_personas_table::Migration),
+            Box::new(m20261028_180923_add_characters_table::Migration),
+            Box::new(m20261028_182037_add_tokens_table::Migration),
+            Box::new(m20261028_183412_add_chats_table::Migration),
+            Box::new(m20261028_184528_add_chat_members_table::Migration),
+            Box::new(m20261028_185853_add_chat_characters_table::Migration),
+            Box::new(m20261028_191109_add_messages_table::Migration),
         ]
     }
 }

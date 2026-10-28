@@ -9,16 +9,23 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 Table::create()
-                    .table("personas")
-                    .if_not_exists()
+                    .table("chats")
                     .col(string("uid").primary_key())
                     .col(string("name"))
-                    .col(text("description"))
-                    .col(string("creator_id"))
+                    .col(string_null("avatar_uid"))
+                    .col(string("creator_uid"))
+                    .col(timestamp("created_at").default(Expr::current_timestamp()))
                     .foreign_key(
                         ForeignKey::create()
-                            .name("fk_personas_users")
-                            .from("personas", "creator_id")
+                            .name("fk_chats_files")
+                            .from("chats", "avatar_uid")
+                            .to("files", "uid")
+                            .on_delete(ForeignKeyAction::SetNull),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_chats_users")
+                            .from("chats", "creator_uid")
                             .to("users", "uid")
                             .on_delete(ForeignKeyAction::Cascade),
                     )
@@ -29,7 +36,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table("personas").to_owned())
+            .drop_table(Table::drop().table("chats").to_owned())
             .await
     }
 }

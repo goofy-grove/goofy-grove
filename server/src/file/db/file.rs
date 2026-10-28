@@ -46,7 +46,6 @@ pub enum FileStatus {
 pub struct FileMeta {
     pub uid: String,
     pub filename: String,
-    pub uploaded_by_uid: String,
     pub scope: FileScope,
     pub uploaded_at: DateTime<Utc>,
     pub status: FileStatus,
@@ -166,7 +165,6 @@ impl TryFrom<files::Model> for FileMeta {
         Ok(Self {
             uid: model.uid,
             filename: model.filename,
-            uploaded_by_uid: model.uploaded_by_uid,
             scope: scope_from_db(
                 &model.scope_kind,
                 &model.scope_owner_uid,
@@ -203,7 +201,6 @@ pub async fn save_file(
     let active = files::ActiveModel {
         uid: Set(meta.uid.clone()),
         filename: Set(meta.filename.clone()),
-        uploaded_by_uid: Set(meta.uploaded_by_uid.clone()),
         scope_kind: Set(scope_kind),
         scope_owner_uid: Set(scope_owner_uid),
         scope_entity_uid: Set(scope_entity_uid),

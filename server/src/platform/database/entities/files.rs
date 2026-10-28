@@ -9,7 +9,6 @@ pub struct Model {
     pub uid: String,
     #[sea_orm(unique)]
     pub filename: String,
-    pub uploaded_by_uid: String,
     pub scope_kind: String,
     pub scope_owner_uid: String,
     pub scope_entity_uid: Option<String>,
@@ -35,15 +34,7 @@ pub enum Relation {
         on_update = "NoAction",
         on_delete = "Cascade"
     )]
-    Users2,
-    #[sea_orm(
-        belongs_to = "super::users::Entity",
-        from = "Column::UploadedByUid",
-        to = "super::users::Column::Uid",
-        on_update = "NoAction",
-        on_delete = "Cascade"
-    )]
-    Users1,
+    Users,
 }
 
 impl Related<super::characters::Entity> for Entity {
@@ -61,6 +52,12 @@ impl Related<super::chats::Entity> for Entity {
 impl Related<super::personas::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Personas.def()
+    }
+}
+
+impl Related<super::users::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Users.def()
     }
 }
 
