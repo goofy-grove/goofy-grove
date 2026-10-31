@@ -9,7 +9,7 @@ pub struct Model {
     pub chat_uid: String,
     #[sea_orm(primary_key, auto_increment = false)]
     pub character_uid: String,
-    pub connected_at: DateTimeUtc,
+    pub connected_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

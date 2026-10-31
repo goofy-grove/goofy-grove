@@ -12,7 +12,7 @@ impl MigrationTrait for Migration {
                     .table("chat_members")
                     .col(string("chat_uid"))
                     .col(string("user_uid"))
-                    .col(timestamp("joined_at").default(Expr::current_timestamp()))
+                    .col(timestamp_with_time_zone("joined_at").default(Expr::current_timestamp()))
                     .primary_key(
                         Index::create()
                             .name("pk_chat_members")

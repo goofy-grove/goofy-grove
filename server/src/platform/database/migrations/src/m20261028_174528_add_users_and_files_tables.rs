@@ -48,7 +48,7 @@ impl MigrationTrait for Migration {
                     .col(string("scope_kind"))
                     .col(string("scope_owner_uid"))
                     .col(string_null("scope_entity_uid"))
-                    .col(date_time("uploaded_at"))
+                    .col(timestamp_with_time_zone("uploaded_at"))
                     .col(string("status"))
                     .col(string("original_name"))
                     .col(string("content_type"))

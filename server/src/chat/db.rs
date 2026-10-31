@@ -51,7 +51,7 @@ impl From<chats::Model> for ChatInfo {
         ChatInfo {
             uid: model.uid,
             name: model.name,
-            created_at: model.created_at,
+            created_at: model.created_at.into(),
             creator_uid: model.creator_uid,
             avatar_uid: model.avatar_uid,
         }
@@ -145,7 +145,7 @@ pub async fn save_chat(
     let chat = chats::ActiveModel {
         uid: Set(uid.clone()),
         name: Set(name),
-        created_at: Set(created_at),
+        created_at: Set(created_at.into()),
         creator_uid: Set(creator_uid),
         avatar_uid: Set(avatar_uid),
     };
@@ -179,7 +179,7 @@ fn map_to_chat(
 
             Some(ChatMember {
                 user,
-                joined_at: member.joined_at,
+                joined_at: member.joined_at.into(),
                 chat_uid: chat.uid.clone(),
             })
         })
@@ -190,7 +190,7 @@ fn map_to_chat(
         name: chat.name,
         creator_uid: chat.creator_uid,
         avatar_uid: chat.avatar_uid,
-        created_at: chat.created_at,
+        created_at: chat.created_at.into(),
         members,
         characters: vec![],
     }
@@ -226,7 +226,7 @@ pub async fn load_chat(
         .filter_map(|(chat_character, character)| {
             Some(ChatCharacter {
                 character: character?.into(),
-                connected_at: chat_character.connected_at,
+                connected_at: chat_character.connected_at.into(),
                 chat_uid: chat_character.chat_uid,
             })
         })
@@ -289,7 +289,7 @@ pub async fn load_user_chats(
                 chat_character.chat_uid.clone(),
                 ChatCharacter {
                     character: character?.into(),
-                    connected_at: chat_character.connected_at,
+                    connected_at: chat_character.connected_at.into(),
                     chat_uid: chat_character.chat_uid,
                 },
             ))
@@ -327,7 +327,7 @@ pub async fn add_character_to_chat(
 
     Ok(ChatCharacter {
         character,
-        connected_at: model.connected_at,
+        connected_at: model.connected_at.into(),
         chat_uid: model.chat_uid,
     })
 }
@@ -374,7 +374,7 @@ pub async fn add_user_to_chat(
 
     Ok(ChatMember {
         user,
-        joined_at: result.joined_at,
+        joined_at: result.joined_at.into(),
         chat_uid: result.chat_uid,
     })
 }

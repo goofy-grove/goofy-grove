@@ -10,7 +10,7 @@ pub struct Model {
     pub name: String,
     pub avatar_uid: Option<String>,
     pub creator_uid: String,
-    pub created_at: DateTimeUtc,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

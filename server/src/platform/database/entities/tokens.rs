@@ -11,7 +11,7 @@ pub struct Model {
     pub hashed_token: String,
     pub user_uid: String,
     pub user_agent: String,
-    pub last_accessed_at: DateTime,
+    pub last_accessed_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

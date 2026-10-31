@@ -17,7 +17,7 @@ impl MigrationTrait for Migration {
                     .col(string("chat_uid"))
                     .col(string_null("reply_to_message_uid"))
                     .col(boolean("is_removed").default(false))
-                    .col(timestamp("created_at").default(Expr::current_timestamp()))
+                    .col(timestamp_with_time_zone("created_at").default(Expr::current_timestamp()))
                     .check((
                         "ck_message_at_most_one_author",
                         Expr::col("author_persona_uid")

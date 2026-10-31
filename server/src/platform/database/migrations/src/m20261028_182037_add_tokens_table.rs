@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
                     .col(string("hashed_token").unique_key())
                     .col(string("user_uid"))
                     .col(string("user_agent"))
-                    .col(date_time("last_accessed_at"))
+                    .col(timestamp_with_time_zone("last_accessed_at"))
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_tokens_users")

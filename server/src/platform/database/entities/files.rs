@@ -12,7 +12,7 @@ pub struct Model {
     pub scope_kind: String,
     pub scope_owner_uid: String,
     pub scope_entity_uid: Option<String>,
-    pub uploaded_at: DateTime,
+    pub uploaded_at: DateTimeWithTimeZone,
     pub status: String,
     pub original_name: String,
     pub content_type: String,

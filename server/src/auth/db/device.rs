@@ -39,7 +39,7 @@ impl From<tokens::Model> for UserDevice {
             hashed_token: value.hashed_token,
             user_uid: value.user_uid,
             user_agent: value.user_agent,
-            last_accessed_at: value.last_accessed_at.and_utc(),
+            last_accessed_at: value.last_accessed_at.into(),
         }
     }
 }
@@ -61,7 +61,7 @@ pub async fn create_device(
         hashed_token: Set(hashed_token),
         user_uid: Set(user_uid),
         user_agent: Set(user_agent),
-        last_accessed_at: Set(last_accessed_at.naive_utc()),
+        last_accessed_at: Set(last_accessed_at.into()),
     };
 
     let result = Tokens::insert(token).exec_with_returning(connection).await;

@@ -14,7 +14,7 @@ impl MigrationTrait for Migration {
                     .col(string("name"))
                     .col(string_null("avatar_uid"))
                     .col(string("creator_uid"))
-                    .col(timestamp("created_at").default(Expr::current_timestamp()))
+                    .col(timestamp_with_time_zone("created_at").default(Expr::current_timestamp()))
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_chats_files")

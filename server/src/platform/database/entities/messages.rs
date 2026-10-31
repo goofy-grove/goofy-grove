@@ -14,7 +14,7 @@ pub struct Model {
     pub chat_uid: String,
     pub reply_to_message_uid: Option<String>,
     pub is_removed: bool,
-    pub created_at: DateTimeUtc,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
